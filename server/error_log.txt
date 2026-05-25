@@ -1,0 +1,32 @@
+2026-05-25T15:55:43.393Z SEND_REGISTRATION_OTP Error: WhatsApp sedang diinisialisasi. Tunggu beberapa saat lalu coba lagi.
+    at sendWhatsAppMessage (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\whatsappService.js:149:21)
+    at sendOtpWhatsApp (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\whatsappService.js:175:11)
+    at sendRegistrationOtp (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\otpService.js:173:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:558:20)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+2026-05-25T16:00:13.340Z SEND_REGISTRATION_OTP Error: No LID for user
+s (https://static.whatsapp.net/rsrc.php/v4/ym/r/t_lX-67hSLT.js:79:180)
+    at #evaluate (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\puppeteer-core\lib\cjs\puppeteer\cdp\ExecutionContext.js:391:56)
+    at async ExecutionContext.evaluate (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\puppeteer-core\lib\cjs\puppeteer\cdp\ExecutionContext.js:277:16)
+    at async IsolatedWorld.evaluate (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\puppeteer-core\lib\cjs\puppeteer\cdp\IsolatedWorld.js:100:16)
+    at async CdpFrame.evaluate (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\puppeteer-core\lib\cjs\puppeteer\api\Frame.js:362:20)
+    at async CdpPage.evaluate (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\puppeteer-core\lib\cjs\puppeteer\api\Page.js:830:20)
+    at async Client.sendMessage (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\whatsapp-web.js\src\Client.js:1533:25)
+    at async sendWhatsAppMessage (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\whatsappService.js:155:5)
+    at async sendOtpWhatsApp (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\whatsappService.js:175:5)
+    at async sendRegistrationOtp (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\otpService.js:173:9)
+    at async sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:558:20)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+    at i (https://static.whatsapp.net/rsrc.php/v4/ym/r/t_lX-67hSLT.js:108:348)
+    at l (https://static.whatsapp.net/rsrc.php/v4/ym/r/t_lX-67hSLT.js:108:124)
+    at <anonymous> (https://static.whatsapp.net/rsrc.php/v4ikms4/yk/l/en_GB-j/pKvVDmJiZoR.js:701:1844)
+    at h (https://static.whatsapp.net/rsrc.php/v4iWNO4/yZ/l/en_GB-j/jlrmogznNZqLzkjN23x3S_vNCVfnb3tXkWl_HC4ZDPfugoKwimZL8OHdXzbeDaPQLQtrgTH8bdAM4o6oWUfCupXppizjZ4Byebj9h2QSc9mkPwjG8B4tSybaF4IAs14asyLL6EoyGpJMQ7j.js:797:1489)
+    at s (https://static.whatsapp.net/rsrc.php/v4/ym/r/t_lX-67hSLT.js:78:179)
+2026-05-25T16:00:43.392Z SEND_REGISTRATION_OTP Error: WhatsApp sedang diinisialisasi. Tunggu beberapa saat lalu coba lagi.
+    at sendWhatsAppMessage (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\whatsappService.js:149:21)
+    at sendOtpWhatsApp (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\whatsappService.js:190:11)
+    at sendRegistrationOtp (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\otpService.js:173:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:558:20)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26

@@ -17,7 +17,7 @@ export const VerificationRejectedModal: React.FC<VerificationRejectedModalProps>
   };
 
   return (
-    <div className="fixed inset-0 z-[999] bg-[#0F0502] flex items-center justify-center p-6 animate-in fade-in duration-500">
+    <div className="min-h-screen w-full bg-[#0F0502] flex items-center justify-center p-6 animate-in fade-in duration-500 relative overflow-hidden">
         {/* Background Ambience - Red/Dark for Rejection */}
         <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-red-900/20 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-stone-800/30 rounded-full blur-[100px] pointer-events-none"></div>

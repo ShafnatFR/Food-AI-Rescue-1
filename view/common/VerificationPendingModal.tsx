@@ -32,7 +32,7 @@ export const VerificationPendingModal: React.FC<VerificationPendingModalProps> =
   };
 
   return (
-    <div className="fixed inset-0 z-[999] bg-[#0F0502] flex items-center justify-center p-6 animate-in fade-in duration-500">
+    <div className="min-h-screen w-full bg-[#0F0502] flex items-center justify-center p-6 animate-in fade-in duration-500 relative overflow-hidden">
         {/* Background Ambience */}
         <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-orange-600/20 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-amber-700/10 rounded-full blur-[100px] pointer-events-none"></div>

@@ -1,10 +1,20 @@
 
-import React, { useState, useMemo } from 'react';
-import { Mail, Lock, Eye, EyeOff, UserCircle, Truck, Utensils, ArrowRight, User, ArrowLeft, CheckCircle, Phone, AlertCircle, Check, X } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Mail, Lock, Eye, EyeOff, UserCircle, Truck, Utensils, ArrowRight, User, ArrowLeft, CheckCircle, Phone, AlertCircle, Check, X, MessageSquare, Wifi, WifiOff, Loader2 } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { UserRole } from '../../types';
 import { db } from '../../services/db';
+
+const API_URL = 'http://localhost:5000/api';
+
+type OtpChannel = 'email' | 'whatsapp';
+
+interface WaStatus {
+  status: 'initializing' | 'qr_pending' | 'ready' | 'disconnected';
+  isReady: boolean;
+  hasQr: boolean;
+}
 
 interface RegisterViewProps {
   onNavigate: (view: 'login' | 'register' | 'forgot-password') => void;
@@ -14,14 +24,22 @@ interface RegisterViewProps {
 
 
 export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegister, disableSignup }) => {
-  const [step, setStep] = useState<'role' | 'form'>('role');
+  // step: 'role' → 'form' → 'otp_channel' → 'otp_verify' → (register)
+  const [step, setStep] = useState<'role' | 'form' | 'otp_channel' | 'otp_verify'>('role');
   const [selectedRole, setSelectedRole] = useState<UserRole>('recipient');
   const [showPass, setShowPass] = useState({ pass: false, confirm: false });
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
-  const [rememberMe, setRememberMe] = useState(true); // Default checked for better UX on register
+  const [rememberMe, setRememberMe] = useState(true);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [apiError, setApiError] = useState<string | null>(null);
+
+  // OTP state
+  const [otpChannel, setOtpChannel] = useState<OtpChannel>('email');
+  const [otpIdentifier, setOtpIdentifier] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSending, setOtpSending] = useState(false);
+  const [waStatus, setWaStatus] = useState<WaStatus | null>(null);
   
   // Password Analysis
   const passwordAnalysis = useMemo(() => {
@@ -65,55 +83,98 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegist
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
+  // Polling status WhatsApp setiap 3 detik saat di step otp_channel
+  // Berhenti otomatis setelah WA ready
+  useEffect(() => {
+    if (step !== 'otp_channel') return;
+
+    const checkWa = () => {
+      fetch('http://localhost:5000/api/wa-status')
+        .then(r => r.json())
+        .then(setWaStatus)
+        .catch(() => setWaStatus(null));
+    };
+
+    checkWa(); // cek langsung saat masuk step
+    const interval = setInterval(checkWa, 3000); // polling tiap 3 detik
+    return () => clearInterval(interval);
+  }, [step]);
+
+  // Step: form submit → arahkan ke pilih channel OTP
+  const handleFormNext = (e: React.FormEvent) => {
     e.preventDefault();
     setApiError(null);
-    
     if (!validateForm()) return;
+    setStep('otp_channel');
+  };
 
-    setIsLoading(true);
-    
+  // Kirim OTP via channel yang dipilih
+  const handleSendOtp = async (channel: OtpChannel) => {
+    setOtpSending(true);
+    setApiError(null);
+    setOtpCode('');
     try {
-        const result = await db.registerUser({
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            password: formData.password,
-            role: selectedRole,
-            isNewUser: true // Default untuk user baru agar tour muncul
-        });
-
-        // --- FIX: Update joinDate to WIB Timestamp ---
-        // Backend default is just date (DD/MM/YYYY). We want full timestamp in WIB.
-        const now = new Date();
-        const jakartaDate = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
-        const year = jakartaDate.getFullYear();
-        const month = String(jakartaDate.getMonth() + 1).padStart(2, '0');
-        const day = String(jakartaDate.getDate()).padStart(2, '0');
-        const hour = String(jakartaDate.getHours()).padStart(2, '0');
-        const minute = String(jakartaDate.getMinutes()).padStart(2, '0');
-        const second = String(jakartaDate.getSeconds()).padStart(2, '0');
-        
-        const wibTimestamp = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-
-        // Optimistically update the result object
-        result.joinDate = wibTimestamp;
-
-        // Send update to backend to fix the timestamp but preserve status
-        await db.upsertUser({
-            ...result,
-            joinDate: wibTimestamp
-        });
-
-        // Panggil onRegister (yang sebenarnya adalah wrapper handleLogin di App.tsx)
-        // untuk otomatis login tanpa input ulang
-        onRegister(result, rememberMe);
-
-    } catch (error: any) {
-        console.error("Registration Failed:", error);
-        setApiError(error.message || "Gagal mendaftar. Silakan coba lagi.");
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'SEND_REGISTRATION_OTP',
+          data: { channel, email: formData.email, phone: formData.phone, name: formData.name },
+        }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || 'Gagal mengirim OTP');
+      setOtpChannel(channel);
+      setOtpIdentifier(result.data?.identifier || result.identifier);
+      setStep('otp_verify');
+    } catch (err: any) {
+      setApiError(err.message);
     } finally {
-        setIsLoading(false);
+      setOtpSending(false);
+    }
+  };
+
+  // Verifikasi OTP lalu daftarkan user
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpCode || otpCode.length < 6) { setApiError('Masukkan 6 digit kode OTP'); return; }
+    setIsLoading(true);
+    setApiError(null);
+    try {
+      // 1. Verifikasi OTP
+      const verifyRes = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'VERIFY_REGISTRATION_OTP',
+          data: { identifier: otpIdentifier, code: otpCode, channel: otpChannel },
+        }),
+      });
+      const verifyResult = await verifyRes.json();
+      if (!verifyRes.ok) throw new Error(verifyResult.message || 'Kode OTP tidak valid');
+
+      // 2. Daftarkan user
+      const result = await db.registerUser({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: selectedRole,
+        isNewUser: true,
+      });
+
+      const now = new Date();
+      const jakartaDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+      const wibTimestamp = `${jakartaDate.getFullYear()}-${String(jakartaDate.getMonth()+1).padStart(2,'0')}-${String(jakartaDate.getDate()).padStart(2,'0')} ${String(jakartaDate.getHours()).padStart(2,'0')}:${String(jakartaDate.getMinutes()).padStart(2,'0')}:${String(jakartaDate.getSeconds()).padStart(2,'0')}`;
+      result.joinDate = wibTimestamp;
+      await db.upsertUser({ ...result, joinDate: wibTimestamp });
+
+      onRegister(result, rememberMe);
+    } catch (error: any) {
+      console.error("Registration Failed:", error);
+      setApiError(error.message || "Gagal mendaftar. Silakan coba lagi.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -178,6 +239,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegist
                         </Button>
                     </div>
                 </div>
+
              ) : step === 'role' ? (
 
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -224,7 +286,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegist
                         Sudah punya akun? <button onClick={() => onNavigate('login')} className="text-orange-600 hover:text-orange-500 transition-colors ml-1 font-black underline decoration-orange-200 underline-offset-4 decoration-2">Masuk disini</button>
                     </p>
                 </div>
-             ) : (
+             ) : step === 'form' ? (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
                     <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
@@ -246,7 +308,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegist
                         </div>
                     )}
 
-                    <form onSubmit={handleRegister} className="space-y-5">
+                    <form onSubmit={handleFormNext} className="space-y-5">
                         <Input 
                             label="Nama Lengkap" 
                             icon={<User className="w-5 h-5 group-focus-within:text-orange-600 transition-colors" />}
@@ -405,7 +467,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegist
                                 isLoading={isLoading} 
                                 className="w-full h-16 text-base font-black bg-gradient-to-r from-orange-600 via-orange-500 to-yellow-500 hover:from-orange-500 hover:to-yellow-400 text-white border-0 rounded-2xl tracking-[0.2em] uppercase shadow-[0_10px_40px_-10px_rgba(234,88,12,0.3)] transition-all transform hover:-translate-y-1 cursor-pointer group overflow-hidden"
                             >
-                                <span className="relative z-10 flex items-center justify-center gap-2">DAFTAR SEKARANG <ArrowRight className="w-5 h-5" /></span>
+                                <span className="relative z-10 flex items-center justify-center gap-2">LANJUTKAN <ArrowRight className="w-5 h-5" /></span>
                                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                             </Button>
                         </div>
@@ -415,7 +477,143 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegist
                         Sudah punya akun? <button onClick={() => onNavigate('login')} className="text-orange-600 hover:text-orange-500 transition-colors ml-1 font-black underline decoration-orange-200 underline-offset-4 decoration-2">Masuk disini</button>
                     </p>
                 </div>
-             )}
+
+             ) : step === 'otp_channel' ? (
+
+               /* ── Step: Pilih Channel OTP ── */
+               <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-6">
+                 <div>
+                   <button onClick={() => setStep('form')} className="flex items-center gap-2 text-stone-500 hover:text-stone-900 transition-colors font-bold text-xs uppercase tracking-widest mb-6">
+                     <ArrowLeft className="w-4 h-4" /> Kembali
+                   </button>
+                   <h2 className="text-3xl font-black text-stone-900 tracking-tighter">Verifikasi Identitas</h2>
+                   <p className="text-stone-500 text-sm font-medium mt-1">Pilih metode pengiriman kode OTP 6 digit.</p>
+                 </div>
+
+                 {apiError && (
+                   <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 text-red-600 text-xs font-bold">
+                     <AlertCircle className="w-5 h-5 shrink-0" /><p>{apiError}</p>
+                   </div>
+                 )}
+
+                 <div className="space-y-3">
+                   {/* Email */}
+                   <button
+                     type="button"
+                     disabled={otpSending}
+                     onClick={() => handleSendOtp('email')}
+                     className="w-full flex items-center gap-4 p-5 border-2 border-stone-100 bg-white rounded-2xl text-left hover:border-orange-500 hover:shadow-lg hover:shadow-orange-100 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                   >
+                     <span className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 group-hover:bg-orange-100 transition-colors shrink-0">
+                       {otpSending && otpChannel === 'email' ? <Loader2 className="w-6 h-6 animate-spin" /> : <Mail className="w-6 h-6" />}
+                     </span>
+                     <div>
+                       <p className="font-black text-stone-900 uppercase tracking-wider text-sm">Email</p>
+                       <p className="text-xs text-stone-500 mt-0.5">Kirim ke {formData.email}</p>
+                     </div>
+                     <ArrowRight className="w-5 h-5 text-stone-300 group-hover:text-orange-500 ml-auto transition-colors" />
+                   </button>
+
+                   {/* WhatsApp */}
+                   <button
+                     type="button"
+                     disabled={otpSending}
+                     onClick={() => handleSendOtp('whatsapp')}
+                     className="w-full flex items-center gap-4 p-5 border-2 border-stone-100 bg-white rounded-2xl text-left hover:border-orange-500 hover:shadow-lg hover:shadow-orange-100 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                   >
+                     <span className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-100 transition-colors shrink-0">
+                       {otpSending && otpChannel === 'whatsapp' ? <Loader2 className="w-6 h-6 animate-spin" /> : <MessageSquare className="w-6 h-6" />}
+                     </span>
+                     <div className="flex-1 min-w-0">
+                       <div className="flex items-center gap-2">
+                         <p className="font-black text-stone-900 uppercase tracking-wider text-sm">WhatsApp</p>
+                         {waStatus?.isReady
+                           ? <span className="flex items-center gap-1 text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full"><Wifi className="w-3 h-3" /> Siap</span>
+                           : <span className="flex items-center gap-1 text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded-full"><WifiOff className="w-3 h-3" /> {waStatus?.hasQr ? 'Scan QR dulu' : 'Belum siap'}</span>
+                         }
+                       </div>
+                       <p className="text-xs text-stone-500 mt-0.5 truncate">
+                         {waStatus?.isReady ? `Kirim ke +62${formData.phone}` : 'Scan QR di terminal server terlebih dahulu'}
+                       </p>
+                     </div>
+                     <ArrowRight className="w-5 h-5 text-stone-300 group-hover:text-orange-500 ml-auto transition-colors shrink-0" />
+                   </button>
+                 </div>
+
+                 {waStatus && !waStatus.isReady && (
+                   <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-700 text-xs font-medium">
+                     <p className="font-bold mb-1">
+                       {waStatus.hasQr ? '📱 WhatsApp perlu di-scan' : '⏳ WhatsApp sedang diinisialisasi'}
+                     </p>
+                     <p>{waStatus.hasQr ? 'Buka terminal server → scan QR code yang muncul dengan nomor WA admin/bot.' : 'Tunggu beberapa detik lalu refresh halaman.'}</p>
+                   </div>
+                 )}
+               </div>
+
+             ) : step === 'otp_verify' ? (
+
+               /* ── Step: Input Kode OTP ── */
+               <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-6">
+                 <div>
+                   <button onClick={() => setStep('otp_channel')} className="flex items-center gap-2 text-stone-500 hover:text-stone-900 transition-colors font-bold text-xs uppercase tracking-widest mb-6">
+                     <ArrowLeft className="w-4 h-4" /> Ganti Metode
+                   </button>
+                   <h2 className="text-3xl font-black text-stone-900 tracking-tighter">Masukkan OTP</h2>
+                   <p className="text-stone-500 text-sm font-medium mt-1">
+                     Kode 6 digit telah dikirim via <span className="font-bold text-orange-600 capitalize">{otpChannel === 'whatsapp' ? 'WhatsApp' : 'Email'}</span>
+                   </p>
+                 </div>
+
+                 {/* Badge channel */}
+                 <div className="flex items-center gap-3 p-4 bg-stone-50 border border-stone-200 rounded-2xl">
+                   {otpChannel === 'email'
+                     ? <Mail className="w-5 h-5 text-orange-600 shrink-0" />
+                     : <MessageSquare className="w-5 h-5 text-green-600 shrink-0" />
+                   }
+                   <span className="text-sm font-bold text-stone-700 truncate">{otpIdentifier}</span>
+                 </div>
+
+                 {apiError && (
+                   <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 text-red-600 text-xs font-bold">
+                     <AlertCircle className="w-5 h-5 shrink-0" /><p>{apiError}</p>
+                   </div>
+                 )}
+
+                 <form onSubmit={handleRegister} className="space-y-5">
+                   <div className="space-y-2">
+                     <label className="text-orange-600 font-black text-[10px] uppercase tracking-widest">Kode OTP</label>
+                     <input
+                       type="text"
+                       inputMode="numeric"
+                       value={otpCode}
+                       onChange={e => { setOtpCode(e.target.value.replace(/\D/g,'').slice(0,6)); setApiError(null); }}
+                       placeholder="000000"
+                       maxLength={6}
+                       className="w-full px-6 py-5 text-center text-4xl tracking-[0.6em] font-mono font-black border-2 border-stone-200 rounded-2xl focus:outline-none focus:border-orange-500 bg-stone-50 focus:bg-white transition-all"
+                     />
+                   </div>
+
+                   <Button
+                     type="submit"
+                     variant="primary"
+                     isLoading={isLoading}
+                     className="w-full h-16 text-base font-black bg-gradient-to-r from-orange-600 via-orange-500 to-yellow-500 hover:from-orange-500 hover:to-yellow-400 text-white border-0 rounded-2xl tracking-[0.2em] uppercase shadow-[0_10px_40px_-10px_rgba(234,88,12,0.3)] transition-all transform hover:-translate-y-1 cursor-pointer group overflow-hidden"
+                   >
+                     <span className="relative z-10 flex items-center justify-center gap-2">VERIFIKASI & DAFTAR <CheckCircle className="w-5 h-5" /></span>
+                   </Button>
+
+                   <button
+                     type="button"
+                     disabled={otpSending}
+                     onClick={() => handleSendOtp(otpChannel)}
+                     className="w-full text-center text-stone-400 hover:text-orange-600 text-xs font-bold uppercase tracking-widest transition-colors py-2 disabled:opacity-50"
+                   >
+                     {otpSending ? 'Mengirim ulang...' : 'Kirim Ulang Kode'}
+                   </button>
+                 </form>
+               </div>
+
+             ) : null}
           </div>
       </div>
     </div>

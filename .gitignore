@@ -27,3 +27,7 @@ dist-ssr
 .env
 server/.env
 **/.env
+
+# WhatsApp session (whatsapp-web.js)
+.wwebjs_auth/
+.wwebjs_cache/

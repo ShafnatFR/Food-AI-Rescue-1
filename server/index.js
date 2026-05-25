@@ -16,9 +16,39 @@ const { generatePackagingDesign, generatePackagingImage } = require('./services/
 const { writeCSRCopy } = require('./services/contentWriter');
 const { scanKitchen, generateRecipe } = require('./services/kitchenScanner');
 
+// Email & Auth Services
+const { 
+    generateVerificationCode, 
+    sendVerificationEmail, 
+    sendPasswordResetEmail,
+    saveVerificationCode, 
+    verifyCode,
+    generateResetToken,
+    saveResetToken,
+    verifyResetToken
+} = require('./services/emailService');
+
+// OTP Multi-Channel Service (Email + WhatsApp)
+const {
+    sendRegistrationOtp,
+    verifyRegistrationOtp,
+} = require('./services/otpService');
+
+// WhatsApp Service (whatsapp-web.js - gratis)
+const {
+    initWhatsApp,
+    getWhatsAppStatus,
+} = require('./services/whatsappService');
+const jwt = require('jsonwebtoken');
+
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
+// ── GET /api/wa-status — cek status koneksi WhatsApp ─────────────────────────
+app.get('/api/wa-status', (req, res) => {
+    res.json(getWhatsAppStatus());
+});
 
 // --- GLOBAL STATE ---
 let appSettings = { 
@@ -59,7 +89,33 @@ app.post('/api', async (req, res) => {
         switch (action) {
             case 'REGISTER_USER': result = await registerUser(data); break;
             case 'LOGIN_USER': result = await loginUser(data); break;
-            case 'GET_USERS': 
+            
+            // --- EMAIL VERIFICATION & PASSWORD RESET ---
+            case 'SEND_VERIFICATION_EMAIL':
+                result = await sendVerificationEmailAction(data);
+                break;
+            case 'VERIFY_EMAIL_CODE':
+                result = await verifyEmailCodeAction(data);
+                break;
+
+            // --- OTP MULTI-CHANNEL (Email / SMS / WhatsApp) ---
+            case 'SEND_REGISTRATION_OTP':
+                result = await sendRegistrationOtpAction(data);
+                break;
+            case 'VERIFY_REGISTRATION_OTP':
+                result = await verifyRegistrationOtpAction(data);
+                break;
+            case 'REQUEST_PASSWORD_RESET':
+                result = await requestPasswordResetAction(data);
+                break;
+            case 'VERIFY_RESET_TOKEN':
+                result = await verifyResetTokenAction(data);
+                break;
+            case 'RESET_PASSWORD':
+                result = await resetPasswordAction(data);
+                break;
+            
+            case 'GET_USERS':
                 const users = await getAllData('users'); 
                 result = users.map(u => {
                     const revRole = Object.keys(ROLE_MAP).find(key => ROLE_MAP[key] === u.role);
@@ -313,6 +369,7 @@ app.post('/api', async (req, res) => {
         res.json({ status: 'success', data: result });
     } catch (error) {
         console.error(`[SERVER ERROR] ${action}:`, error);
+        require('fs').appendFileSync('error_log.txt', new Date().toISOString() + ' ' + action + ' ' + (error.stack || error.message) + '\n');
         
         let statusCode = error.statusCode || 500;
         
@@ -419,7 +476,198 @@ async function loginUser(data) {
     if (reverseRole) user.role = reverseRole;
     user.isNewUser = true; 
     if (user.status) user.status = user.status.toLowerCase();
+    
+    // Update last login
+    await db.query('UPDATE users SET last_login_at = NOW() WHERE id = ?', [user.id]);
+    
     return user;
+}
+
+// --- EMAIL VERIFICATION FUNCTIONS ---
+
+async function sendVerificationEmailAction(data) {
+    const { email, name } = data;
+    
+    // Check if email already exists
+    const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+    if (existing.length > 0) {
+        const err = new Error('Email ini sudah terdaftar.');
+        err.statusCode = 409;
+        throw err;
+    }
+    
+    // Generate verification code
+    const code = generateVerificationCode();
+    
+    // Save to database
+    await saveVerificationCode(email, code);
+    
+    // Send email
+    await sendVerificationEmail(email, name, code);
+    
+    return {
+        success: true,
+        message: 'Kode verifikasi telah dikirim ke email Anda.',
+        email: email
+    };
+}
+
+async function verifyEmailCodeAction(data) {
+    const { email, code } = data;
+    
+    // Verify code
+    await verifyCode(email, code);
+    
+    return {
+        success: true,
+        message: 'Email berhasil diverifikasi. Silakan lanjutkan pendaftaran.',
+        email: email
+    };
+}
+
+// ─── OTP MULTI-CHANNEL HANDLERS ───────────────────────────────────────────────
+
+/**
+ * SEND_REGISTRATION_OTP
+ * Kirim OTP ke channel yang dipilih user (email / sms / whatsapp).
+ *
+ * Body: { channel, email, phone, name }
+ */
+async function sendRegistrationOtpAction(data) {
+    const { channel, email, phone, name } = data;
+
+    // Validasi channel
+    const validChannels = ['email', 'sms', 'whatsapp'];
+    if (!channel || !validChannels.includes(channel)) {
+        const err = new Error(`Channel tidak valid. Pilih: ${validChannels.join(', ')}`);
+        err.statusCode = 400;
+        throw err;
+    }
+
+    // Cek apakah email sudah terdaftar (hanya jika channel email atau email diisi)
+    if (email) {
+        const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+        if (existing.length > 0) {
+            const err = new Error('Email ini sudah terdaftar.');
+            err.statusCode = 409;
+            throw err;
+        }
+    }
+
+    // Kirim OTP via channel yang dipilih
+    const result = await sendRegistrationOtp(channel, { email, phone, name });
+
+    // Mask identifier untuk response (privasi)
+    let maskedIdentifier = result.identifier;
+    if (channel === 'email') {
+        const [localPart, domain] = result.identifier.split('@');
+        maskedIdentifier = localPart.slice(0, 2) + '***@' + domain;
+    } else {
+        // Mask nomor telepon: +628123456789 → +628***6789
+        maskedIdentifier = result.identifier.slice(0, 5) + '***' + result.identifier.slice(-4);
+    }
+
+    return {
+        success: true,
+        message: `Kode OTP telah dikirim ke ${maskedIdentifier}`,
+        channel: result.channel,
+        identifier: result.identifier, // full identifier untuk verifikasi
+    };
+}
+
+/**
+ * VERIFY_REGISTRATION_OTP
+ * Verifikasi kode OTP yang dimasukkan user.
+ *
+ * Body: { identifier, code, channel }
+ */
+async function verifyRegistrationOtpAction(data) {
+    const { identifier, code, channel } = data;
+
+    if (!identifier || !code || !channel) {
+        const err = new Error('identifier, code, dan channel harus diisi.');
+        err.statusCode = 400;
+        throw err;
+    }
+
+    await verifyRegistrationOtp(identifier, code, channel);
+
+    return {
+        success: true,
+        message: 'OTP berhasil diverifikasi. Silakan lanjutkan pendaftaran.',
+        identifier,
+        channel,
+    };
+}
+
+async function requestPasswordResetAction(data) {
+    const { email } = data;
+    
+    // Check if user exists
+    const [rows] = await db.query('SELECT id, name FROM users WHERE email = ?', [email]);
+    if (rows.length === 0) {
+        // Don't reveal if email exists for security
+        return {
+            success: true,
+            message: 'Jika email terdaftar, link reset password akan dikirim.'
+        };
+    }
+    
+    const user = rows[0];
+    const resetToken = generateResetToken();
+    
+    // Save reset token
+    await saveResetToken(user.id, resetToken);
+    
+    // Send email
+    await sendPasswordResetEmail(email, user.name, resetToken);
+    
+    await logAction(user.id, user.name, 'Request Password Reset', `Reset password diminta untuk ${email}`);
+    
+    return {
+        success: true,
+        message: 'Link reset password telah dikirim ke email Anda.'
+    };
+}
+
+async function verifyResetTokenAction(data) {
+    const { token } = data;
+    
+    // Verify token
+    const resetRecord = await verifyResetToken(token);
+    
+    return {
+        success: true,
+        message: 'Token valid.',
+        userId: resetRecord.user_id
+    };
+}
+
+async function resetPasswordAction(data) {
+    const { token, newPassword } = data;
+    
+    // Verify token
+    const resetRecord = await verifyResetToken(token);
+    
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    // Update password
+    await db.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, resetRecord.user_id]);
+    
+    // Mark token as used
+    await db.query('UPDATE password_resets SET used_at = NOW() WHERE id = ?', [resetRecord.id]);
+    
+    // Get user info for logging
+    const [userRows] = await db.query('SELECT name FROM users WHERE id = ?', [resetRecord.user_id]);
+    const userName = userRows[0]?.name || 'Unknown';
+    
+    await logAction(resetRecord.user_id, userName, 'Reset Password', 'Password berhasil direset');
+    
+    return {
+        success: true,
+        message: 'Password berhasil direset. Silakan login dengan password baru Anda.'
+    };
 }
 
 async function getAllData(table) {
@@ -1942,7 +2190,20 @@ async function getSocialImpact(userId) {
     return impact;
 }
 
-app.listen(port, async () => {
-    console.log(`Server running on port ${port}`);
-    await loadAppSettings();
-});
+// ── Bootstrap: setup DB dulu, baru server listen ─────────────────────────────
+(async () => {
+    try {
+        await db.initPool();       // cek koneksi + buat DB/tabel jika belum ada
+        await loadAppSettings();   // load settings dari DB ke memori
+
+        app.listen(port, () => {
+            console.log(`\n[SERVER] ✅ Server berjalan di http://localhost:${port}\n`);
+            // Inisialisasi WhatsApp client setelah server siap
+            // (non-blocking: QR code akan muncul di terminal jika belum ada sesi)
+            initWhatsApp();
+        });
+    } catch (err) {
+        console.error('[SERVER] ❌ Gagal menjalankan server:', err.message);
+        process.exit(1);
+    }
+})();
