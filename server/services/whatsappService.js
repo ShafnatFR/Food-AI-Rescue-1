@@ -17,12 +17,12 @@
 
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
-const path   = require('path');
+const path = require('path');
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let waClient = null;
 let waStatus = 'initializing'; // 'initializing' | 'qr_pending' | 'ready' | 'disconnected'
-let lastQr   = null;           // QR string terakhir (untuk endpoint status)
+let lastQr = null;           // QR string terakhir (untuk endpoint status)
 
 // ─── Inisialisasi Client ──────────────────────────────────────────────────────
 
@@ -64,7 +64,7 @@ function initWhatsApp() {
     // ── Event: QR Code ────────────────────────────────────────────────────────
     waClient.on('qr', (qr) => {
         waStatus = 'qr_pending';
-        lastQr   = qr;
+        lastQr = qr;
         console.log('\n[WA] 📱 Scan QR code ini dengan WhatsApp (nomor bot/admin):');
         console.log('[WA]    WhatsApp → Perangkat Tertaut → Tautkan Perangkat\n');
         qrcode.generate(qr, { small: true });
@@ -74,7 +74,7 @@ function initWhatsApp() {
     // ── Event: Authenticated ──────────────────────────────────────────────────
     waClient.on('authenticated', () => {
         console.log('[WA] ✅ Autentikasi berhasil. Memuat sesi...');
-        
+
         // WORKAROUND: Force "ready" status after 10 seconds if it's stuck
         setTimeout(() => {
             if (waStatus !== 'ready') {
@@ -87,7 +87,7 @@ function initWhatsApp() {
     // ── Event: Ready ──────────────────────────────────────────────────────────
     waClient.on('ready', () => {
         waStatus = 'ready';
-        lastQr   = null;
+        lastQr = null;
         const info = waClient.info;
         console.log(`[WA] 🟢 WhatsApp siap! Terhubung sebagai: ${info?.pushname} (${info?.wid?.user})`);
     });
@@ -143,8 +143,8 @@ async function sendWhatsAppMessage(phone, message) {
         const statusMsg = waStatus === 'qr_pending'
             ? 'WhatsApp belum terhubung. Silakan scan QR code di terminal server terlebih dahulu.'
             : waStatus === 'initializing'
-            ? 'WhatsApp sedang diinisialisasi. Tunggu beberapa saat lalu coba lagi.'
-            : 'WhatsApp terputus. Hubungi admin untuk restart server.';
+                ? 'WhatsApp sedang diinisialisasi. Tunggu beberapa saat lalu coba lagi.'
+                : 'WhatsApp terputus. Hubungi admin untuk restart server.';
 
         const err = new Error(statusMsg);
         err.statusCode = 503;
@@ -180,9 +180,9 @@ async function sendOtpWhatsApp(phone, name, code) {
         `_Selamatkan Makanan, Selamatkan Bumi_\n\n` +
         `Halo *${name}*! 👋\n\n` +
         `Kode OTP pendaftaran Anda:\n\n` +
-        `┌─────────────────┐\n` +
-        `│   *${code}*   │\n` +
-        `└─────────────────┘\n\n` +
+        `┌──────────────┐\n` +
+        `│   *${code}*  │\n` +
+        `└──────────────┘\n\n` +
         `⏱ Berlaku *15 menit*\n` +
         `🔒 Jangan bagikan kode ini kepada siapa pun.\n\n` +
         `_Jika Anda tidak mendaftar, abaikan pesan ini._`;
