@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Box, History, User, LogOut, Bell, Sparkles, Trophy, ChevronRight } from 'lucide-react';
+import { Home, Box, History, User, LogOut, Bell, Sparkles, ChevronRight } from 'lucide-react';
 import { UserData } from '../../types';
 
 interface SidebarProps {
@@ -53,14 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick: () => { setCurrentView('inventory'); }
             }
         ] : []),
-        ...(role === 'volunteer' ? [
-            { 
-                id: 'missions', 
-                label: 'Misi Relawan', 
-                icon: Trophy, 
-                onClick: () => { setCurrentView('dashboard'); } // General volunteer dash
-            }
-        ] : []),
+        // 'Misi Relawan' hidden — volunteer navigates via dashboard tabs
         ...(role === 'recipient' ? [
             { 
                 id: 'history', 

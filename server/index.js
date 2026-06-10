@@ -386,7 +386,11 @@ app.post('/api', async (req, res) => {
             }
         }
         
-        res.status(statusCode).json({ status: 'error', message: error.message || 'Terjadi kesalahan sistem.' });
+        res.status(statusCode).json({ 
+            status: 'error', 
+            message: error.message || 'Terjadi kesalahan sistem.',
+            aiErrorCode: error.aiErrorCode || null
+        });
     }
 });
 

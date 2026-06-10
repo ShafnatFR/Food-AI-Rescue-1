@@ -47,8 +47,8 @@
 
 /* Interactive Page Transitions */
 @keyframes view-enter {
-  0% { transform: scale(0.96) translateY(10px); opacity: 0; filter: blur(10px); }
-  100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 @keyframes perspective-enter {
@@ -59,7 +59,7 @@
 /* Interactive Page Transitions (Desktop & Tablet only) */
 @media (min-width: 768px) {
   .animate-view-enter {
-    animation: view-enter 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation: view-enter 0.3s ease-out forwards;
   }
 
   .animate-perspective-enter {

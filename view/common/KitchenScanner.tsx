@@ -26,6 +26,8 @@ export const KitchenScanner: React.FC<KitchenScannerProps> = ({ currentUser, onB
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
     const [selectedHistoryItem, setSelectedHistoryItem] = useState<any | null>(null);
 
+    const [scanError, setScanError] = useState<{ message: string; isOverload: boolean } | null>(null);
+    const [retryCountdown, setRetryCountdown] = useState(0);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -101,24 +103,79 @@ export const KitchenScanner: React.FC<KitchenScannerProps> = ({ currentUser, onB
         }
     };
 
-    const scanIngredients = async () => {
+    // Auto-retry dengan exponential backoff saat AI overload
+    const startRetryCountdown = (seconds: number, onComplete: () => void) => {
+        setRetryCountdown(seconds);
+        const interval = setInterval(() => {
+            setRetryCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    setRetryCountdown(0);
+                    onComplete();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    const scanIngredients = async (attempt = 1) => {
         if (!photo || !currentUser) return;
-        
+
+        setScanError(null);
         setIsScanning(true);
+
         try {
             const data = await kitchenScanner.scan(photo, currentUser.role, currentUser.id);
             setResult(data);
-        } catch (err: any) {
-            console.error(err);
-            alert(err.message || "Gagal menganalisis bahan. Pastikan Anda sudah memasukkan API Key di profil.");
-        } finally {
             setIsScanning(false);
+        } catch (err: any) {
+            console.error('[KitchenScanner] Error:', err);
+            setIsScanning(false);
+
+            const msg   = (err.message || '').toLowerCase();
+            const code  = err.aiErrorCode || '';
+            const isOverload =
+                code === 'AI_OVERLOAD' ||
+                msg.includes('503') ||
+                msg.includes('overload') ||
+                msg.includes('high demand') ||
+                msg.includes('service unavailable') ||
+                msg.includes('quota') ||
+                msg.includes('429') ||
+                msg.includes('too many');
+
+            const MAX_AUTO_RETRY = 3;
+            const delaySec = Math.pow(2, attempt) * 5; // 10s, 20s, 40s
+
+            if (isOverload && attempt <= MAX_AUTO_RETRY) {
+                setScanError({
+                    message: `Server AI sedang sibuk. Mencoba ulang otomatis dalam ${delaySec} detik... (percobaan ${attempt}/${MAX_AUTO_RETRY})`,
+                    isOverload: true
+                });
+                startRetryCountdown(delaySec, () => {
+                    setScanError(null);
+                    scanIngredients(attempt + 1);
+                });
+            } else if (isOverload) {
+                setScanError({
+                    message: 'Server AI sedang sangat sibuk. Silakan coba lagi dalam beberapa menit.',
+                    isOverload: true
+                });
+            } else {
+                setScanError({
+                    message: err.message || 'Gagal menganalisis bahan. Pastikan sudah memasukkan API Key di profil.',
+                    isOverload: false
+                });
+            }
         }
     };
 
     const resetScanner = () => {
         setPhoto(null);
         setResult(null);
+        setScanError(null);
+        setRetryCountdown(0);
         startCamera();
     };
 
@@ -286,8 +343,10 @@ export const KitchenScanner: React.FC<KitchenScannerProps> = ({ currentUser, onB
                                 <div className="space-y-6">
                                     <div className="rounded-[3rem] overflow-hidden shadow-xl bg-stone-100 dark:bg-stone-800 aspect-[3/4] md:aspect-[4/3] lg:aspect-square relative max-w-2xl mx-auto border border-stone-200 dark:border-stone-800">
                                         <img src={photo} alt="Preview" className="w-full h-full object-cover" />
+
+                                        {/* Overlay: Scanning */}
                                         {isScanning && (
-                                            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center text-white gap-4">
+                                            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center text-white gap-4">
                                                 <div className="relative">
                                                     <Loader2 className="w-12 h-12 animate-spin text-orange-500" />
                                                     <Sparkles className="w-6 h-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white" />
@@ -295,21 +354,72 @@ export const KitchenScanner: React.FC<KitchenScannerProps> = ({ currentUser, onB
                                                 <p className="text-sm font-black uppercase tracking-widest animate-pulse">Meracik Resep Khas Kitchen AI...</p>
                                             </div>
                                         )}
+
+                                        {/* Overlay: Error / Retry */}
+                                        {!isScanning && scanError && (
+                                            <div className={`absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center ${scanError.isOverload ? 'bg-amber-900/80' : 'bg-red-900/80'} backdrop-blur-sm`}>
+                                                {scanError.isOverload ? (
+                                                    <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center">
+                                                        <Loader2 className="w-8 h-8 text-amber-300 animate-spin" />
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-16 h-16 rounded-full bg-red-500/20 border-2 border-red-400 flex items-center justify-center">
+                                                        <Sparkles className="w-8 h-8 text-red-300" />
+                                                    </div>
+                                                )}
+
+                                                {retryCountdown > 0 ? (
+                                                    <>
+                                                        <div className="w-14 h-14 rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center">
+                                                            <span className="text-2xl font-black text-white">{retryCountdown}</span>
+                                                        </div>
+                                                        <p className="text-xs font-bold text-amber-200 leading-relaxed max-w-[220px]">{scanError.message}</p>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <p className="text-sm font-black text-white uppercase tracking-wide">
+                                                            {scanError.isOverload ? '🔄 AI Sedang Sibuk' : '❌ Gagal Menganalisis'}
+                                                        </p>
+                                                        <p className="text-xs text-white/80 leading-relaxed max-w-[220px]">{scanError.message}</p>
+                                                        <button
+                                                            onClick={() => scanIngredients(1)}
+                                                            className="mt-2 px-5 py-2.5 bg-white text-stone-900 rounded-full text-xs font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all"
+                                                        >
+                                                            Coba Lagi
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                     
                                     {!isScanning && !result && (
                                         <div className="flex gap-4 max-w-2xl mx-auto">
                                             <button 
-                                                onClick={() => setPhoto(null)}
+                                                onClick={() => { setScanError(null); setRetryCountdown(0); setPhoto(null); }}
                                                 className="flex-1 p-5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl text-stone-600 dark:text-stone-400 font-bold text-sm hover:bg-stone-50 transition-colors"
                                             >
                                                 Ulangi Foto
                                             </button>
                                             <button 
-                                                onClick={scanIngredients}
-                                                className="flex-[2] p-5 bg-orange-600 text-white rounded-3xl font-black uppercase text-xs tracking-widest shadow-xl shadow-orange-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 hover:bg-orange-700"
+                                                onClick={() => scanIngredients(1)}
+                                                disabled={retryCountdown > 0}
+                                                className={`flex-[2] p-5 rounded-3xl font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 ${
+                                                    retryCountdown > 0
+                                                        ? 'bg-amber-500 text-white cursor-not-allowed opacity-90'
+                                                        : 'bg-orange-600 hover:bg-orange-700 text-white shadow-orange-500/20'
+                                                }`}
                                             >
-                                                <Zap className="w-5 h-5 fill-white" /> Analisis Bahan
+                                                {retryCountdown > 0 ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        Mencoba ulang dalam {retryCountdown}s
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Zap className="w-5 h-5 fill-white" /> Analisis Bahan
+                                                    </>
+                                                )}
                                             </button>
                                         </div>
                                     )}

@@ -62,16 +62,25 @@ export const markKeyAsFailed = (key: string): void => {
 export const isKeySpecificError = (error: any): boolean => {
   const msg = String(error?.message || error || '').toLowerCase();
   const code = error?.status || error?.code || error?.error?.code;
-  
-  return (
-    code === 403 || code === 429 ||
-    msg.includes('permission_denied') ||
-    msg.includes('leaked') ||
-    msg.includes('api_key_invalid') ||
+
+  // 429 quota exhausted → blacklist key sementara (coba key lain)
+  const isQuotaExhausted =
+    code === 429 ||
     msg.includes('quota') ||
+    msg.includes('resource_exhausted') ||
+    msg.includes('too many requests') ||
+    msg.includes('rate_limit_exceeded') ||
+    msg.includes('free_tier_requests');
+
+  // 403 invalid key → blacklist permanen untuk session ini
+  const isInvalidKey =
+    code === 403 ||
+    msg.includes('permission_denied') ||
+    msg.includes('api_key_invalid') ||
     msg.includes('forbidden') ||
-    msg.includes('resource_exhausted')
-  );
+    msg.includes('leaked');
+
+  return isQuotaExhausted || isInvalidKey;
 };
 
 /** Check if an error is transient/server-side (should retry with next key but NOT blacklist) */

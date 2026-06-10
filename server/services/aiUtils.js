@@ -97,8 +97,82 @@ async function callGeminiWithRotation(userId, prompt, options = {}) {
     let lastError = null;
     let attemptCount = 0;
 
+    // Helper: sleep untuk exponential backoff
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // Helper: klasifikasi jenis error
+    const classifyError = (error) => {
+        const msg = error.message?.toLowerCase() || "";
+        const status = error.status || error.statusCode || 0;
+        return {
+            isOverload:    msg.includes("503") || msg.includes("service unavailable") || msg.includes("overloaded") || msg.includes("high demand") || status === 503,
+            isQuota:       msg.includes("quota") || msg.includes("exhausted") || msg.includes("429") || msg.includes("too many") || status === 429,
+            isInvalidKey:  msg.includes("api_key_invalid") || msg.includes("forbidden") || msg.includes("401") || status === 401,
+            isTimeout:     msg.includes("timeout") || msg.includes("deadline") || msg.includes("etimedout"),
+        };
+    };
+
+    // Helper: parse JSON aman
+    const parseJsonSafe = (text) => {
+        let cleanText = text.trim();
+        if (cleanText.startsWith("\`\`\`json")) cleanText = cleanText.substring(7);
+        else if (cleanText.startsWith("\`\`\`")) cleanText = cleanText.substring(3);
+        if (cleanText.endsWith("\`\`\`")) cleanText = cleanText.substring(0, cleanText.length - 3);
+        cleanText = cleanText.trim();
+        if (!cleanText.endsWith("}") && !cleanText.endsWith("]")) {
+            const lastBrace   = cleanText.lastIndexOf("}");
+            const lastBracket = cleanText.lastIndexOf("]");
+            const lastIdx     = Math.max(lastBrace, lastBracket);
+            if (lastIdx !== -1) cleanText = cleanText.substring(0, lastIdx + 1);
+        }
+        return JSON.parse(cleanText);
+    };
+
+    // Helper: coba satu request dengan backoff pada overload
+    const tryWithBackoff = async (entry, contents) => {
+        const MAX_OVERLOAD_RETRIES = 3;
+        const BASE_DELAY_MS = 4000; // 4 detik, naik 2× tiap retry
+
+        for (let retry = 0; retry <= MAX_OVERLOAD_RETRIES; retry++) {
+            try {
+                const genAI = new GoogleGenerativeAI(entry.key);
+                const model = genAI.getGenerativeModel({
+                    model: options.model || "gemini-2.0-flash",
+                    generationConfig: {
+                        responseMimeType: options.isJson ? "application/json" : "text/plain"
+                    }
+                });
+
+                const result   = await model.generateContent({ contents });
+                const response = await result.response;
+                const text     = response.text();
+
+                return options.isJson ? parseJsonSafe(text) : text;
+
+            } catch (error) {
+                const { isOverload, isQuota, isInvalidKey, isTimeout } = classifyError(error);
+
+                if ((isOverload || isTimeout) && retry < MAX_OVERLOAD_RETRIES) {
+                    const delayMs = BASE_DELAY_MS * Math.pow(2, retry); // 4s, 8s, 16s
+                    console.warn(`[AI Utils] ⏳ Overload/timeout on ${entry.source}:...${entry.key.slice(-6)}, retry ${retry + 1}/${MAX_OVERLOAD_RETRIES} in ${delayMs / 1000}s`);
+                    await sleep(delayMs);
+                    continue;
+                }
+
+                // Tidak bisa retry lebih lanjut untuk key ini — lempar agar caller tahu
+                throw Object.assign(error, { _classified: { isOverload, isQuota, isInvalidKey, isTimeout } });
+            }
+        }
+    };
+
+    // Bangun contents sekali (dipakai ulang di semua key)
+    const contents = [{ role: 'user', parts: [{ text: prompt }] }];
+    if (options.image) {
+        const base64Data = options.image.split(',')[1] || options.image;
+        contents[0].parts.push({ inlineData: { mimeType: 'image/jpeg', data: base64Data } });
+    }
+
     for (const entry of finalKeyList) {
-        // Skip keys currently in cooldown
         if (isKeyFailed(entry.key)) {
             console.log(`[AI Utils] ⏭ Skipping ${entry.source} key ...${entry.key.slice(-6)} (in cooldown)`);
             continue;
@@ -106,115 +180,49 @@ async function callGeminiWithRotation(userId, prompt, options = {}) {
 
         attemptCount++;
         const keyLabel = `${entry.source}:...${entry.key.slice(-6)}`;
+        console.log(`[AI Utils] 🔑 Trying key ${keyLabel} (attempt ${attemptCount})`);
 
         try {
-            console.log(`[AI Utils] 🔑 Trying key ${keyLabel} (attempt ${attemptCount})`);
-            
-            const genAI = new GoogleGenerativeAI(entry.key);
-            const model = genAI.getGenerativeModel({ 
-                model: options.model || "gemini-flash-latest",
-                generationConfig: { 
-                    responseMimeType: options.isJson ? "application/json" : "text/plain" 
-                }
-            });
+            const parsedResult = await tryWithBackoff(entry, contents);
 
-            // Vision Support
-            const contents = [{ role: 'user', parts: [{ text: prompt }] }];
-            if (options.image) {
-                const base64Data = options.image.split(',')[1] || options.image;
-                contents[0].parts.push({
-                    inlineData: { mimeType: 'image/jpeg', data: base64Data }
-                });
-            }
-
-            const result = await model.generateContent({ contents });
-            const response = await result.response;
-            const text = response.text();
-
-            // Success! Advance global index for next call
+            // Sukses → advance global index
             if (entry.source === 'global') {
                 const keyIdx = globalPool.indexOf(entry.key);
-                if (keyIdx !== -1) {
-                    globalIndex = (keyIdx + 1) % globalPool.length;
-                }
+                if (keyIdx !== -1) globalIndex = (keyIdx + 1) % globalPool.length;
             }
-
             console.log(`[AI Utils] ✅ Success with key ${keyLabel}`);
-            
-            let parsedResult = text;
-            if (options.isJson) {
-                let cleanText = text.trim();
-                if (cleanText.startsWith("\`\`\`json")) cleanText = cleanText.substring(7);
-                else if (cleanText.startsWith("\`\`\`")) cleanText = cleanText.substring(3);
-                if (cleanText.endsWith("\`\`\`")) cleanText = cleanText.substring(0, cleanText.length - 3);
-                cleanText = cleanText.trim();
-                
-                // Fallback attempt to extract JSON object/array if there's trailing text
-                if (!cleanText.endsWith("}") && !cleanText.endsWith("]")) {
-                    const lastBrace = cleanText.lastIndexOf("}");
-                    const lastBracket = cleanText.lastIndexOf("]");
-                    const lastIdx = Math.max(lastBrace, lastBracket);
-                    if (lastIdx !== -1) {
-                        cleanText = cleanText.substring(0, lastIdx + 1);
-                    }
-                }
-                
-                parsedResult = JSON.parse(cleanText);
-            }
             return parsedResult;
 
         } catch (error) {
             lastError = error;
-            const msg = error.message?.toLowerCase() || "";
-            const isQuota = msg.includes("quota") || msg.includes("exhausted") || msg.includes("429") || msg.includes("too many");
-            const isInvalidKey = msg.includes("api_key_invalid") || msg.includes("forbidden") || msg.includes("401");
-            
-            console.warn(`[AI Utils] ❌ Key ${keyLabel} failed: ${isQuota ? 'QUOTA' : isInvalidKey ? 'INVALID' : 'OTHER'} - ${error.message?.substring(0, 100)}`);
+            const { isOverload, isQuota, isInvalidKey } = error._classified || classifyError(error);
 
-            if (isQuota && (options.model || "gemini-1.5-flash") === "gemini-1.5-flash") {
-                console.warn(`[AI Utils] 🔄 Fallback failed or quota hit. Skipping key ${keyLabel}...`);
-            } else if (isQuota) {
-                console.warn(`[AI Utils] 🔄 Fallback to gemini-1.5-flash for key ${keyLabel}...`);
-                try {
-                    const fallbackAI = new GoogleGenerativeAI(entry.key);
-                    const fallbackModel = fallbackAI.getGenerativeModel({ 
-                        model: "gemini-flash-latest",
-                        generationConfig: { 
-                            responseMimeType: options.isJson ? "application/json" : "text/plain" 
-                        }
-                    });
-                    const fallbackResult = await fallbackModel.generateContent({ contents });
-                    const fbResponse = await fallbackResult.response;
-                    const fbText = fbResponse.text();
-                    console.log(`[AI Utils] ✅ Success with fallback model on ${keyLabel}`);
-                    return options.isJson ? JSON.parse(fbText) : fbText;
-                } catch (fbError) {
-                    console.warn(`[AI Utils] ❌ Fallback also failed for ${keyLabel}:`, fbError.message);
-                }
-            }
+            console.warn(`[AI Utils] ❌ Key ${keyLabel} exhausted: ${isOverload ? 'OVERLOAD' : isQuota ? 'QUOTA' : isInvalidKey ? 'INVALID' : 'OTHER'} - ${error.message?.substring(0, 120)}`);
 
-            if (isQuota) {
-                markKeyFailed(entry.key, 5 * 60 * 1000); // 5 min cooldown
-                // Advance global index past this failed key immediately
+            if (isQuota || isOverload) {
+                markKeyFailed(entry.key, 5 * 60 * 1000);
                 if (entry.source === 'global') {
                     const keyIdx = globalPool.indexOf(entry.key);
-                    if (keyIdx !== -1) {
-                        globalIndex = (keyIdx + 1) % globalPool.length;
-                    }
+                    if (keyIdx !== -1) globalIndex = (keyIdx + 1) % globalPool.length;
                 }
-                continue; // Try next key
+                continue;
             } else if (isInvalidKey) {
-                markKeyFailed(entry.key, 60 * 60 * 1000); // 1 hour cooldown for invalid keys
+                markKeyFailed(entry.key, 60 * 60 * 1000);
                 continue;
             } else {
-                // Unknown error - still try next key
                 continue;
             }
         }
     }
 
-    console.error(`[AI Utils] 🚨 ALL ${attemptCount} keys exhausted. Total pool: ${finalKeyList.length}, Failed/cooldown: ${failedKeys.size}`);
-    throw lastError || new Error("Semua API Key gagal memproses permintaan.");
+    console.error(`[AI Utils] 🚨 ALL ${attemptCount} keys exhausted. Pool: ${finalKeyList.length}, Cooldown: ${failedKeys.size}`);
+
+    // Sertakan kode error agar frontend bisa tampilkan pesan spesifik
+    const finalMsg = lastError?.message?.toLowerCase() || "";
+    const isOverloadFinal = finalMsg.includes("503") || finalMsg.includes("service unavailable") || finalMsg.includes("overloaded") || finalMsg.includes("high demand");
+    const errorToThrow = lastError || new Error("Semua API Key gagal memproses permintaan.");
+    errorToThrow.aiErrorCode = isOverloadFinal ? "AI_OVERLOAD" : "AI_ALL_KEYS_FAILED";
+    throw errorToThrow;
 }
 
 module.exports = {

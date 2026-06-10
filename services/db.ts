@@ -42,7 +42,9 @@ const sendRequest = async <T>(action: string, data: any = {}): Promise<T> => {
 
     if (json.status === 'error') {
       console.error(`%c[API BACKEND ERROR] ${action}`, 'color: red; font-weight: bold;', json.message);
-      throw new Error(json.message || "Unknown server error");
+      const err: any = new Error(json.message || "Unknown server error");
+      if (json.aiErrorCode) err.aiErrorCode = json.aiErrorCode;
+      throw err;
     }
     
     console.log(`%c[API SUCCESS] ${action}`, 'color: green; font-weight: bold;', json.data);

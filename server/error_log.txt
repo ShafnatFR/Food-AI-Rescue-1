@@ -30,3 +30,100 @@ s (https://static.whatsapp.net/rsrc.php/v4/ym/r/t_lX-67hSLT.js:79:180)
     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
     at async sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:558:20)
     at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+2026-06-09T04:57:22.003Z ADD_ADDRESS Error: Column 'latitude' cannot be null
+    at PromisePool.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\db.js:39:21)
+    at addAddress (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:807:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:158:42
+2026-06-09T04:57:35.630Z ADD_ADDRESS Error: Column 'latitude' cannot be null
+    at PromisePool.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\db.js:39:21)
+    at addAddress (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:807:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:158:42
+2026-06-09T05:17:28.683Z CORPORATE_AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:130:28)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-09T05:22:16.399Z CORPORATE_AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:130:28)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-09T05:22:49.390Z CORPORATE_AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: [429 Too Many Requests] You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash
+Please retry in 10.12579959s. [{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}},{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerMinutePerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}},{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count","quotaId":"GenerateContentInputTokensPerModelPerMinute-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"10s"}]
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:146:34)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:186:34)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-09T05:23:13.568Z CORPORATE_AI Error: Semua API Key gagal memproses permintaan.
+    at callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:223:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-09T05:23:18.087Z CORPORATE_AI Error: Semua API Key gagal memproses permintaan.
+    at callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:223:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-09T05:29:14.637Z CORPORATE_AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: [429 Too Many Requests] You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash
+Please retry in 44.899434299s. [{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}},{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerMinutePerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}},{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count","quotaId":"GenerateContentInputTokensPerModelPerMinute-FreeTier","quotaDimensions":{"model":"gemini-2.0-flash","location":"global"}}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"44s"}]
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:146:34)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:186:34)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-09T05:35:24.710Z CORPORATE_AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: [429 Too Many Requests] You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash
+Please retry in 35.030619851s. [{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count","quotaId":"GenerateContentInputTokensPerModelPerMinute-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}},{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerMinutePerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}},{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"35s"}]
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:146:34)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:186:34)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-09T05:35:53.192Z CORPORATE_AI Error: Semua API Key gagal memproses permintaan.
+    at callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:223:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-09T05:35:59.355Z CORPORATE_AI Error: Semua API Key gagal memproses permintaan.
+    at callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:223:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-09T05:38:52.096Z CORPORATE_AI Error: Semua API Key gagal memproses permintaan.
+    at callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:223:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-09T05:38:54.478Z CORPORATE_AI Error: Semua API Key gagal memproses permintaan.
+    at callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:223:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34

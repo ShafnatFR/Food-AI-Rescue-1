@@ -94,8 +94,13 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
                 },
                 (error) => {
                     console.error("Error getting location", error);
-                    // Default to Monas if permission denied, just to show something or handle gracefully
-                    // setUserLocation({ lat: -6.175392, lng: 106.827153 });
+                    // Fallback ke lokasi donatur agar tombol navigasi tetap bisa dibuka
+                    if (task.donorLocation?.lat && task.donorLocation?.lng) {
+                        setUserLocation({
+                            lat: task.donorLocation.lat,
+                            lng: task.donorLocation.lng
+                        });
+                    }
                 }
             );
         }
@@ -117,7 +122,11 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
 
     const mapUrl = userLocation && donorQuery && receiverQuery
         ? `https://maps.google.com/maps?saddr=${userLocation.lat},${userLocation.lng}&daddr=${donorQuery}+to:${receiverQuery}&dirflg=d&output=embed`
-        : "";
+        : donorQuery && receiverQuery
+            ? `https://maps.google.com/maps?saddr=${donorQuery}&daddr=${receiverQuery}&dirflg=d&output=embed`
+            : donorQuery
+                ? `https://maps.google.com/maps?q=${donorQuery}&output=embed`
+                : "";
 
     return (
         <div className="fixed inset-0 bg-[#FDFBF7] dark:bg-stone-950 z-[100] overflow-y-auto animate-in slide-in-from-right duration-300">
@@ -239,8 +248,9 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
                             title="Route Map"
                         ></iframe>
                     ) : (
-                        <div className="flex items-center justify-center h-full text-stone-400 text-xs font-bold uppercase tracking-widest">
-                            Memuat Peta...
+                        <div className="flex flex-col items-center justify-center h-full gap-2 text-stone-400">
+                            <MapPin className="w-8 h-8 opacity-40" />
+                            <p className="text-xs font-bold uppercase tracking-widest">Lokasi tidak tersedia</p>
                         </div>
                     )}
                     {/* Overlay Info Stage */}
