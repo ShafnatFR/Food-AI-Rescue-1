@@ -20,7 +20,7 @@ export const SuccessClaimSplash: React.FC<SuccessClaimSplashProps> = ({
 }) => {
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="w-full max-w-sm bg-white dark:bg-stone-900 rounded-[2.5rem] p-8 text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95 duration-500">
+            <div className="relative w-full max-w-sm overflow-hidden rounded-[2.5rem] bg-white p-8 text-center shadow-2xl animate-in zoom-in-95 duration-500 md:max-w-lg dark:bg-stone-900">
                 
                 {/* Background Decor */}
                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-green-50 dark:from-green-900/20 to-transparent pointer-events-none"></div>
@@ -32,10 +32,10 @@ export const SuccessClaimSplash: React.FC<SuccessClaimSplashProps> = ({
                     </div>
 
                     <h2 className="text-3xl font-black text-stone-900 dark:text-white uppercase italic tracking-tighter mb-2">
-                        Klaim Berhasil!
+                        {uniqueCode === 'PENDING' ? 'Permintaan Terkirim!' : 'Klaim Berhasil!'}
                     </h2>
                     <p className="text-stone-500 text-xs font-bold uppercase tracking-widest mb-8">
-                        Makanan berhasil diamankan
+                        {uniqueCode === 'PENDING' ? 'Menunggu persetujuan dari donatur' : 'Makanan berhasil diamankan'}
                     </p>
 
                     <div className="w-full bg-stone-50 dark:bg-stone-800/50 p-5 rounded-3xl border border-stone-200 dark:border-stone-800 mb-8 space-y-4">
@@ -47,12 +47,16 @@ export const SuccessClaimSplash: React.FC<SuccessClaimSplashProps> = ({
                             </div>
                         </div>
 
-                        <div className="border-t border-dashed border-stone-300 dark:border-stone-700 my-4"></div>
+                        {uniqueCode !== 'PENDING' && (
+                            <>
+                                <div className="border-t border-dashed border-stone-300 dark:border-stone-700 my-4"></div>
 
-                        <div>
-                            <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest mb-1">Kode Pengambilan</p>
-                            <p className="text-3xl font-mono font-black text-orange-600 dark:text-orange-500 tracking-widest">{uniqueCode}</p>
-                        </div>
+                                <div>
+                                    <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest mb-1">Kode Pengambilan</p>
+                                    <p className="text-3xl font-mono font-black text-orange-600 dark:text-orange-500 tracking-widest">{uniqueCode}</p>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="w-full space-y-3">
@@ -60,7 +64,7 @@ export const SuccessClaimSplash: React.FC<SuccessClaimSplashProps> = ({
                             onClick={onViewTicket}
                             className="h-14 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white shadow-xl shadow-orange-500/30 rounded-2xl font-black uppercase tracking-widest"
                         >
-                            <Ticket className="w-5 h-5 mr-2" /> Lihat Tiket
+                            <Ticket className="w-5 h-5 mr-2" /> Lihat {uniqueCode === 'PENDING' ? 'Status' : 'Tiket'}
                         </Button>
                         <button 
                             onClick={onClose}

@@ -127,7 +127,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, userId }) => {
             {/* Filter Tabs - positioned above both cards */}
             <FilterTabs />
 
-            <div className="grid grid-cols-2 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
                 {/* Card: Total Poin Sosial (Nilai Kebaikan) */}
                 <div className="bg-white dark:bg-stone-900 p-4 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-800 shadow-sm flex flex-col justify-between relative overflow-hidden">
                     

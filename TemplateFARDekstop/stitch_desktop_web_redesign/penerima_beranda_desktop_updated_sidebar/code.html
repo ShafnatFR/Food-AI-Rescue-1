@@ -1,0 +1,305 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Penerima: Beranda (Desktop)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#626469",
+                        "on-background": "#191c1d",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#5bffa0",
+                        "surface-bright": "#f8f9fa",
+                        "surface": "#f8f9fa",
+                        "on-tertiary-fixed": "#00210e",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d9dadb",
+                        "surface-container": "#edeeef",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#914c00",
+                        "surface-container-highest": "#e1e3e4",
+                        "secondary-fixed": "#e1e2e8",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-variant": "#e1e3e4",
+                        "on-primary-container": "#613100",
+                        "primary": "#914c00",
+                        "on-tertiary-fixed-variant": "#00522b",
+                        "on-primary-fixed-variant": "#6f3900",
+                        "outline-variant": "#ddc1ae",
+                        "on-primary-fixed": "#2f1500",
+                        "primary-container": "#ff8a00",
+                        "inverse-primary": "#ffb77f",
+                        "secondary": "#5c5e63",
+                        "inverse-on-surface": "#f0f1f2",
+                        "tertiary": "#006d3b",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#c5c6cc",
+                        "surface-container-high": "#e7e8e9",
+                        "primary-fixed-dim": "#ffb77f",
+                        "outline": "#8a7362",
+                        "on-surface-variant": "#564334",
+                        "background": "#f8f9fa",
+                        "on-secondary-fixed-variant": "#44474b",
+                        "inverse-surface": "#2e3132",
+                        "secondary-container": "#e1e2e8",
+                        "primary-fixed": "#ffdcc4",
+                        "tertiary-fixed-dim": "#30e286",
+                        "on-tertiary-container": "#004725",
+                        "on-surface": "#191c1d",
+                        "tertiary-container": "#00c16d",
+                        "on-secondary-fixed": "#191c20",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "card-gap": "16px",
+                        "sidebar-width": "280px",
+                        "gutter-lg": "24px",
+                        "container-padding": "32px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-mono": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen flex">
+<!-- SideNavBar (Shared Component) -->
+<!-- Intent: Dashboard / Home context -> Assuming "Impact Dashboard" is closest match for recipient home, though labels suggest donor. Will default to first if none match context perfectly, but "Impact Dashboard" fits a general overview. Wait, user wants "Penerima: Beranda" (Recipient: Home). The JSON is for "Corporate Donor Portal". Let's adapt slightly while keeping JSON structure as requested, mapping "Impact Dashboard" to Home. Actually, the rule says: "ONLY use semantic intent if there is no direct match". Let's map to the first item as it's the home equivalent. -->
+<aside class="fixed h-full w-[280px] left-0 top-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col py-8 z-50 text-on-surface">
+<div class="px-8 mb-8"><h1 class="font-headline-lg text-headline-lg font-bold">FoodRescue Pro</h1><p class="font-label-mono text-label-mono text-on-surface-variant mt-1">Recipient Portal</p></div>
+<nav class="flex-1 px-4 flex flex-col gap-2"><a class="flex items-center gap-3 px-4 py-3 text-primary font-bold bg-surface-container-lowest rounded-xl shadow-lg transition-all duration-200 active:scale-95" href="#"><span class="material-symbols-outlined fill-icon">home</span><span class="font-label-mono text-label-mono">Home</span></a><a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high rounded-xl transition-colors duration-200 active:scale-95" href="#"><span class="material-symbols-outlined">explore</span><span class="font-label-mono text-label-mono">Explore Food</span></a><a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high rounded-xl transition-colors duration-200 active:scale-95" href="#"><span class="material-symbols-outlined">history</span><span class="font-label-mono text-label-mono">Riwayat Klaim</span></a><a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high rounded-xl transition-colors duration-200 active:scale-95" href="#"><span class="material-symbols-outlined">notifications</span><span class="font-label-mono text-label-mono">Notifikasi</span></a><a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high rounded-xl transition-colors duration-200 active:scale-95" href="#"><span class="material-symbols-outlined">person</span><span class="font-label-mono text-label-mono">Profil Saya</span></a></nav>
+<div class="px-8 mt-auto mb-8">
+<button class="w-full bg-primary hover:bg-primary/90 text-on-primary font-semibold py-4 px-4 rounded-xl shadow-lg transition-all duration-200 active:scale-95 flex items-center justify-center gap-3"><span class="material-symbols-outlined">add_circle</span><span class="text-sm">New Donation</span></button>
+</div>
+<div class="px-4 border-t border-outline-variant pt-4 flex flex-col gap-2"><a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#"><span class="material-symbols-outlined">settings</span><span class="font-label-mono text-label-mono">Settings</span></a><a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#"><span class="material-symbols-outlined">help</span><span class="font-label-mono text-label-mono">Support</span></a></div>
+</aside>
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center h-16 px-8 ml-[280px]">
+<div class="flex-1 max-w-xl hidden md:flex items-center bg-surface-container-lowest rounded-full px-4 py-2 border border-outline-variant focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant/50 p-0" placeholder="Search resources..." type="text">
+</div>
+<div class="flex items-center gap-4 ml-auto">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center cursor-pointer active:opacity-70 hover:opacity-90">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-[280px] pt-16 w-full p-container-padding flex-1 bg-background overflow-y-auto min-h-screen flex flex-col">
+<!-- Header Section -->
+<div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Makanan Sekitar</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Surplus makanan layak konsumsi tersedia di sekitar Anda.</p>
+</div>
+<!-- Filter Bar -->
+<div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-xl border border-outline-variant shadow-sm w-full md:w-auto">
+<button class="px-4 py-2 bg-primary text-on-primary rounded-lg font-label-mono text-label-mono transition-colors shadow-sm bg-gradient-to-b from-primary to-primary/90">
+                    SEMUA
+                </button>
+<button class="px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg font-label-mono text-label-mono transition-colors">
+                    AMBIL SENDIRI
+                </button>
+<button class="px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg font-label-mono text-label-mono transition-colors">
+                    DIANTAR
+                </button>
+<div class="w-px h-6 bg-outline-variant mx-2 hidden md:block"></div>
+<div class="flex items-center gap-1 ml-auto md:ml-0">
+<button class="p-2 text-primary bg-primary-container/20 rounded-lg">
+<span class="material-symbols-outlined fill-icon text-sm">grid_view</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg">
+<span class="material-symbols-outlined text-sm">view_list</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bento Grid for Food Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter-lg">
+<!-- Card 1 -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow group flex flex-col h-full">
+<div class="relative h-48 w-full bg-surface-container">
+<img alt="Food image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A close up shot of a fluffy, golden brown Indonesian omelette (Telor Dadar) filled with chopped green herbs and chili flakes, served on a bright green plate. The lighting is bright and appetizing, highlighting the crispy edges and soft center of the dish against a modern, clean kitchen setting. The image uses a warm, high-contrast style typical of modern food photography to evoke a sense of freshness and immediate consumption." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1h-620ACM4b_bDWRY2qGaXc7ZdAYayQqIuMWoaPekbMQBIwuGPnYzs6k70bQ3ol_fKg6MUd-G08Ea_b0aeVsUOxKjzS_mQZJStLbXq-gPYUje1mv6d3o0Z9q7oa49PrLWXidiqAFmham9mksryytov_x41EP_bxrGXuxSGiMFwLP8GjVm858XH2IBOTSqcqhW5hs6LdXknlVNqyM85PwdTbDdiqdQPBJOGkyvhweCBihSKKc8RQ0tiq1gGsy_4uSrxNN2bgC6">
+<!-- AI Score Badge -->
+<div class="absolute top-3 left-3 bg-inverse-surface/90 backdrop-blur-sm text-tertiary-fixed font-label-mono text-label-mono px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm border border-outline/20">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+                        AI Score: 98
+                    </div>
+<!-- Like Button -->
+<button class="absolute top-3 right-3 p-1.5 bg-surface/80 backdrop-blur-sm rounded-full text-on-surface-variant hover:text-error hover:bg-error-container/50 transition-colors">
+<span class="material-symbols-outlined text-sm">favorite</span>
+</button>
+<!-- Quantity Overlay -->
+<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-on-background/80 to-transparent p-3 pt-8">
+<span class="text-on-primary font-label-mono text-label-mono flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                            Sisa 5 Porsi
+                        </span>
+</div>
+</div>
+<div class="p-4 flex flex-col flex-1">
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-1">Telor Dadar Sayur</h3>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono mb-3">
+<span class="material-symbols-outlined text-[16px]">storefront</span>
+<span class="">Warung Makmur, Sudirman</span>
+</div>
+<div class="flex items-center gap-2 text-error font-label-mono text-label-mono bg-error-container/30 w-fit px-2 py-1 rounded-md mb-auto">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="">Exp: Hari ini, 20:00</span>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant flex items-center justify-between">
+<span class="font-label-mono text-label-mono text-primary flex items-center gap-1 bg-primary-container/20 px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">local_shipping</span>
+                            Pickup &amp; Antar
+                        </span>
+<button class="bg-primary text-on-primary p-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center group-hover:shadow-sm">
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow group flex flex-col h-full">
+<div class="relative h-48 w-full bg-surface-container">
+<img alt="Food image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A neatly packaged bento box containing steamed white rice, grilled chicken teriyaki, and a side of fresh broccoli. The box sits on a clean, light grey countertop. The lighting is soft and natural, creating a clean, corporate-ready aesthetic suitable for a modern logistics platform. The color palette emphasizes the fresh greens and warm browns of the food against a pristine, neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWUBJW8yc76yumW2720Gf_qU68wtTKZ_6R9SEnJgxZ-FvQNOu4iSCejEJPFds2CQ3XFZsoQiBqDUqvhoo-j2FE04Er-do3dD12YyC1vsMMjuu4smwy3TXWwcHEQBLd_F34mC6WbBZpfC0F8jAV25iro1xTHdmJKEfvGwWoYGk3_ElLXj4ccsxZjckWrVluyVPrRGjT4xm8gZnI9urgq6WpoDxvX7dNqxU_J1ihHszAnjKbHHeYyxSAzMzT43IKl55VAw93PnR1">
+<!-- AI Score Badge -->
+<div class="absolute top-3 left-3 bg-inverse-surface/90 backdrop-blur-sm text-tertiary-fixed font-label-mono text-label-mono px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm border border-outline/20">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+                        AI Score: 95
+                    </div>
+<button class="absolute top-3 right-3 p-1.5 bg-surface/80 backdrop-blur-sm rounded-full text-on-surface-variant hover:text-error hover:bg-error-container/50 transition-colors">
+<span class="material-symbols-outlined text-sm">favorite</span>
+</button>
+<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-on-background/80 to-transparent p-3 pt-8">
+<span class="text-on-primary font-label-mono text-label-mono flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                            Sisa 12 Box
+                        </span>
+</div>
+</div>
+<div class="p-4 flex flex-col flex-1">
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-1">Nasi Kotak Ayam Bakar</h3>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono mb-3">
+<span class="material-symbols-outlined text-[16px]">business</span>
+<span class="">Catering PT. Sejahtera</span>
+</div>
+<div class="flex items-center gap-2 text-secondary font-label-mono text-label-mono bg-secondary-container/30 w-fit px-2 py-1 rounded-md mb-auto">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="">Exp: Besok, 12:00</span>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant flex items-center justify-between">
+<span class="font-label-mono text-label-mono text-secondary flex items-center gap-1 bg-secondary-container/20 px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">hail</span>
+                            Ambil Sendiri
+                        </span>
+<button class="bg-primary text-on-primary p-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center group-hover:shadow-sm">
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow group flex flex-col h-full">
+<div class="relative h-48 w-full bg-surface-container">
+<img alt="Food image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A rustic display of assorted artisanal breads and pastries in a wicker basket, bathed in warm, early morning sunlight. The setting implies a bakery surplus, with a clean, light-colored wooden table providing a minimal background. The aesthetic is warm and inviting, highlighting textures like crusty surfaces and powdered sugar dustings, fitting for a premium food rescue platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEBHRWL18mQ_IA-EtKJ5-zPOC4GJ3C-BOq2IKr3sv0Xj2k0Nh6sIfwemTHsmVBHgpJuYgkyGbZOSoDRlNqhoOeBRTZnRQCnWwoiYxzwM28EF1X6OPNydhGKcl7cXwSkzN5PYdVqcHfPYoibNrhyT50BYzXcCpc1rI_CoTrQiMXPo0vwRQJye-3T_QON8mll3A98ckGx87q6T_yoyR7ouGi4RE1p8B_N3smGCS-T44C0G8gqnom4gCq3FwWp1tsJmNIdo2K2x5f">
+<!-- AI Score Badge -->
+<div class="absolute top-3 left-3 bg-inverse-surface/90 backdrop-blur-sm text-tertiary-fixed font-label-mono text-label-mono px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm border border-outline/20">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+                        AI Score: 88
+                    </div>
+<button class="absolute top-3 right-3 p-1.5 bg-surface/80 backdrop-blur-sm rounded-full text-on-surface-variant hover:text-error hover:bg-error-container/50 transition-colors">
+<span class="material-symbols-outlined text-sm">favorite</span>
+</button>
+<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-on-background/80 to-transparent p-3 pt-8">
+<span class="text-on-primary font-label-mono text-label-mono flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                            Sisa 20+ Pcs
+                        </span>
+</div>
+</div>
+<div class="p-4 flex flex-col flex-1">
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-1">Roti &amp; Pastry Campur</h3>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono mb-3">
+<span class="material-symbols-outlined text-[16px]">bakery_dining</span>
+<span class="">Morning Bakery, Kemang</span>
+</div>
+<div class="flex items-center gap-2 text-error font-label-mono text-label-mono bg-error-container/30 w-fit px-2 py-1 rounded-md mb-auto">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="">Exp: Hari ini, 18:00</span>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant flex items-center justify-between">
+<span class="font-label-mono text-label-mono text-primary flex items-center gap-1 bg-primary-container/20 px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">local_shipping</span>
+                            Pickup &amp; Antar
+                        </span>
+<button class="bg-primary text-on-primary p-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center group-hover:shadow-sm">
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 4 (Empty State / Info Card) -->
+<article class="bg-surface-variant/30 rounded-xl overflow-hidden border border-dashed border-outline-variant flex flex-col h-full justify-center items-center p-6 text-center min-h-[350px]">
+<div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mb-4 text-primary">
+<span class="material-symbols-outlined text-3xl">map</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-2">Jelajahi Lebih Jauh</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 max-w-xs">Ubah radius pencarian Anda untuk melihat lebih banyak donasi makanan di area lain.</p>
+<button class="px-6 py-2 border-2 border-primary text-primary font-label-mono text-label-mono rounded-lg hover:bg-primary hover:text-on-primary transition-colors">
+                    ATUR RADIUS
+                </button>
+</article>
+</div>
+</main>
+
+
+</body></html>

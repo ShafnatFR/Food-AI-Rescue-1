@@ -486,7 +486,7 @@ CREATE TABLE IF NOT EXISTS `password_resets` (
 -- (Ditambahkan terakhir karena badges harus sudah ada)
 -- ------------------------------------------------------------
 ALTER TABLE `users`
-  ADD CONSTRAINT IF NOT EXISTS `users_ibfk_1` 
+  ADD CONSTRAINT `users_ibfk_1` 
   FOREIGN KEY (`selected_badge_id`) REFERENCES `badges` (`id`) ON DELETE SET NULL;
 
 -- ------------------------------------------------------------

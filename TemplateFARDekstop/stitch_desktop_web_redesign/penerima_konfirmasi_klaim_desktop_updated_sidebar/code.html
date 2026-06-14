@@ -1,0 +1,230 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Penerima: Konfirmasi Klaim (Desktop)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#626469",
+                        "on-background": "#191c1d",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#5bffa0",
+                        "surface-bright": "#f8f9fa",
+                        "surface": "#f8f9fa",
+                        "on-tertiary-fixed": "#00210e",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d9dadb",
+                        "surface-container": "#edeeef",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#914c00",
+                        "surface-container-highest": "#e1e3e4",
+                        "secondary-fixed": "#e1e2e8",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-variant": "#e1e3e4",
+                        "on-primary-container": "#613100",
+                        "primary": "#914c00",
+                        "on-tertiary-fixed-variant": "#00522b",
+                        "on-primary-fixed-variant": "#6f3900",
+                        "outline-variant": "#ddc1ae",
+                        "on-primary-fixed": "#2f1500",
+                        "primary-container": "#ff8a00",
+                        "inverse-primary": "#ffb77f",
+                        "secondary": "#5c5e63",
+                        "inverse-on-surface": "#f0f1f2",
+                        "tertiary": "#006d3b",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#c5c6cc",
+                        "surface-container-high": "#e7e8e9",
+                        "primary-fixed-dim": "#ffb77f",
+                        "outline": "#8a7362",
+                        "on-surface-variant": "#564334",
+                        "background": "#f8f9fa",
+                        "on-secondary-fixed-variant": "#44474b",
+                        "inverse-surface": "#2e3132",
+                        "secondary-container": "#e1e2e8",
+                        "primary-fixed": "#ffdcc4",
+                        "tertiary-fixed-dim": "#30e286",
+                        "on-tertiary-container": "#004725",
+                        "on-surface": "#191c1d",
+                        "tertiary-container": "#00c16d",
+                        "on-secondary-fixed": "#191c20",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "card-gap": "16px",
+                        "sidebar-width": "280px",
+                        "gutter-lg": "24px",
+                        "container-padding": "32px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-mono": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex overflow-hidden">
+<!-- Top App Bar -->
+<header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md fixed top-0 right-0 w-[calc(100%-280px)] z-40 bg-surface/80 dark:bg-surface-dim/80 border-b border-outline-variant flat no shadows flex justify-between items-center h-16 px-8 ml-[280px]">
+<div class="hidden font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim">FoodRescue Pro</div>
+<!-- Breadcrumbs / Context -->
+<div class="flex items-center gap-2 text-on-surface-variant dark:text-on-secondary-fixed-variant">
+<span class="font-label-mono text-label-mono uppercase tracking-wider">Claims</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="font-label-mono text-label-mono uppercase tracking-wider text-primary font-bold">Confirmation</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhQT0prcYefsvHeLm5yuNNFsvL8OzUkpv6gM0CC_0ZXs_qGcu7yOmQLa1qLWjj1Jtrv_IXENvYB2CtP58drX48d7VWTsb_PkLezD1raYUfdYvoPDUfk5XDWlpqCZTznmAd5qEQ95stcjPFx4zjboZputK_0ermrvZKf-n7z6ObQrFh9c2QrlVXZlt2SJtDHFdchpvMAZXbtyLFE11tYVgiI9gEZYAfuyvkPXbt_T5wT_Ubc8xMR_2S7piIYd58KOoqazpkRIMs">
+</button>
+</div>
+</header>
+<!-- Side Nav Bar -->
+<nav class="fixed h-full w-[280px] left-0 top-0 bg-white text-on-surface border-r border-outline-variant/30 flex flex-col py-8 z-50"><div class="px-8 mb-8"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary"><span class="material-symbols-outlined filled">volunteer_activism</span></div><div><h1 class="font-headline-md text-headline-md font-bold text-on-surface leading-tight">FoodRescue Pro</h1><p class="font-label-mono text-label-mono text-on-surface-variant/70">Corporate Donor Portal</p></div></div></div><div class="px-4 mb-6"><button class="w-full bg-primary text-on-primary font-body-md font-semibold py-3 rounded-lg shadow-sm hover:bg-primary/90 transition-all flex items-center justify-center gap-2"><span class="material-symbols-outlined">add</span>New Donation</button></div><div class="flex-1 overflow-y-auto py-4"><ul class="space-y-1"><li class=""><a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">home</span>Home</a></li><li class=""><a class="flex items-center gap-3 px-4 py-3 text-primary font-bold bg-primary-container/10 border-r-4 border-primary" href="#"><span class="material-symbols-outlined filled">explore</span>Explore Food</a></li><li class=""><a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">history</span>Riwayat Klaim</a></li><li class=""><a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">notifications</span>Notifikasi</a></li><li class=""><a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">person</span>Profil Saya</a></li></ul></div><div class="mt-auto px-4 pt-4 border-t border-outline-variant/30"><ul class="space-y-1"><li class=""><a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">settings</span>Settings</a></li><li class=""><a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">help</span>Support</a></li></ul></div></nav>
+<!-- Main Canvas -->
+<main class="flex-1 ml-[280px] mt-16 p-container-padding overflow-y-auto h-[calc(100vh-64px)] relative bg-background">
+<!-- Hero Background Image (Decorative) -->
+<div class="absolute top-0 left-0 w-full h-[300px] bg-surface-container-high overflow-hidden -z-10">
+<img alt="A vibrant, close-up macro shot of healthy, colorful vegetable fritters or patties. The food is golden brown with flecks of bright green and red vegetables visible. The lighting is warm and natural, suggesting fresh, high-quality ingredients prepared carefully. The depth of field is shallow, blurring the background to keep the focus entirely on the texture of the food. This creates a warm, appetizing, and mission-driven mood appropriate for a food rescue application." class="w-full h-full object-cover opacity-60 mix-blend-multiply" data-alt="A vibrant, close-up macro shot of healthy, colorful vegetable fritters or patties. The food is golden brown with flecks of bright green and red vegetables visible. The lighting is warm and natural, suggesting fresh, high-quality ingredients prepared carefully. The depth of field is shallow, blurring the background to keep the focus entirely on the texture of the food. This creates a warm, appetizing, and mission-driven mood appropriate for a food rescue application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqwBlBRfpR6ASErTcBf2aX4ajcalLPwBCySaBL5at52eZl89s1b5mmjuD0m6syPctA9EWjQVPx5HviVlS9Yk336D9IUPDfj3Kfw900AywXa2y5jApHJcihFstHtvIoBF0bKx5XfokuVW_SP_mM4JRI49Fc3n1gVjW869yFDCi2iua4DWo_KOPfQElxwiafPaXiJaHHLdj-TnTbDQPrZu0elAs2B5RuFUrHjUE2CIX0Bv1VJ9VvYWKXSznFTtY4yrPqSJhTB8jO">
+<div class="absolute inset-0 bg-gradient-to-b from-background/10 to-background"></div>
+</div>
+<div class="max-w-[1000px] mx-auto mt-12">
+<!-- Bento Layout Container -->
+<div class="grid grid-cols-12 gap-gutter-lg">
+<!-- Left Column: Status & Details -->
+<div class="col-span-12 lg:col-span-5 flex flex-col gap-card-gap">
+<!-- Status Card -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-outline-variant/30 flex items-start gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[28px] filled">gpp_maybe</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold mb-1">Belum Discan</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Tunjukkan QR Code di sebelah kanan kepada Petugas/Donatur untuk divalidasi.</p>
+</div>
+</div>
+<!-- Details Grid -->
+<div class="grid grid-cols-2 gap-card-gap">
+<!-- Claim Quantity -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-outline-variant/30">
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-wider block mb-2">Jumlah Klaim</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">shopping_bag</span>
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">1</span>
+<span class="font-body-md text-body-md text-on-surface-variant ml-1">Paket</span>
+</div>
+</div>
+<!-- Distribution Method -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-outline-variant/30">
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-wider block mb-2">Metode Distribusi</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">local_shipping</span>
+<span class="font-body-lg text-body-lg font-semibold text-on-surface">Relawan</span>
+</div>
+</div>
+</div>
+<!-- Action Area -->
+<div class="mt-auto pt-8 flex gap-4">
+<button class="flex-1 bg-error-container/50 hover:bg-error-container text-on-error-container font-body-md font-semibold py-4 rounded-lg transition-colors flex items-center justify-center gap-2 border border-error-container">
+<span class="material-symbols-outlined text-[20px]">report</span>
+                            Lapor
+                        </button>
+<button class="flex-[2] bg-surface-container-highest text-on-surface-variant/50 font-body-md font-semibold py-4 rounded-lg cursor-not-allowed flex items-center justify-center gap-2" disabled="">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+                            Konfirmasi Diterima
+                        </button>
+</div>
+<p class="text-center font-label-mono text-label-mono text-on-surface-variant/70 mt-2 flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                        Menunggu validasi scan petugas...
+                    </p>
+</div>
+<!-- Right Column: QR Code Container -->
+<div class="col-span-12 lg:col-span-7">
+<div class="bg-[#2A2421] rounded-2xl p-8 h-full min-h-[480px] flex flex-col items-center justify-center relative overflow-hidden shadow-lg border border-outline/20">
+<!-- AI Decorative Elements -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl mix-blend-screen pointer-events-none"></div>
+<div class="absolute bottom-0 left-0 w-48 h-48 bg-tertiary-container/10 rounded-full blur-2xl mix-blend-screen pointer-events-none"></div>
+<div class="text-center mb-8 relative z-10">
+<div class="flex items-center justify-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary-container text-[24px]">qr_code_scanner</span>
+<h3 class="font-label-mono text-label-mono text-primary-container uppercase tracking-[0.2em] font-bold">QR Penukaran</h3>
+</div>
+<p class="font-body-md text-body-md text-surface-container-low/80">Arahkan kamera Petugas ke kode ini</p>
+</div>
+<!-- QR Code Wrapper -->
+<div class="bg-white p-6 rounded-xl shadow-2xl relative z-10 transform transition-transform hover:scale-105 duration-300">
+<!-- Placeholder for actual QR code image -->
+<div class="w-64 h-64 bg-surface-container-highest rounded border-2 border-dashed border-outline-variant flex items-center justify-center">
+<img alt="QR Code" class="w-full h-full object-contain mix-blend-multiply" data-alt="A clean, high-contrast black and white QR code. The QR code is standard, square, and clear, intended for scanning. It is placed centrally within a white bounding box, reflecting a functional, modern utility interface. No background distractions, purely graphical and functional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYbxHH7tl3Rg4F_VGyfZnsbdIYs0mq1-DUAfL5DXYc-gxfNxzXiT0E8wClYTefN9GZKgZKqYVYR7v1NfQYCf0YYEZ_3NR-FAoF9PD1s7blixRXr6OsC073cQDwQIhw_myO4WWZbRZrPE2GlVl_tbnyCuKXw3AtwT2KNWz_f3LYyDQH_lkgVl9ZPpsPFfYRhKpKtDmX4hB-jhJSdl7YcwCdVnRdzXxNdPkmFqvl3GOA2mW2945d-HAvfG2AmMwVpQtgldptbP3s">
+</div>
+</div>
+<!-- Scanning line animation (CSS) -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 pointer-events-none z-20">
+<div class="w-full h-1 bg-tertiary-fixed shadow-[0_0_8px_#5bffa0] animate-[scan_3s_ease-in-out_infinite]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<style>
+        @keyframes scan {
+            0% { transform: translateY(-130px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(130px); opacity: 0; }
+        }
+    </style>
+
+
+</body></html>

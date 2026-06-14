@@ -861,7 +861,12 @@ async function getInventory(providerId) {
     } else {
         // For receivers, only show available items with stock
         // Lenient on status case and handle empty strings if any
-        query += ' WHERE (f.status = "AVAILABLE" OR f.status IS NULL OR f.status = "") AND f.current_quantity > 0';
+        if (appSettings.disableExpiryLogic) {
+            // When expiry logic is disabled, show everything except completed/claimed items
+            query += ' WHERE (f.status != "COMPLETED" AND f.status != "CLAIMED") AND f.current_quantity > 0';
+        } else {
+            query += ' WHERE (f.status = "AVAILABLE" OR f.status IS NULL OR f.status = "") AND f.current_quantity > 0';
+        }
     }
 
     // Newest items first
@@ -1056,6 +1061,7 @@ async function getClaims(providerId, receiverId) {
         claimedQuantity: String(c.claimed_quantity),
         deliveryMethod: c.delivery_method.toLowerCase(),
         uniqueCode: c.unique_code,
+        pickupCode: c.pickup_code,
         isScanned: !!c.is_scanned,
         date: c.created_at, // Mapping for frontend
         receiverName: c.rec_contact || c.receiverName, 
@@ -1113,7 +1119,7 @@ async function processClaim(payload) {
 
         const [claimResult] = await connection.query(
             'INSERT INTO claims (food_id, receiver_id, address_id, claimed_quantity, delivery_method, status, unique_code) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [foodId, claimData.receiverId, addressId, quantityToReduce, claimData.deliveryMethod.toUpperCase(), 'PENDING', claimData.uniqueCode]
+            [foodId, claimData.receiverId, addressId, quantityToReduce, claimData.deliveryMethod.toUpperCase(), 'PENDING_APPROVAL', claimData.uniqueCode]
         );
 
         const claimId = claimResult.insertId;
@@ -1155,7 +1161,7 @@ async function updateClaimStatus(id, status, additionalData) {
     if (dbStatus === 'ACTIVE') dbStatus = 'IN_PROGRESS';
     
     // Ensure it's one of the valid ENUM values
-    const validStatuses = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+    const validStatuses = ['PENDING_APPROVAL', 'WAITING_PROVIDER', 'PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
     if (!validStatuses.includes(dbStatus)) {
         dbStatus = 'PENDING';
     }
@@ -1179,6 +1185,10 @@ async function updateClaimStatus(id, status, additionalData) {
         if (additionalData.isScanned !== undefined) {
             query += ', is_scanned = ?';
             params.push(additionalData.isScanned ? 1 : 0);
+        }
+        if (additionalData.uniqueCode !== undefined) {
+            query += ', unique_code = ?';
+            params.push(additionalData.uniqueCode);
         }
     }
 
@@ -1205,6 +1215,17 @@ async function updateClaimStatus(id, status, additionalData) {
         if (additionalData?.courierStatus === 'picking_up') {
             await createNotification(claim.receiver_id, 'info', 'Kurir Sedang Menuju Lokasi', `Relawan sedang menjemput donasi "${claim.foodName}" untuk diantar ke Anda.`, id);
         }
+        // C. Jika pesanan disetujui provider (menjadi PENDING)
+        if (dbStatus === 'PENDING') {
+            await createNotification(claim.receiver_id, 'success', 'Pesanan Disetujui', `Donatur telah menyetujui pesanan "${claim.foodName}". Siap untuk diproses!`, id);
+        }
+
+        // D. Jika pesanan ditolak (menjadi CANCELLED)
+        if (dbStatus === 'CANCELLED') {
+            await createNotification(claim.receiver_id, 'warning', 'Pesanan Dibatalkan', `Mohon maaf, donatur tidak dapat memenuhi pesanan "${claim.foodName}" Anda.`, id);
+            // Kembalikan stok
+            await db.query('UPDATE food_items SET current_quantity = current_quantity + ? WHERE id = ?', [claim.claimed_quantity, claim.food_id]);
+        }
     }
 
     return { id, status: dbStatus, ...additionalData };
@@ -1212,8 +1233,30 @@ async function updateClaimStatus(id, status, additionalData) {
 
 async function verifyOrderQR(data) {
     const { uniqueCode, scannedByProviderName } = data;
-    const [rows] = await db.query('SELECT * FROM claims WHERE unique_code = ?', [uniqueCode]);
+    const isPickup = uniqueCode && uniqueCode.startsWith('PICKUP-');
+
+    let query = 'SELECT * FROM claims WHERE unique_code = ?';
+    if (isPickup) {
+        query = 'SELECT * FROM claims WHERE pickup_code = ?';
+    }
+
+    const [rows] = await db.query(query, [uniqueCode]);
     if (rows.length === 0) throw new Error('Kode tidak valid');
+
+    if (isPickup) {
+        if (rows[0].status === 'IN_PROGRESS' || rows[0].status === 'COMPLETED') {
+            return { success: false, message: 'ALREADY_SCANNED' };
+        }
+        await db.query('UPDATE claims SET status = "IN_PROGRESS" WHERE id = ?', [rows[0].id]);
+        return { 
+            success: true, 
+            message: 'PICKUP_VERIFIED', 
+            claimId: rows[0].id,
+            foodName: rows[0].food_name || 'Makanan', 
+            pointsEarned: 0
+        };
+    }
+
     if (rows[0].is_scanned) return { success: false, message: 'ALREADY_SCANNED' };
 
     // 1. Mark as scanned and complete with audit trail
@@ -1946,14 +1989,17 @@ async function deleteFAQ(id) {
 }
 
 async function assignVolunteer(claimId, volunteerId, volunteerName) {
+    const crypto = require('crypto');
+    const pickupCode = 'PICKUP-' + crypto.randomUUID().substring(0, 8).toUpperCase();
     await db.query(
         `UPDATE claims 
          SET volunteer_id = ?, 
              courier_name = ?, 
-             status = 'IN_PROGRESS', 
-             courier_status = 'picking_up' 
+             status = 'WAITING_PROVIDER', 
+             courier_status = 'picking_up',
+             pickup_code = ?
          WHERE id = ?`,
-        [volunteerId, volunteerName, claimId]
+        [volunteerId, volunteerName, pickupCode, claimId]
     );
 
     // NOTIFIKASI: Beritahu Relawan
@@ -2197,6 +2243,9 @@ async function getSocialImpact(userId) {
 // ── Bootstrap: setup DB dulu, baru server listen ─────────────────────────────
 (async () => {
     try {
+        const checkAndReset = require('./resetHandler');
+        await checkAndReset();
+
         await db.initPool();       // cek koneksi + buat DB/tabel jika belum ada
         await loadAppSettings();   // load settings dari DB ke memori
 

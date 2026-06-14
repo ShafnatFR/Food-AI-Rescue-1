@@ -7,14 +7,20 @@ interface ActionBarProps {
     onCancel: () => void;
     onVerify: () => void;
     onComplete?: () => void; // Add handler for completion
+    onAccept?: () => void;
+    onReject?: () => void;
     isVerifying: boolean;
     isCompleting?: boolean; // New prop for loading state
     isCompleted?: boolean; 
+    isWaitingProvider?: boolean;
 }
 
-export const ActionBar: React.FC<ActionBarProps> = ({ onCancel, onVerify, onComplete, isVerifying, isCompleting, isCompleted }) => {
+export const ActionBar: React.FC<ActionBarProps> = ({ 
+    onCancel, onVerify, onComplete, onAccept, onReject, 
+    isVerifying, isCompleting, isCompleted, isWaitingProvider 
+}) => {
     return (
-        <div className="fixed bottom-0 left-0 right-0 p-5 bg-white/90 dark:bg-stone-900/90 backdrop-blur-xl border-t border-stone-200 dark:border-stone-800 z-[110] pointer-events-auto shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+        <div className="fixed bottom-0 left-0 right-0 md:left-[280px] p-5 bg-white/90 dark:bg-stone-900/90 backdrop-blur-xl border-t border-stone-200 dark:border-stone-800 z-[110] pointer-events-auto shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
             <div className="max-w-2xl mx-auto flex gap-3 pointer-events-auto">
                 <Button 
                     variant="outline" 
@@ -25,7 +31,28 @@ export const ActionBar: React.FC<ActionBarProps> = ({ onCancel, onVerify, onComp
                     Kembali
                 </Button>
                 
-                {isCompleted ? (
+                {isWaitingProvider ? (
+                    <div className="flex gap-2 flex-[2] z-20">
+                        <Button 
+                            variant="danger"
+                            onClick={onReject}
+                            isLoading={isCompleting}
+                            disabled={isCompleting}
+                            className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest border-0 transition-all cursor-pointer pointer-events-auto"
+                        >
+                            Tolak
+                        </Button>
+                        <Button 
+                            variant="primary"
+                            onClick={onAccept}
+                            isLoading={isCompleting}
+                            disabled={isCompleting}
+                            className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest border-0 transition-all cursor-pointer pointer-events-auto"
+                        >
+                            Setujui
+                        </Button>
+                    </div>
+                ) : isCompleted ? (
                     <Button 
                         onClick={onComplete}
                         isLoading={isCompleting}

@@ -13,10 +13,10 @@ interface RankCardProps {
 
 export const RankCard: React.FC<RankCardProps> = ({ currentRank, nextRank, currentPoints, progress, onShowDetails }) => {
     return (
-        <div className="bg-gradient-to-br from-orange-600 via-orange-500 to-amber-500 rounded-[2rem] p-7 md:p-9 text-white shadow-2xl shadow-orange-500/30 relative overflow-hidden group border border-white/10">
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-orange-600 via-orange-500 to-amber-500 p-7 text-white shadow-2xl shadow-orange-500/30 group md:desktop-card md:border-stone-100 md:bg-white md:p-8 md:text-stone-900 md:shadow-desktop-card">
             {/* Decorative Patterns */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-[60px] -ml-10 -mb-10 pointer-events-none"></div>
+            <div className="pointer-events-none absolute right-0 top-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-white/10 blur-[80px] md:bg-orange-100/50"></div>
+            <div className="pointer-events-none absolute bottom-0 left-0 -mb-10 -ml-10 h-40 w-40 rounded-full bg-black/10 blur-[60px] md:bg-orange-50"></div>
             
             <div className="flex flex-col md:flex-row justify-between items-start gap-6 relative z-10">
                 <div className="flex items-center md:items-start gap-5">

@@ -7,7 +7,7 @@ import { HistoryDetail } from '../HistoryDetail';
 import { HeaderSection } from './HeaderSection';
 import { FilterTabs } from './FilterTabs';
 import { HistoryItemCard } from './HistoryItemCard';
-import { InventoryNavigation } from '../InventoryNavigation';
+
 
 interface HistoryListProps {
     history?: ProviderOrder[];
@@ -92,7 +92,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
             isLoading={showLoading}
         />
         
-        <InventoryNavigation currentView={currentView} setCurrentView={setCurrentView} />
+
 
         <FilterTabs filterType={filterType} setFilterType={setFilterType} />
 

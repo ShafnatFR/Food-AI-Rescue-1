@@ -10,7 +10,7 @@ interface HeaderSectionProps {
 
 export const HeaderSection: React.FC<HeaderSectionProps> = ({ order, onBack }) => {
     return (
-        <div className="relative h-72 md:h-80 w-full">
+        <div className="relative h-72 md:h-80 w-full md:rounded-3xl overflow-hidden md:mt-6 shadow-sm">
             <img src={order.imageUrl} alt={order.foodName} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-stone-900/90 via-transparent to-stone-900/40"></div>
             
@@ -33,9 +33,12 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({ order, onBack }) =
                     <span className="px-3 py-1 bg-stone-800/80 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 flex items-center gap-1">
                         <Clock className="w-3 h-3 text-orange-500" /> Batas: 14:00 WIB
                     </span>
+                    <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 shadow-lg">
+                        {String(order.quantity).includes('Porsi') ? order.quantity : `${order.quantity} Porsi`}
+                    </span>
                 </div>
                 <h1 className="text-3xl font-black text-white leading-tight drop-shadow-md mb-1">{order.foodName}</h1>
-                <p className="text-stone-300 text-sm font-medium line-clamp-1">{order.quantity} • {order.description}</p>
+                <p className="text-stone-300 text-sm font-medium line-clamp-1">{order.description}</p>
             </div>
         </div>
     );

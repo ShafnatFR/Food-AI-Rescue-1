@@ -42,6 +42,7 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
     const [isSaving, setIsSaving] = useState(false);
     const [isLocating, setIsLocating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [suggestions, setSuggestions] = useState<any[]>([]);
     const [mapRefreshKey, setMapRefreshKey] = useState(0);
     const [mapCenter, setMapCenter] = useState<[number, number]>([-6.200000, 106.816666]); // Default Jakarta
     const isProgrammaticMove = useRef(false);
@@ -60,6 +61,7 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
     const resetForm = () => {
         setFormData({ id: '', label: '', fullAddress: '', contactName: '-', contactPhone: '-', isPrimary: false, lat: undefined, lng: undefined });
         setEditingId(null);
+        setSuggestions([]);
         setIsFormOpen(false);
     };
 
@@ -95,22 +97,32 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
     const handleRefreshMap = async () => {
         if (!formData.fullAddress) return;
         
-        // Forward geocoding to find lat/lng from address text
+        setIsLocating(true);
+        // Forward geocoding to find lat/lng from address text with suggestions
         try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.fullAddress)}&limit=1`);
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.fullAddress)}&limit=5`);
             const data = await response.json();
             if (data && data.length > 0) {
-                const lat = parseFloat(data[0].lat);
-                const lng = parseFloat(data[0].lon);
-                isProgrammaticMove.current = true;
-                setMapCenter([lat, lng]);
-                setFormData(prev => ({ ...prev, lat, lng }));
+                setSuggestions(data);
             } else {
-                alert("Alamat tidak ditemukan di peta.");
+                setSuggestions([]);
+                alert("Alamat tidak ditemukan. Silakan coba kata kunci lain.");
             }
         } catch (error) {
             console.error("Geocoding error:", error);
+            alert("Terjadi kesalahan saat mencari alamat.");
+        } finally {
+            setIsLocating(false);
         }
+    };
+
+    const handleSelectSuggestion = (suggestion: any) => {
+        const lat = parseFloat(suggestion.lat);
+        const lng = parseFloat(suggestion.lon);
+        isProgrammaticMove.current = true;
+        setMapCenter([lat, lng]);
+        setFormData(prev => ({ ...prev, lat, lng, fullAddress: suggestion.display_name }));
+        setSuggestions([]);
     };
 
     const handleUseMyLocation = (autoFill = false) => {
@@ -260,11 +272,26 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
                                     <div className="flex justify-end pt-2">
                                         <button 
                                             onClick={handleRefreshMap}
-                                            className="px-6 py-1.5 rounded-full border border-green-600 text-green-600 text-xs font-bold hover:bg-green-50 transition-colors"
+                                            disabled={isLocating}
+                                            className="px-6 py-1.5 rounded-full border border-green-600 text-green-600 text-xs font-bold hover:bg-green-50 transition-colors disabled:opacity-50"
                                         >
-                                            Cari
+                                            {isLocating ? 'Mencari...' : 'Cari'}
                                         </button>
                                     </div>
+                                    
+                                    {suggestions.length > 0 && (
+                                        <div className="mt-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl overflow-hidden max-h-48 overflow-y-auto shadow-lg z-10">
+                                            {suggestions.map((s, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => handleSelectSuggestion(s)}
+                                                    className="w-full text-left p-3 border-b border-stone-100 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors text-xs text-stone-700 dark:text-stone-300 last:border-0"
+                                                >
+                                                    {s.display_name}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

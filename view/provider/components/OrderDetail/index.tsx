@@ -19,7 +19,7 @@ import jsQR from 'https://esm.sh/jsqr@1.4.0';
 interface OrderDetailProps {
     order: ProviderOrder;
     onBack: () => void;
-    onComplete?: (status?: 'completed' | 'active') => void;
+    onComplete?: (status?: 'completed' | 'active' | 'cancelled' | 'pending') => void;
 }
 
 export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onComplete }) => {
@@ -117,6 +117,34 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
         }
     };
 
+    const handleAccept = async () => {
+        if (isCompleting) return;
+        setIsCompleting(true);
+        try {
+            await db.updateClaimStatus(order.id, 'active');
+            if (onComplete) onComplete('active');
+        } catch (error) {
+            console.error("Failed to accept order:", error);
+            alert("Gagal menyetujui pesanan.");
+        } finally {
+            setIsCompleting(false);
+        }
+    };
+
+    const handleReject = async () => {
+        if (isCompleting) return;
+        setIsCompleting(true);
+        try {
+            await db.updateClaimStatus(order.id, 'cancelled');
+            if (onComplete) onComplete('cancelled');
+        } catch (error) {
+            console.error("Failed to reject order:", error);
+            alert("Gagal menolak pesanan.");
+        } finally {
+            setIsCompleting(false);
+        }
+    };
+
     const handleCloseSplash = () => {
         setShowSuccessSplash(false);
         if (onComplete) onComplete('completed'); // Navigasi kembali ke list setelah splash ditutup
@@ -189,9 +217,8 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
     }, [showVerifyModal, scannerMode]);
 
     return (
-        // Changed to Flexbox layout to fix ActionBar stacking/click issues caused by fixed position inside transform
-        <div className="fixed inset-0 bg-[#FDFBF7] dark:bg-stone-900 z-[100] animate-in slide-in-from-right duration-300 flex flex-col overflow-hidden">
-            <div className="flex-1 overflow-y-auto pb-4">
+        <div className="bg-[#FDFBF7] dark:bg-stone-950 min-h-screen animate-in fade-in pb-24">
+            <div className="max-w-4xl mx-auto">
                 <HeaderSection order={order} onBack={onBack} />
                 <div className="px-6 space-y-6 -mt-4 relative z-10 pb-6">
                     <OrderInfoCard orderId={order.id} />
@@ -204,7 +231,7 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
                         deliveryMethod={order.deliveryMethod} 
                         targetAddress={order.receiver.address} // Pass dynamic address here
                     />
-                    <WarningNote />
+                    {order.status?.toLowerCase() !== 'pending_approval' && <WarningNote />}
                 </div>
             </div>
 
@@ -214,7 +241,10 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
                 isVerifying={isVerifying}
                 isCompleting={isCompleting}
                 isCompleted={order.status === 'completed' || isScanSuccess}
+                isWaitingProvider={order.status?.toLowerCase() === 'pending_approval'}
                 onComplete={handleManualCompletion} 
+                onAccept={handleAccept}
+                onReject={handleReject}
             />
 
             {/* SPLASH SCREEN SUKSES */}
@@ -236,11 +266,10 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
                     <div className="w-full max-w-sm">
                         <div className="text-center mb-6">
                             <h3 className="text-white font-black text-2xl uppercase italic tracking-tight">Verifikasi Pesanan</h3>
-                            <p className="text-stone-500 text-sm font-medium">Scan QR Code Penerima</p>
+                            <p className="text-stone-500 text-sm font-medium">Scan QR Code {order.deliveryMethod === 'delivery' ? 'Relawan' : 'Penerima'}</p>
                         </div>
 
-                        {scannerMode === 'camera' ? (
-                            <div className="relative rounded-[2.5rem] overflow-hidden aspect-square bg-black border-2 border-stone-800 shadow-2xl mx-auto group">
+                        <div className="relative rounded-[2.5rem] overflow-hidden aspect-square bg-black border-2 border-stone-800 shadow-2xl mx-auto group">
                                 <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
                                 <canvas ref={canvasRef} className="hidden" />
                                 
@@ -271,44 +300,9 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
                                     </div>
                                 )}
                             </div>
-                        ) : (
-                            <div className="bg-stone-900 rounded-[2.5rem] p-8 border border-stone-800 shadow-2xl aspect-square flex flex-col justify-center relative overflow-hidden">
-                                {verificationResult.status !== 'idle' && (
-                                    <div className={`absolute inset-0 z-40 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in duration-300 ${
-                                        verificationResult.status === 'success' ? 'bg-green-600/95' : 
-                                        verificationResult.status === 'already_taken' ? 'bg-amber-600/95' : 'bg-red-600/95'
-                                    }`}>
-                                        {verificationResult.status === 'success' ? <CheckCircle2 className="w-16 h-16 text-white mb-4" /> : <AlertCircle className="w-16 h-16 text-white mb-4 animate-shake" />}
-                                        <h3 className="text-white font-black text-xl uppercase italic leading-tight mb-2">{verificationResult.message}</h3>
-                                        {verificationResult.status !== 'success' ? (
-                                            <Button onClick={() => setVerificationResult({status:'idle', message:''})} variant="outline" className="mt-6 border-white text-white">Coba Lagi</Button>
-                                        ) : (
-                                            <Button onClick={() => { setShowVerifyModal(false); stopCamera(); }} variant="outline" className="mt-6 border-white text-white">Lanjutkan</Button>
-                                        )}
-                                    </div>
-                                )}
-
-                                <ScanLine className="w-12 h-12 text-orange-500 mx-auto mb-4" />
-                                <h4 className="text-white font-black text-lg mb-6 text-center uppercase tracking-widest italic">Input Kode Manual</h4>
-                                <Input 
-                                    label="KODE PENUKARAN"
-                                    placeholder="CONTOH: FAR-1234" 
-                                    value={manualCode} 
-                                    onChange={e => setManualCode(e.target.value.toUpperCase())}
-                                    className="bg-black border-stone-700 text-white text-center font-mono text-2xl h-16 mb-6"
-                                />
-                                <Button onClick={() => handleVerifyCode(manualCode)} disabled={!manualCode || isVerifying || verificationResult.status !== 'idle'} isLoading={isVerifying}>
-                                    Verifikasi Kode
-                                </Button>
-                            </div>
-                        )}
-
-                        <div className="mt-8 grid grid-cols-2 gap-4">
-                            <button onClick={() => { setScannerMode('camera'); setVerificationResult({status:'idle', message:''}); }} className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${scannerMode === 'camera' ? 'bg-orange-600 text-white border-orange-500' : 'bg-stone-900 text-stone-600 border-stone-800'}`}>
-                                <Camera className="w-6 h-6" /><span className="text-[10px] font-black uppercase">Kamera</span>
-                            </button>
-                            <button onClick={() => { setScannerMode('manual'); setVerificationResult({status:'idle', message:''}); }} className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${scannerMode === 'manual' ? 'bg-orange-600 text-white border-orange-500' : 'bg-stone-900 text-stone-600 border-stone-800'}`}>
-                                <Keyboard className="w-6 h-6" /><span className="text-[10px] font-black uppercase">Keyboard</span>
+                        <div className="mt-8">
+                            <button className={`flex w-full items-center justify-center gap-2 p-4 rounded-2xl border transition-all bg-orange-600 text-white border-orange-500`}>
+                                <Camera className="w-6 h-6" /><span className="text-[10px] font-black uppercase">Kamera Aktif</span>
                             </button>
                         </div>
                     </div>

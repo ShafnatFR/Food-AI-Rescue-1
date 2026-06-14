@@ -29,10 +29,23 @@ export const TimelineDetails: React.FC<TimelineDetailsProps> = ({ timestamps, de
             
             <div className="pt-4 border-t border-stone-200 dark:border-stone-700">
                 <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Lokasi Tujuan</p>
-                <div className="flex items-start gap-2 text-stone-700 dark:text-stone-300 text-xs font-medium">
+                <div className="flex items-start gap-2 text-stone-700 dark:text-stone-300 text-xs font-medium mb-4">
                     <MapPin className="w-4 h-4 text-red-500 shrink-0" />
                     {targetAddress || "Detail lokasi tidak tersedia"}
                 </div>
+                {targetAddress && (
+                    <div className="rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-800 relative h-48 shadow-sm">
+                        <iframe 
+                            width="100%" 
+                            height="100%" 
+                            frameBorder="0" 
+                            scrolling="no" 
+                            marginHeight={0} 
+                            marginWidth={0} 
+                            src={`https://maps.google.com/maps?q=${encodeURIComponent(targetAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

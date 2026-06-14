@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { ArrowLeft, MapPin, Package, Truck, Navigation, ShoppingBag, CalendarDays, QrCode, CheckCircle2, ShieldCheck, ShieldAlert, MessageCircle, Clock, Info, AlertTriangle, Star, X, ChevronRight, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, MapPin, Package, Truck, Info, Navigation, AlertTriangle, Star, CheckCircle2, MessageCircle, Clock, ShieldCheck, ShieldAlert, Leaf, Check, Search, ExternalLink, CalendarDays, Store, LeafyGreen, QrCode, X } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { ClaimHistoryItem } from '../../../types';
 import { optimizeUnsplashUrl } from '../../../utils/imageOptimizer';
@@ -11,12 +10,12 @@ interface ClaimHistoryDetailProps {
     onBack: () => void;
     onComplete?: () => void;
     onReport?: () => void;
-    onReview?: () => void; // New prop for review action
+    onReview?: () => void;
 }
 
 export const ClaimHistoryDetail: React.FC<ClaimHistoryDetailProps> = ({ item, onBack, onComplete, onReport, onReview }) => {
     
-    // UPDATED MAP LOGIC
+    // Map Logic
     const locationAddress = item.location?.address || "Lokasi tidak tersedia";
     const mapQuery = (locationAddress && locationAddress !== "Lokasi tidak tersedia")
         ? encodeURIComponent(locationAddress)
@@ -34,334 +33,299 @@ export const ClaimHistoryDetail: React.FC<ClaimHistoryDetailProps> = ({ item, on
         window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`, '_blank');
     };
 
-    const handleChatDonor = () => {
-        const phone = "6285215376975"; // Mock
-        const text = `Halo Donatur *${item.providerName}*,\n\nSaya sedang di lokasi pengambilan untuk makanan *${item.foodName}*. \n\nSaya ingin menanyakan: `;
-        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
-    };
-
     const isActionable = ['active', 'pending', 'in_progress'].includes(item.status?.toLowerCase() || '');
-    const isScanned = item.isScanned || false;
     const isCompleted = item.status === 'completed';
-    const [previewMediaIndex, setPreviewMediaIndex] = React.useState<number | null>(null);
-    const [previewMediaArray, setPreviewMediaArray] = React.useState<string[]>([]);
+
+    const [previewMediaIndex, setPreviewMediaIndex] = useState<number | null>(null);
+    const [previewMediaArray, setPreviewMediaArray] = useState<string[]>([]);
+    const [showQRModal, setShowQRModal] = useState(false);
     
-    const isVideo = (url: string) => {
-        if (!url) return false;
-        return url.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || url.startsWith('data:video');
+    // Mocking formatting date
+    const formatDate = (isoString: string) => {
+        try {
+            const d = new Date(isoString);
+            return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        } catch(e) {
+            return isoString;
+        }
+    };
+    const formatTime = (isoString: string) => {
+        try {
+            const d = new Date(isoString);
+            return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        } catch(e) {
+            return "12:00";
+        }
     };
 
-    const openPreview = (idx: number, arr: any[]) => {
-        const stringArr = arr.map(a => String(a));
-        setPreviewMediaArray(stringArr);
-        setPreviewMediaIndex(idx);
-    };
+    // Calculate Impact
+    const co2Saved = item.socialImpact?.co2Saved || 0;
+    const points = item.socialImpact?.totalPoints || 0;
 
     return (
-        <div className="fixed inset-0 bg-[#FDFBF7] dark:bg-stone-950 z-[100] overflow-y-auto animate-in slide-in-from-right duration-300">
-            {/* Media Preview Modal */}
-            {previewMediaIndex !== null && (
-                <MediaLightbox 
-                    mediaUrls={previewMediaArray} 
-                    initialIndex={previewMediaIndex} 
-                    onClose={() => setPreviewMediaIndex(null)} 
-                />
-            )}
-            {/* Hero Image Section */}
-            <div className="relative h-72 md:h-80 w-full">
-                <img src={optimizeUnsplashUrl(item.imageUrl, 1080)} alt={item.foodName} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                
-                <button 
-                    onClick={onBack}
-                    className="absolute top-4 left-4 p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-colors z-10"
-                >
-                    <ArrowLeft className="w-6 h-6" />
+        <div className="bg-[#FDFBF7] dark:bg-stone-950 min-h-screen animate-in fade-in pb-20">
+
+
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <button onClick={onBack} className="flex items-center gap-2 text-sm font-bold text-stone-500 hover:text-stone-800 dark:hover:text-stone-300 mb-4 transition-colors">
+                    <ArrowLeft className="w-4 h-4" /> Kembali
                 </button>
 
-                <div className="absolute bottom-6 left-6">
-                    <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-2 shadow-lg ${
-                        item.status === 'completed' ? 'bg-green-500 text-white' : 
-                        item.status === 'active' ? 'bg-orange-500 text-white' : 
-                        'bg-red-500 text-white'
-                    }`}>
-                        Status: {item.status}
-                    </span>
-                    <h1 className="text-3xl font-black text-white leading-tight drop-shadow-md">{item.foodName}</h1>
-                    <p className="text-orange-400 font-bold flex items-center gap-1.5 mt-1 drop-shadow-sm">
-                        <Package className="w-4 h-4" /> {item.providerName}
-                    </p>
-                </div>
-            </div>
-
-            {/* Content Section */}
-            <div className="p-6 md:p-8 space-y-8 max-w-3xl mx-auto -mt-6 bg-[#FDFBF7] dark:bg-stone-950 rounded-t-[2.5rem] relative pb-44">
-                
-                {/* Status Validasi Scan */}
-                {isActionable && (
-                    <div className={`p-5 rounded-[2rem] border-2 transition-all shadow-sm flex items-center gap-4 ${
-                        isScanned 
-                        ? 'bg-green-50 border-green-200 dark:bg-green-900/10 dark:border-green-800' 
-                        : 'bg-orange-50 border-orange-200 dark:bg-orange-900/10 dark:border-orange-800'
-                    }`}>
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
-                            isScanned ? 'bg-green-500 text-white' : 'bg-orange-500 text-white animate-pulse'
-                        }`}>
-                            {isScanned ? <ShieldCheck className="w-6 h-6" /> : <ShieldAlert className="w-6 h-6" />}
+                {/* Hero Section */}
+                <div className="relative w-full h-[280px] lg:h-[320px] rounded-3xl overflow-hidden mb-6 shadow-sm">
+                    <img src={optimizeUnsplashUrl(item.imageUrl, 1080)} alt={item.foodName} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    
+                    {/* Floating Info Card on Hero */}
+                    <div className="absolute bottom-6 left-6 right-6 lg:left-8 lg:bottom-8 z-10 flex flex-col justify-end">
+                        <div className="flex items-center gap-2 mb-3">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                                item.status === 'completed' ? 'bg-green-500 text-white' : 
+                                item.status === 'active' ? 'bg-orange-500 text-white' : 
+                                'bg-red-500 text-white'
+                            }`}>
+                                {item.status === 'completed' ? 'SELESAI' : item.status === 'active' ? 'AKTIF' : item.status.toUpperCase()}
+                            </span>
+                            <span className="bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-medium tracking-wide">
+                                ID Klaim: #{item.uniqueCode || item.id.substring(0,8)}
+                            </span>
                         </div>
-                        <div className="flex-1">
-                            <h4 className={`font-black text-sm uppercase tracking-tight ${isScanned ? 'text-green-700 dark:text-green-400' : 'text-orange-700 dark:text-orange-400'}`}>
-                                {isScanned ? 'Sudah Discan' : 'Belum Discan'}
-                            </h4>
-                            <p className="text-[11px] text-stone-500 leading-snug">
-                                {isScanned 
-                                    ? 'Petugas (Validator 1) telah memverifikasi pengambilan makanan ini.' 
-                                    : 'Tunjukkan QR Code di bawah kepada Petugas/Donatur untuk divalidasi.'}
-                            </p>
+                        <h1 className="text-3xl lg:text-4xl font-black text-white leading-tight drop-shadow-md mb-2">{item.foodName}</h1>
+                        <div className="flex flex-wrap items-center gap-4 text-stone-200 text-sm font-medium">
+                            <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4 text-stone-300" /> Diambil pada {formatDate(item.date)}</span>
+                            <span className="flex items-center gap-1.5"><Package className="w-4 h-4 text-stone-300" /> {String(item.claimedQuantity).includes('Porsi') ? item.claimedQuantity : `${item.claimedQuantity || 1} Porsi`}</span>
                         </div>
                     </div>
-                )}
+                </div>
 
-                {/* Review Section if Rated */}
-                {item.rating && (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/5 p-6 rounded-[2rem] border border-yellow-200 dark:border-yellow-900/50 space-y-4 shadow-sm">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-yellow-400 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shadow-yellow-500/20">
-                                {item.rating}
-                            </div>
-                            <div>
-                                <h4 className="text-xs font-black text-yellow-800 dark:text-yellow-500 uppercase tracking-[.2em] mb-1">Ulasan Anda</h4>
-                                <div className="flex gap-0.5">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} className={`w-3.5 h-3.5 ${i < (item.rating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-stone-300'}`} />
-                                    ))}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+                    {/* Left Column - Details */}
+                    <div className="lg:col-span-2 space-y-6">
+                        
+                        {/* Detail Pengambilan */}
+                        <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-stone-100 dark:border-stone-800">
+                            <h3 className="text-lg font-black text-stone-800 dark:text-stone-100 mb-5 flex items-center gap-2">
+                                <Info className="w-5 h-5 text-orange-500" /> Detail Pengambilan
+                            </h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl">
+                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Kuantitas</p>
+                                    <p className="text-lg font-bold text-stone-800 dark:text-stone-200">{String(item.claimedQuantity).includes('Porsi') ? item.claimedQuantity : `${item.claimedQuantity || 1} Porsi`}</p>
+                                    <p className="text-xs text-stone-500 mt-1">Cukup untuk {parseInt(String(item.claimedQuantity)) || 1} orang</p>
+                                </div>
+                                <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl">
+                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Metode Distribusi</p>
+                                    <div className="flex items-center gap-2 text-lg font-bold text-stone-800 dark:text-stone-200">
+                                        <Truck className="w-4 h-4 text-green-600" /> {item.deliveryMethod?.toLowerCase() === 'pickup' ? 'Mandiri' : 'Relawan'}
+                                    </div>
+                                    <p className="text-xs text-stone-500 mt-1">
+                                        {item.deliveryMethod?.toLowerCase() === 'pickup' ? 'Ambil sendiri di lokasi' : `Dikirim oleh: ${item.courierName || 'Relawan FAR'}`}
+                                    </p>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Lokasi Pengambilan */}
+                        <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-stone-100 dark:border-stone-800">
+                            <h3 className="text-lg font-black text-stone-800 dark:text-stone-100 mb-5 flex items-center gap-2">
+                                <MapPin className="w-5 h-5 text-orange-500" /> Lokasi Pengambilan
+                            </h3>
+                            <div className="flex items-start gap-4 mb-5">
+                                <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
+                                    <Store className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-stone-900 dark:text-stone-100 text-lg">{item.providerName}</h4>
+                                    <p className="text-sm text-stone-500 leading-relaxed mt-1">{locationAddress}</p>
+                                </div>
+                            </div>
+                            
+                            {item.deliveryMethod?.toLowerCase() === 'pickup' && (
+                                <div className="rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-800 relative h-48 sm:h-64 shadow-sm group">
+                                    <iframe 
+                                        width="100%" 
+                                        height="100%" 
+                                        frameBorder="0" 
+                                        scrolling="no" 
+                                        marginHeight={0} 
+                                        marginWidth={0} 
+                                        src={`https://maps.google.com/maps?q=${mapQuery}&z=15&output=embed`}
+                                        className="filter grayscale group-hover:grayscale-0 transition-all duration-700"
+                                    ></iframe>
+                                    <button onClick={openInMaps} className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white dark:bg-stone-900 text-stone-900 dark:text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-transform border border-stone-100 dark:border-stone-800">
+                                        <Navigation className="w-4 h-4 text-orange-500" /> Buka di Google Maps
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            {isCompleted && !item.rating && onReview && (
+                                <button onClick={onReview} className="flex-1 h-14 bg-[#a56322] hover:bg-[#8b531c] text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md shadow-[#a56322]/20">
+                                    <Star className="w-5 h-5" /> Beri Ulasan
+                                </button>
+                            )}
+                            {isCompleted && !item.isReported && onReport && (
+                                <button onClick={onReport} className="sm:w-32 h-14 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors">
+                                    <AlertTriangle className="w-5 h-5" /> Lapor
+                                </button>
+                            )}
+                            {item.status?.toLowerCase() === 'pending_approval' && (
+                                <div className="flex-1 h-14 bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 rounded-2xl font-bold flex items-center justify-center gap-2 px-4 text-center text-sm shadow-inner border border-orange-200 dark:border-orange-800">
+                                    <Clock className="w-5 h-5" /> Sedang menunggu donatur menyiapkan makanan
+                                </div>
+                            )}
+                            {isActionable && item.status?.toLowerCase() !== 'pending_approval' && (
+                                <button onClick={() => setShowQRModal(true)} className="flex-1 h-14 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md shadow-green-600/20">
+                                    <QrCode className="w-5 h-5" /> Lihat Kode QR
+                                </button>
+                            )}
+                        </div>
+
+                    </div>
+
+                    {/* Right Column - Timeline & Insights */}
+                    <div className="space-y-6">
                         
-                        <p className="text-sm text-stone-700 dark:text-stone-300 italic leading-relaxed bg-white/50 dark:bg-black/20 p-4 rounded-2xl border border-yellow-100 dark:border-yellow-900/30">
-                            "{item.review || 'Tanpa ulasan tertulis'}"
-                        </p>
+                        {/* Impact Insights */}
+                        <div className="bg-[#2A2D2C] rounded-3xl p-6 shadow-lg text-white">
+                            <h3 className="text-[11px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-2 mb-6">
+                                <Leaf className="w-4 h-4" /> Impact Insights
+                            </h3>
+                            
+                            <div className="mb-6">
+                                <p className="text-xs text-stone-400 mb-1">Emisi CO2 Berhasil Dikurangi</p>
+                                <div className="flex items-end gap-2">
+                                    <span className="text-4xl font-black">{co2Saved} kg</span>
+                                    <LeafyGreen className="w-6 h-6 text-emerald-500 mb-1" />
+                                </div>
+                            </div>
+                            
+                            <div className="h-px w-full bg-stone-700/50 mb-6"></div>
+                            
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs text-stone-400 mb-1">Skor Kontribusi</p>
+                                    <p className="text-xl font-bold">+{points} Poin</p>
+                                </div>
+                                <div className="w-12 h-12 rounded-full border-2 border-emerald-500 flex items-center justify-center text-xs font-bold text-emerald-400">
+                                    88%
+                                </div>
+                            </div>
+                        </div>
 
-                        {/* Review Media */}
-                        {item.reviewMedia && item.reviewMedia.length > 0 && (
-                            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                                {item.reviewMedia.map((mediaUrl, idx) => (
-                                    <div key={idx} className="relative group shrink-0" onClick={() => openPreview(idx, item.reviewMedia || [])}>
-                                        {isVideo(mediaUrl) ? (
-                                            <div className="w-28 h-28 rounded-2xl border-2 border-white dark:border-stone-800 bg-black overflow-hidden relative cursor-pointer shadow-md">
-                                                <video src={mediaUrl} className="w-full h-full object-cover opacity-60" />
-                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                    <div className="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
-                                                        <div className="w-0 h-0 border-t-[5px] border-t-transparent border-l-[8px] border-l-white border-b-[5px] border-b-transparent ml-0.5" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <img 
-                                                src={mediaUrl} 
-                                                alt={`Review ${idx}`} 
-                                                className="w-28 h-28 object-cover rounded-2xl border-2 border-white dark:border-stone-800 shadow-md cursor-pointer hover:scale-105 transition-transform" 
-                                            />
-                                        )}
+                        {/* Riwayat Status */}
+                        <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-stone-100 dark:border-stone-800">
+                            <h3 className="text-lg font-black text-stone-800 dark:text-stone-100 mb-6">Riwayat Status</h3>
+                            
+                            <div className="relative pl-6 space-y-6">
+                                {/* Vertical line */}
+                                <div className="absolute left-2.5 top-2 bottom-4 w-px bg-stone-200 dark:bg-stone-800"></div>
+                                
+                                {/* Timeline Items */}
+                                {item.status?.toLowerCase() === 'cancelled' && (
+                                    <div className="relative">
+                                        <div className="absolute -left-6 w-5 h-5 rounded-full flex items-center justify-center z-10 bg-red-500 text-white">
+                                            <AlertTriangle className="w-3 h-3" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-red-600 dark:text-red-400">Pesanan Dibatalkan</h4>
+                                            <p className="text-xs text-stone-500 my-0.5">{formatDate(item.date)}, {formatTime(item.date)}</p>
+                                            <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 leading-snug">Pesanan ditolak oleh donatur atau dibatalkan.</p>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                )}
+                                )}
 
-                {/* Status Reported */}
-                {item.isReported && (
-                    <div className="bg-red-50 dark:bg-red-900/5 p-6 rounded-[2rem] border border-red-200 dark:border-red-900/50 space-y-4 shadow-sm">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-red-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/20">
-                                <AlertTriangle className="w-7 h-7" />
-                            </div>
-                            <div>
-                                <h4 className="text-xs font-black text-red-800 dark:text-red-500 uppercase tracking-[.2em] mb-1">Laporan Terkirim</h4>
-                                <p className="text-xs font-bold text-red-600/70">{item.reportReason || 'Masalah Terdeteksi'}</p>
-                            </div>
-                        </div>
-                        
-                        <div className="bg-white/50 dark:bg-black/20 p-4 rounded-2xl border border-red-100 dark:border-red-900/30 space-y-2">
-                            <p className="text-xs font-bold text-red-800 dark:text-red-400 uppercase tracking-wider">Deskripsi Masalah:</p>
-                            <p className="text-sm text-stone-700 dark:text-stone-300 leading-relaxed font-medium">
-                                {item.reportDescription || 'Tidak ada deskripsi tambahan.'}
-                            </p>
-                        </div>
-
-                        {/* Report Evidence */}
-                        {item.reportEvidence && (Array.isArray(item.reportEvidence) ? item.reportEvidence.length > 0 : true) && (
-                            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                                {(Array.isArray(item.reportEvidence) ? item.reportEvidence : [item.reportEvidence]).map((mediaUrl, idx, fullArr) => (
-                                    <div key={idx} className="relative group shrink-0" onClick={() => openPreview(idx, fullArr)}>
-                                        {isVideo(String(mediaUrl)) ? (
-                                            <div className="w-28 h-28 rounded-2xl border-2 border-white dark:border-stone-800 bg-black overflow-hidden relative cursor-pointer shadow-md">
-                                                <video src={String(mediaUrl)} className="w-full h-full object-cover opacity-60" />
-                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                    <div className="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
-                                                        <div className="w-0 h-0 border-t-[5px] border-t-transparent border-l-[8px] border-l-white border-b-[5px] border-b-transparent ml-0.5" />
-                                                    </div>
-                                                </div>
+                                {item.status?.toLowerCase() !== 'cancelled' && (
+                                    <>
+                                        <div className="relative">
+                                            <div className={`absolute -left-6 w-5 h-5 rounded-full flex items-center justify-center z-10 transition-colors duration-500 ${isCompleted ? 'bg-green-500 text-white shadow-md shadow-green-500/20' : 'bg-stone-200 dark:bg-stone-700 text-stone-400'}`}>
+                                                <Check className="w-3 h-3" />
                                             </div>
-                                        ) : (
-                                            <img 
-                                                src={String(mediaUrl)} 
-                                                alt={`Evidence ${idx}`} 
-                                                className="w-28 h-28 object-cover rounded-2xl border-2 border-white dark:border-stone-800 shadow-md cursor-pointer hover:scale-105 transition-transform" 
-                                            />
-                                        )}
-                                    </div>
-                                ))}
+                                            <div className={`transition-opacity duration-500 ${isCompleted ? 'opacity-100' : 'opacity-40'}`}>
+                                                <h4 className={`text-sm font-bold ${isCompleted ? 'text-stone-800 dark:text-stone-200' : 'text-stone-500 dark:text-stone-400'}`}>Klaim Selesai</h4>
+                                                {isCompleted && <p className="text-xs text-stone-500 my-0.5">{formatDate(item.date)}, {formatTime(new Date(new Date(item.date).getTime() + 7200000).toISOString())}</p>}
+                                                <p className="text-xs text-stone-600 dark:text-stone-500 mt-1 leading-snug">Makanan telah diterima oleh penerima manfaat.</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="relative">
+                                            <div className={`absolute -left-6 w-5 h-5 rounded-full flex items-center justify-center z-10 transition-colors duration-500 ${['in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' : 'bg-stone-200 dark:bg-stone-700 text-stone-400'}`}>
+                                                <Truck className="w-3 h-3" />
+                                            </div>
+                                            <div className={`transition-opacity duration-500 ${['in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'opacity-100' : 'opacity-40'}`}>
+                                                <h4 className={`text-sm font-bold ${['in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'text-stone-800 dark:text-stone-200' : 'text-stone-500 dark:text-stone-400'}`}>Dalam Pengantaran</h4>
+                                                {['in_progress', 'completed'].includes(item.status?.toLowerCase() || '') && <p className="text-xs text-stone-500 my-0.5">{formatDate(item.date)}, {formatTime(new Date(new Date(item.date).getTime() + 3600000).toISOString())}</p>}
+                                                <p className="text-xs text-stone-600 dark:text-stone-500 mt-1 leading-snug">{item.deliveryMethod?.toLowerCase() === 'pickup' ? 'Penerima sedang menuju lokasi.' : 'Relawan sedang menuju lokasi drop-off.'}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="relative">
+                                            <div className={`absolute -left-6 w-5 h-5 rounded-full flex items-center justify-center z-10 transition-colors duration-500 ${['active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' : 'bg-stone-200 dark:bg-stone-700 text-stone-400'}`}>
+                                                <Store className="w-3 h-3" />
+                                            </div>
+                                            <div className={`transition-opacity duration-500 ${['active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'opacity-100' : 'opacity-40'}`}>
+                                                <h4 className={`text-sm font-bold ${['active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'text-stone-800 dark:text-stone-200' : 'text-stone-500 dark:text-stone-400'}`}>Pesanan Disetujui Donatur</h4>
+                                                {['active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') && <p className="text-xs text-stone-500 my-0.5">{formatDate(item.date)}, {formatTime(new Date(new Date(item.date).getTime() + 300000).toISOString())}</p>}
+                                                <p className="text-xs text-stone-600 dark:text-stone-500 mt-1 leading-snug">Donatur telah mengonfirmasi dan menyiapkan makanan.</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="relative">
+                                            <div className="absolute -left-6 w-5 h-5 rounded-full flex items-center justify-center z-10 bg-orange-500 text-white shadow-md shadow-orange-500/20">
+                                                <Package className="w-3 h-3" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-bold text-stone-800 dark:text-stone-200">Pesanan Dibuat</h4>
+                                                <p className="text-xs text-stone-500 my-0.5">{formatDate(item.date)}, {formatTime(item.date)}</p>
+                                                <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 leading-snug">Sistem telah mencatat pesanan Anda.</p>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
-                        )}
-
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-red-500 uppercase tracking-widest bg-red-100/50 dark:bg-red-900/20 py-2 px-4 rounded-full w-fit">
-                            <Clock className="w-3 h-3 animate-spin-slow" /> Sedang Ditinjau Admin
                         </div>
-                    </div>
-                )}
 
-                {/* Info Sanggahan & Auto-Complete */}
-                {isActionable && isScanned && (
-                    <div className="bg-blue-50 dark:bg-blue-900/10 p-5 rounded-3xl border border-blue-100 dark:border-blue-800 flex gap-3 items-start">
-                        <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                        <div className="space-y-2">
-                            <p className="text-xs text-blue-800 dark:text-blue-300 font-medium leading-relaxed">
-                                Silakan cek kualitas makanan. Jika kurang layak atau tidak sesuai, segera chat Donatur untuk penyesuaian.
-                            </p>
-                            <button onClick={handleChatDonor} className="flex items-center gap-1.5 text-xs font-black text-blue-700 dark:text-blue-200 uppercase tracking-widest hover:underline">
-                                <MessageCircle className="w-4 h-4" /> Chat Donatur
-                            </button>
+                        {/* Meta Info */}
+                        <div className="bg-[#fcfafa] dark:bg-stone-900/50 rounded-3xl p-5 border border-stone-200/60 dark:border-stone-800">
+                            <div className="flex items-center justify-between py-2 border-b border-stone-200 dark:border-stone-800/50">
+                                <span className="text-xs text-stone-500">Kategori</span>
+                                <span className="text-sm font-bold text-stone-800 dark:text-stone-200">Makanan Siap Saji</span>
+                            </div>
+                            <div className="flex items-center justify-between py-2 pt-3">
+                                <span className="text-xs text-stone-500">Penyumbang</span>
+                                <span className="text-sm font-bold text-stone-800 dark:text-stone-200 text-right">{item.providerName}</span>
+                            </div>
                         </div>
-                    </div>
-                )}
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white dark:bg-stone-900 p-5 rounded-3xl border border-stone-100 dark:border-stone-800 shadow-sm">
-                        <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">Jumlah Klaim</p>
-                        <p className="text-xl font-black text-stone-900 dark:text-white flex items-center gap-2">
-                            <ShoppingBag className="w-5 h-5 text-orange-500" /> {item.claimedQuantity || '1 Porsi'}
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-stone-900 p-5 rounded-3xl border border-stone-100 dark:border-stone-800 shadow-sm">
-                        <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">Metode Distribusi</p>
-                        <p className="text-xl font-black text-stone-900 dark:text-white capitalize flex items-center gap-2">
-                            <Truck className="w-5 h-5 text-blue-500" /> {item.deliveryMethod === 'pickup' ? 'Mandiri' : 'Relawan'}
-                        </p>
                     </div>
                 </div>
+            </div>
 
-                {/* QR Code Section - ACTIVE Only */}
-                {isActionable && item.uniqueCode && (
-                    <div className="bg-stone-900 dark:bg-black p-8 rounded-[2.5rem] text-center space-y-6 shadow-2xl border border-white/5 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl"></div>
-                        
-                        <div className="space-y-1 relative z-10">
-                            <h4 className="text-orange-500 font-black text-sm uppercase tracking-[0.3em] flex items-center justify-center gap-2">
-                                <QrCode className="w-4 h-4" /> QR Penukaran
-                            </h4>
-                            <p className="text-stone-400 text-xs">Arahkan kamera Petugas ke kode ini</p>
-                        </div>
-                        
-                        <div className="bg-white p-4 rounded-3xl inline-block shadow-inner ring-8 ring-stone-800/50 relative z-10">
-                            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${item.uniqueCode}`} alt="QR Code" className="w-48 h-48" />
-                        </div>
-                        
-                        <div className="relative z-10">
-                            <p className="text-4xl font-black text-white tracking-[0.2em] font-mono select-all">
-                                {item.uniqueCode}
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Location & Map */}
-                <div className="space-y-4">
-                    <h3 className="font-black text-xl text-stone-900 dark:text-white flex items-center gap-2">
-                        <MapPin className="w-6 h-6 text-orange-500" /> Lokasi Pengambilan
-                    </h3>
-                    
-                    <p className="text-sm text-stone-600 dark:text-stone-400 bg-stone-100 dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 dark:border-stone-800 leading-relaxed font-medium">
-                        {locationAddress}
-                    </p>
-                    
-                    <div className="rounded-[2.5rem] overflow-hidden border border-stone-200 dark:border-stone-800 relative h-64 group cursor-pointer shadow-md transition-all hover:shadow-xl" onClick={openInMaps}>
-                        <iframe 
-                            width="100%" 
-                            height="100%" 
-                            frameBorder="0" 
-                            scrolling="no" 
-                            marginHeight={0} 
-                            marginWidth={0} 
-                            src={`https://maps.google.com/maps?q=${mapQuery}&z=15&output=embed`}
-                            className="filter grayscale group-hover:grayscale-0 transition-all duration-700 ease-in-out scale-105"
-                        ></iframe>
-                        <button className="absolute bottom-5 right-5 bg-white dark:bg-stone-900 text-stone-900 dark:text-white px-6 py-3 rounded-full text-sm font-black shadow-2xl flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                            <Navigation className="w-4 h-4 text-orange-500" /> Buka Google Maps
+            {/* QR Modal */}
+            {showQRModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl max-w-sm w-full shadow-2xl relative animate-in zoom-in-95 duration-200 flex flex-col items-center text-center">
+                        <button onClick={() => setShowQRModal(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-colors">
+                            <X className="w-4 h-4" />
                         </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Bottom Action Bar */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 pb-10 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl border-t border-stone-200 dark:border-stone-800 z-[110]">
-                <div className="max-w-3xl mx-auto flex flex-col gap-3">
-                    {isActionable && !isScanned && (
-                        <div className="flex items-center justify-center gap-2 text-stone-400 font-bold text-[10px] uppercase tracking-widest mb-1 animate-pulse">
-                            <Clock className="w-3.5 h-3.5" /> Menunggu Validasi Scan Petugas...
+                        <h3 className="text-xl font-black text-stone-900 dark:text-white mb-2">Kode Penukaran</h3>
+                        <p className="text-stone-500 dark:text-stone-400 text-sm mb-6">Tunjukkan kode ini kepada penyedia atau relawan.</p>
+                        
+                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-stone-200 inline-block mb-6">
+                            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(item.uniqueCode || item.id)}`} alt="QR Code" className="w-48 h-48" />
                         </div>
-                    )}
-                    <div className="flex gap-3">
-                        {/* Report Button */}
-                        {!item.isReported && (
-                            <button 
-                                onClick={onReport}
-                                className="h-14 px-5 rounded-2xl font-black uppercase tracking-widest text-[10px] text-red-600 bg-red-50 border border-red-100 hover:bg-red-100 transition-all flex items-center justify-center gap-2 shrink-0"
-                            >
-                                <AlertTriangle className="w-4 h-4" /> Lapor
-                            </button>
-                        )}
-
-                        {/* Review Button (Only if Completed & Not Rated) */}
-                        {isCompleted && !item.rating && onReview && (
-                            <button 
-                                onClick={onReview}
-                                className="h-14 px-5 rounded-2xl font-black uppercase tracking-widest text-[10px] text-yellow-600 bg-yellow-50 border border-yellow-100 hover:bg-yellow-100 transition-all flex items-center justify-center gap-2 flex-1"
-                            >
-                                <Star className="w-4 h-4" /> Beri Ulasan
-                            </button>
-                        )}
-
-                        {/* Confirm Button */}
-                        {isActionable && onComplete && (
-                            <Button 
-                                onClick={onComplete}
-                                disabled={!isScanned}
-                                className={`flex-1 h-14 rounded-2xl font-black uppercase tracking-widest shadow-xl transition-all ${
-                                    isScanned 
-                                    ? 'bg-green-600 hover:bg-green-700 shadow-green-500/20' 
-                                    : 'bg-stone-200 text-stone-400 shadow-none grayscale'
-                                }`}
-                            >
-                                <CheckCircle2 className="w-5 h-5 mr-1" /> Konfirmasi Diterima
-                            </Button>
-                        )}
-
-                        {/* Close Button if no main action */}
-                        {!isActionable && !(!item.rating && isCompleted) && (
-                             <Button 
-                                onClick={onBack}
-                                className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest bg-stone-900 text-white"
-                            >
-                                Tutup Detail
-                            </Button>
-                        )}
+                        
+                        <div className="bg-stone-100 dark:bg-stone-800 px-6 py-3 rounded-xl border border-stone-200 dark:border-stone-700 w-full mb-6">
+                            <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">ID KLAIM</p>
+                            <p className="text-2xl font-mono font-bold tracking-widest text-stone-800 dark:text-stone-200">{item.uniqueCode || item.id.substring(0,8)}</p>
+                        </div>
+                        
+                        <Button className="w-full rounded-xl bg-stone-900 hover:bg-stone-800 text-white h-12" onClick={() => setShowQRModal(false)}>Tutup</Button>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

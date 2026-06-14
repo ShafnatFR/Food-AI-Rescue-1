@@ -29,6 +29,8 @@ interface ProviderIndexProps {
   onRefresh?: () => void;
   socialSystem?: any;
   disableExpiryLogic?: boolean;
+  pendingProviderTool?: 'kitchen' | 'kitchen-history' | 'csr' | 'packaging' | null;
+  onClearPendingProviderTool?: () => void;
 }
 
 export const ProviderIndex: React.FC<ProviderIndexProps> = ({ 
@@ -40,7 +42,9 @@ export const ProviderIndex: React.FC<ProviderIndexProps> = ({
     onCompleteOnboarding,
     notifications = [],
     onRefresh,
-    socialSystem
+    socialSystem,
+    pendingProviderTool,
+    onClearPendingProviderTool,
 }) => {
   const [socialImpact, setSocialImpact] = useState<any>(null);
   const [isLoadingImpact, setIsLoadingImpact] = useState(true);
@@ -75,12 +79,28 @@ export const ProviderIndex: React.FC<ProviderIndexProps> = ({
       }
   };
 
+  React.useEffect(() => {
+      if (!pendingProviderTool) return;
+      if (pendingProviderTool === 'kitchen') {
+          setKitchenInitialTab('scan');
+          setShowKitchenScanner(true);
+      } else if (pendingProviderTool === 'kitchen-history') {
+          setKitchenInitialTab('history');
+          setShowKitchenScanner(true);
+      } else if (pendingProviderTool === 'csr') {
+          setShowCSREditor(true);
+      } else if (pendingProviderTool === 'packaging') {
+          setShowPackagingEditor(true);
+      }
+      onClearPendingProviderTool?.();
+  }, [pendingProviderTool, onClearPendingProviderTool]);
+
   const stats = useMemo(() => {
-      const myClaims = claimHistory.filter(h => h.providerName === userName);
+      const myClaims = claimHistory; // ALREADY FILTERED in App.tsx by providerId
       const completedOrders = myClaims.filter(h => h.status?.toLowerCase() === 'completed');
       
       // Hitung Pesanan Masuk (Aktif)
-      const activeOrdersCount = myClaims.filter(h => ['PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED'].includes(h.status?.toUpperCase() || '')).length;
+      const activeOrdersCount = myClaims.filter(h => ['PENDING_APPROVAL', 'WAITING_PROVIDER', 'PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED'].includes(h.status?.toUpperCase() || '')).length;
 
       // REAL RATING CALCULATION
       const ratedOrders = completedOrders.filter(h => h.rating && h.rating > 0);
@@ -106,8 +126,8 @@ export const ProviderIndex: React.FC<ProviderIndexProps> = ({
       if (showCSREditor) return <CSRWriterEditor currentUser={currentUser} foodItems={foodItems} onBack={() => setShowCSREditor(false)} />;
 
       return (
-          <div className="p-6 md:p-8 max-w-5xl mx-auto pb-32">
-              <header className="mb-8 flex justify-between items-start">
+          <div className="mx-auto max-w-5xl p-6 pb-32 md:max-w-none md:p-0 md:pb-8">
+              <header className="mb-8 flex items-start justify-between md:mb-6">
                   <div className="animate-in slide-in-from-left duration-500">
                       <h1 className="text-3xl font-black text-stone-900 dark:text-white tracking-tighter leading-none italic uppercase">Dashboard Donatur</h1>
                       <p className="text-[10px] text-stone-500 font-black uppercase tracking-widest mt-2 bg-stone-100 dark:bg-stone-800 px-3 py-1 rounded-lg w-fit">Integritas Pangan AI</p>
@@ -115,7 +135,7 @@ export const ProviderIndex: React.FC<ProviderIndexProps> = ({
                   
                   <button 
                       onClick={onOpenNotifications} 
-                      className="relative p-3 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 text-stone-500 hover:text-orange-600 transition-all shadow-sm group active:scale-95"
+                      className="relative rounded-2xl border border-stone-200 bg-white p-3 text-stone-500 shadow-sm transition-all hover:text-orange-600 active:scale-95 group md:hidden dark:border-stone-800 dark:bg-stone-900"
                   >
                       <Bell className="w-6 h-6" />
                       {notifications.filter((n: any) => !n.isRead).length > 0 && (
@@ -159,7 +179,7 @@ export const ProviderIndex: React.FC<ProviderIndexProps> = ({
                       <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-2 py-0.5 rounded-full">Kreativitas Tanpa Batas</span>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
                       <button 
                           onClick={() => {
                               setKitchenInitialTab('scan');

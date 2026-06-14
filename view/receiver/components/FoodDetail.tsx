@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ShieldCheck, Clock, CheckCircle, MapPin, Navigation, Minus, Plus, CalendarDays, Heart, MessageCircle, Truck, Package, AlertTriangle, Loader2, Lock, AlertCircle, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, MapPin, Navigation, Minus, Plus, CalendarDays, Heart, MessageCircle, Truck, Package, AlertTriangle, AlertCircle, ShoppingBag, Store, Verified } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { FoodItem, ClaimHistoryItem, UserData } from '../../../types';
-import { StoreIcon } from './StoreIcon';
 import { AIVerificationCard } from './AIVerificationCard';
 import { db } from '../../../services/db';
 import { formatDateTime, isFoodExpired } from '../../../utils/transformers';
@@ -21,7 +19,6 @@ interface FoodDetailProps {
   disableExpiryLogic?: boolean;
 }
 
-
 export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, isSaved, onToggleSave, claimHistory = [], currentUser, isReadOnly = false, disableExpiryLogic = false }) => {
 
   // LOGIKA ADAPTIF PORSI
@@ -29,10 +26,7 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
   const standardMin = item.minQuantity || 1;
   const maxAllowedByDonor = item.maxQuantity || item.initialQuantity;
   
-  // Jika stok sisa < minimal standar, maka minimal ambil adalah sisa stok itu sendiri
   const minAllowed = stockAvailable < standardMin ? stockAvailable : standardMin;
-  
-  // Batas maksimal sesungguhnya tidak boleh melebihi stok yang tersisa
   const actualMax = Math.min(stockAvailable, maxAllowedByDonor);
 
   const [isClaiming, setIsClaiming] = useState(false);
@@ -40,14 +34,11 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
   const [claimQuantity, setClaimQuantity] = useState(minAllowed); 
   const [selectedMethod, setSelectedMethod] = useState<'pickup' | 'delivery'>('pickup');
   const [showStockWarning, setShowStockWarning] = useState(false);
-
-  // State to track if receiver has setup an address
   const [hasAddress, setHasAddress] = useState<boolean | null>(null);
   const [isLoadingAddress, setIsLoadingAddress] = useState(true);
 
   const expired = !disableExpiryLogic && (item.status === 'expired' || isFoodExpired(item.distributionEnd, item.expiryTime));
 
-  // Check status
   const isThisItemActive = claimHistory.some(c => 
       c.status?.toUpperCase() === 'ACTIVE' && 
       c.foodName === item.name && 
@@ -75,16 +66,14 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
 
   useEffect(() => {
       setClaimQuantity(minAllowed);
-      // Auto-switch to pickup if stock < 5 or default method is pickup
       if (item.deliveryMethod === 'delivery' && stockAvailable >= 5) setSelectedMethod('delivery');
       else setSelectedMethod('pickup');
   }, [item, minAllowed, stockAvailable]);
 
    const handleClaimClick = () => {
-    if (isThisItemActive || !hasAddress || isOutOfStock || isReadOnly) return;
+    if (isThisItemActive || !hasAddress || isOutOfStock || isReadOnly || expired) return;
     setShowConfirmModal(true);
   };
-
 
   const confirmClaim = async () => {
     setShowConfirmModal(false);
@@ -132,206 +121,247 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
       : `${item.location?.lat || -6.914744},${item.location?.lng || 107.609810}`;
 
   return (
-    <div className="fixed inset-0 bg-[#FDFBF7] dark:bg-stone-950 z-[60] overflow-y-auto animate-in slide-in-from-right duration-300">
-        <div className="relative h-72 md:h-80 w-full">
-            <img src={optimizeUnsplashUrl(item.imageUrl, 1080)} alt={item.name} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-            <button onClick={onBack} className="absolute top-4 left-4 p-3 bg-white/20 backdrop-blur-md rounded-full text-white z-10"><ArrowLeft className="w-6 h-6" /></button>
-            <div className="absolute bottom-6 left-6 flex flex-wrap gap-2">
-                <span className="bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1 backdrop-blur-sm border border-white/20">
-                    <ShieldCheck className="w-3 h-3" /> AI SCORE {item.aiVerification?.halalScore}
-                </span>
-                <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-white/20 ${isOutOfStock ? 'bg-red-600 text-white' : 'bg-white/90 text-stone-900'}`}>
-                    Stok: {item.currentQuantity}
-                </span>
-                {item.deliveryMethod !== 'both' && (
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-white/20 flex items-center gap-1 ${item.deliveryMethod === 'pickup' ? 'bg-orange-500 text-white' : 'bg-blue-500 text-white'}`}>
-                        {item.deliveryMethod === 'pickup' ? <Package className="w-3 h-3" /> : <Truck className="w-3 h-3" />}
-                        {item.deliveryMethod === 'pickup' ? 'Hanya Ambil' : 'Hanya Antar'}
-                    </span>
-                )}
-            </div>
-        </div>
+    <div className="flex flex-col min-h-full bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 p-4 md:p-8">
+      {/* Back Header is handled by parent, but we can add one if needed, or assume TopAppBar is outside. 
+          The Figma shows TopAppBar outside. We will just render the grid content. */}
+          
+      <div className="max-w-7xl mx-auto w-full">
+        <button onClick={onBack} className="md:hidden flex items-center gap-2 mb-4 text-stone-500 hover:text-stone-800 transition-colors">
+            <ArrowLeft className="w-5 h-5" /> Kembali
+        </button>
 
-        <div className="p-6 space-y-8 max-w-3xl mx-auto -mt-6 bg-[#FDFBF7] dark:bg-stone-950 rounded-t-3xl relative pb-64 md:pb-56">
-            <div className="flex justify-between items-start">
-                <div className="flex-1 pr-4">
-                    <h1 className="text-3xl font-extrabold text-stone-900 dark:text-white leading-tight mb-3">{item.name}</h1>
-                    <div className="flex flex-wrap items-center gap-2 text-stone-600 dark:text-stone-400">
-                        <div className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-900 px-3 py-1.5 rounded-xl">
-                            <StoreIcon className="w-4 h-4 text-orange-500" />
-                            <span className="font-bold text-sm">{item.providerName}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* LEFT COLUMN: lg:col-span-7 */}
+          <div className="lg:col-span-7 space-y-6">
+            
+            {/* HERO IMAGE */}
+            <div className="relative w-full h-[300px] md:h-[400px] rounded-2xl overflow-hidden shadow-sm bg-stone-200 dark:bg-stone-800">
+                <img src={optimizeUnsplashUrl(item.imageUrl, 1080)} alt={item.name} className="w-full h-full object-cover" />
+                <div className="absolute top-4 left-4 flex gap-2">
+                    {/* Status Badge */}
+                    <span className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm text-xs font-mono font-bold border border-white/20 backdrop-blur-md ${expired || isOutOfStock ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
+                        {expired ? <AlertTriangle className="w-3.5 h-3.5" /> : isOutOfStock ? <AlertTriangle className="w-3.5 h-3.5" /> : <Verified className="w-3.5 h-3.5" />}
+                        {expired ? "KEDALUWARSA" : isOutOfStock ? "STOK HABIS" : "LAYAK KONSUMSI"}
+                    </span>
+                    {/* Time Left Badge */}
+                    {!expired && !isOutOfStock && (
+                      <span className="bg-white/90 dark:bg-stone-900/90 backdrop-blur text-stone-800 dark:text-stone-200 font-mono px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm text-xs font-bold">
+                          <Clock className="w-3.5 h-3.5 text-orange-600" />
+                          {item.distributionEnd ? `Sampai ${formatDateTime(item.distributionEnd).split(',')[1]}` : 'Tersedia'}
+                      </span>
+                    )}
+                </div>
+            </div>
+
+            {/* HEADER DETAILS CARD */}
+            <div className="bg-white dark:bg-stone-900 rounded-2xl p-6 shadow-sm border border-stone-200 dark:border-stone-800 flex justify-between items-start">
+                <div>
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-stone-900 dark:text-white mb-2 leading-tight">{item.name}</h1>
+                    <div className="flex flex-wrap gap-3 items-center mt-4">
+                        <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 px-3 py-1.5 rounded-lg">
+                            <Store className="w-4 h-4 text-orange-600" />
+                            <span className="text-sm font-medium">{item.providerName}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-xl text-red-600 dark:text-red-400">
-                            <Clock className="w-3.5 h-3.5" />
-                            <span className="font-bold text-xs">Exp: {formatDateTime(item.distributionEnd || item.expiryTime)}</span>
+                        <div className="flex items-center gap-2 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/40 px-3 py-1.5 rounded-lg">
+                            <AlertTriangle className="w-4 h-4" />
+                            <span className="text-sm font-medium">Exp: {formatDateTime(item.distributionEnd || item.expiryTime)}</span>
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
-                    <button onClick={onToggleSave} className={`shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center shadow-md border-2 transition-all active:scale-90 ${isSaved ? 'bg-orange-500 border-orange-600 text-white' : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-stone-400'}`}><Heart className={`w-7 h-7 ${isSaved ? 'fill-current' : ''}`} /></button>
-                    <span className="text-[10px] font-black uppercase tracking-widest mt-1.5 text-stone-400">simpan</span>
-                </div>
+                <button 
+                  onClick={onToggleSave} 
+                  className={`shrink-0 w-12 h-12 rounded-full border flex items-center justify-center transition-all ${isSaved ? 'text-red-500 border-red-200 bg-red-50 dark:bg-red-900/20' : 'text-stone-400 border-stone-200 hover:text-red-500 hover:border-red-200 hover:bg-red-50 dark:border-stone-700'}`}
+                >
+                    <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
+                </button>
             </div>
 
+            {/* ACTIVE/OUT OF STOCK ALERTS */}
             {isOutOfStock ? (
-                <div className="bg-red-50 dark:bg-red-900/20 p-5 rounded-3xl border-2 border-red-100 dark:border-red-900/30 flex items-center gap-4 animate-pulse">
-                    <AlertTriangle className="w-8 h-8 text-red-600 shrink-0" />
+                <div className="bg-red-50 dark:bg-red-900/20 p-5 rounded-2xl border border-red-200 dark:border-red-800/50 flex items-center gap-4 animate-pulse">
+                    <AlertTriangle className="w-6 h-6 text-red-600 shrink-0" />
                     <div>
-                        <p className="font-black text-red-700 dark:text-red-400 text-sm uppercase tracking-tighter">Maaf, Stok Habis</p>
+                        <p className="font-bold text-red-700 dark:text-red-400 text-sm uppercase tracking-wider">Maaf, Stok Habis</p>
                         <p className="text-xs text-red-600 dark:text-red-300 font-medium">Makanan ini sudah habis diklaim oleh pengguna lain.</p>
                     </div>
                 </div>
-            ) : isThisItemActive && (
-                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-2xl border border-red-200 dark:border-red-800 flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            ) : isThisItemActive ? (
+                <div className="bg-orange-50 dark:bg-orange-900/20 p-5 rounded-2xl border border-orange-200 dark:border-orange-800/50 flex items-center gap-4">
+                    <AlertTriangle className="w-6 h-6 text-orange-600 shrink-0" />
                     <div>
-                        <p className="font-bold text-red-700 dark:text-red-400 text-sm">Pesanan Sedang Aktif</p>
-                        <p className="text-xs text-red-600 dark:text-red-300 mt-1">Selesaikan proses pengambilan terlebih dahulu.</p>
+                        <p className="font-bold text-orange-700 dark:text-orange-400 text-sm">Pesanan Sedang Aktif</p>
+                        <p className="text-xs text-orange-600 dark:text-orange-300 mt-1">Selesaikan proses pengambilan terlebih dahulu.</p>
                     </div>
                 </div>
-            )}
+            ) : null}
 
-            <div className="bg-orange-50 dark:bg-orange-900/10 p-5 rounded-3xl border border-orange-100 dark:border-orange-800/50">
-                <h3 className="font-black text-stone-800 dark:text-orange-100 text-sm flex items-center gap-2 mb-3 uppercase tracking-wider"><CalendarDays className="w-4 h-4 text-orange-500" /> JADWAL DISTRIBUSI SURPLUS</h3>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white dark:bg-stone-900 p-3 rounded-2xl border border-orange-100 dark:border-stone-800">
-                        <p className="text-[10px] font-bold text-stone-400 uppercase mb-1">Mulai Ambil</p>
-                        <p className="text-base font-black text-stone-900 dark:text-white">{item.distributionStart ? formatDateTime(item.distributionStart).split(',')[1] : '18:30'}</p>
-                    </div>
-                    <div className="bg-white dark:bg-stone-900 p-3 rounded-2xl border border-orange-100 dark:border-stone-800">
-                        <p className="text-[10px] font-bold text-stone-400 uppercase mb-1">Batas Akhir</p>
-                        <p className="text-base font-black text-red-600 dark:text-red-400">{item.distributionEnd ? formatDateTime(item.distributionEnd).split(',')[1] : '21:00'}</p>
-                    </div>
-                </div>
-            </div>
-            
-            {/* AI Verification Section */}
-            {item.aiVerification ? (
+            {/* AI VERIFICATION CARD */}
+            {item.aiVerification && (
                 <AIVerificationCard verification={item.aiVerification} />
-            ) : (
-                <div className="bg-stone-50 dark:bg-stone-900/50 p-6 rounded-[2.5rem] border border-stone-100 dark:border-stone-800 flex flex-col items-center text-center opacity-70">
-                    <ShieldCheck className="w-8 h-8 text-stone-300 mb-2" />
-                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest leading-relaxed">Verifikasi AI Standar Aktif<br/>Halal & Kualitas Terjamin</p>
-                </div>
             )}
 
-            <div className="space-y-4">
-                <h3 className="font-bold text-xl text-stone-900 dark:text-white">Lokasi Pengambilan</h3>
-                <p className="text-sm text-stone-600 dark:text-stone-400 flex items-start gap-2 bg-stone-100 dark:bg-stone-900 p-3 rounded-xl"><MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" /> {locationAddress}</p>
-                <div className="rounded-3xl overflow-hidden border border-stone-200 dark:border-stone-800 relative h-56 group cursor-pointer shadow-sm" onClick={handleRoute}>
-                    <iframe width="100%" height="100%" frameBorder="0" src={`https://maps.google.com/maps?q=${mapQuery}&z=15&output=embed`} className="filter grayscale group-hover:grayscale-0 transition-all duration-500"></iframe>
-                    <button className="absolute bottom-4 right-4 bg-white text-stone-900 px-5 py-2.5 rounded-full text-sm font-bold shadow-xl flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95"><Navigation className="w-4 h-4" /> Buka Google Maps</button>
+          </div>
+
+
+          {/* RIGHT COLUMN: lg:col-span-5 */}
+          <div className="lg:col-span-5 space-y-6">
+            
+            {/* SCHEDULE CARD */}
+            <div className="bg-orange-50/50 dark:bg-orange-900/10 rounded-2xl p-6 shadow-sm border border-orange-200/50 dark:border-orange-900/30">
+                <div className="flex items-center gap-2 mb-4">
+                    <CalendarDays className="text-orange-600 w-5 h-5" />
+                    <h3 className="font-bold text-stone-800 dark:text-orange-100">Jadwal Distribusi Surplus</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white dark:bg-stone-900 p-4 rounded-xl border border-orange-100 dark:border-stone-800 shadow-sm">
+                        <p className="font-mono text-[10px] text-stone-500 uppercase mb-1 font-bold tracking-widest">Mulai Ambil</p>
+                        <p className="font-bold text-orange-600 dark:text-orange-400 text-lg">
+                          {item.distributionStart ? formatDateTime(item.distributionStart).split(',')[1] : '18:30'}
+                        </p>
+                    </div>
+                    <div className="bg-white dark:bg-stone-900 p-4 rounded-xl border border-orange-100 dark:border-stone-800 shadow-sm">
+                        <p className="font-mono text-[10px] text-stone-500 uppercase mb-1 font-bold tracking-widest">Batas Akhir</p>
+                        <p className="font-bold text-red-600 dark:text-red-400 text-lg">
+                          {item.distributionEnd ? formatDateTime(item.distributionEnd).split(',')[1] : '21:00'}
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div className="fixed bottom-0 left-0 right-0 p-5 pb-8 bg-white/95 dark:bg-stone-900/95 backdrop-blur-lg border-t border-stone-200 dark:border-stone-800 z-[70] shadow-[0_-10px_40px_rgba(0,0,0,0.12)] md:max-w-3xl md:mx-auto md:bottom-6 md:rounded-3xl">
-            <div className="flex flex-col gap-4">
-                {item.deliveryMethod === 'both' && (
-                    <div className="bg-stone-100 dark:bg-stone-800 p-1 rounded-xl flex gap-1">
-                        <button onClick={() => setSelectedMethod('pickup')} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-black uppercase transition-all ${selectedMethod === 'pickup' ? 'bg-white dark:bg-stone-700 text-orange-600 shadow-sm' : 'text-stone-500'}`}><Package className="w-4 h-4" /> Ambil Sendiri</button>
-                        <button 
-                            onClick={stockAvailable < 5 ? () => setShowStockWarning(true) : () => setSelectedMethod('delivery')} 
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-black uppercase transition-all ${selectedMethod === 'delivery' ? 'bg-white dark:bg-stone-700 text-blue-600 shadow-sm' : 'text-stone-500'} ${stockAvailable < 5 ? 'opacity-60' : ''}`}
-                        >
-                            <Truck className="w-4 h-4" /> Diantar Relawan {stockAvailable < 5 && <span className="ml-1 text-[8px] bg-red-100 text-red-600 px-1 rounded-md">LIMITED</span>}
-                        </button>
-                    </div>
+            {/* CLAIM ACTION CARD */}
+            <div className="bg-white dark:bg-stone-900 rounded-2xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden sticky top-24">
+                
+                {/* Method Toggle */}
+                {item.deliveryMethod === 'both' ? (
+                  <div className="flex p-2 bg-stone-100 dark:bg-stone-950 m-4 rounded-xl">
+                      <button onClick={() => setSelectedMethod('pickup')} className={`flex-1 py-2.5 text-xs font-mono font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${selectedMethod === 'pickup' ? 'bg-white dark:bg-stone-800 shadow-sm text-orange-600' : 'text-stone-500 hover:text-stone-700'}`}>
+                          <Store className="w-4 h-4" /> AMBIL SENDIRI
+                      </button>
+                      <button onClick={stockAvailable < 5 ? () => setShowStockWarning(true) : () => setSelectedMethod('delivery')} className={`flex-1 py-2.5 text-xs font-mono font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${selectedMethod === 'delivery' ? 'bg-white dark:bg-stone-800 shadow-sm text-blue-600' : 'text-stone-500 hover:text-stone-700'} ${stockAvailable < 5 ? 'opacity-60' : ''}`}>
+                          <Truck className="w-4 h-4" /> DIANTAR RELAWAN {stockAvailable < 5 && <span className="ml-1 text-[8px] bg-red-100 text-red-600 px-1 rounded-md">LIMITED</span>}
+                      </button>
+                  </div>
+                ) : (
+                  <div className="flex p-4 border-b border-stone-100 dark:border-stone-800 justify-center">
+                    <span className="text-sm font-bold flex items-center gap-2 text-stone-600 dark:text-stone-300">
+                      {item.deliveryMethod === 'pickup' ? <><Store className="w-4 h-4 text-orange-600" /> HANYA AMBIL SENDIRI</> : <><Truck className="w-4 h-4 text-blue-600" /> HANYA DIANTAR RELAWAN</>}
+                    </span>
+                  </div>
                 )}
 
-                <div className="flex items-center justify-between border-b md:border-b-0 border-stone-100 dark:border-stone-800 pb-3 md:pb-0">
-                    <div className="flex flex-col">
-                        <p className="text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-[0.15em] mb-1">
-                            JUMLAH AMBIL {stockAvailable < standardMin ? `(STOK SISA)` : `(MIN: ${minAllowed})`}
-                        </p>
-                        <div className="flex items-center gap-4 bg-stone-100 dark:bg-stone-800 p-1 rounded-xl w-fit">
-                            <button onClick={decrement} disabled={claimQuantity <= minAllowed || isThisItemActive || isOutOfStock} className="w-10 h-10 rounded-lg flex items-center justify-center bg-white dark:bg-stone-700 text-stone-600 dark:text-white shadow-sm disabled:opacity-30 transition-all"><Minus className="w-4 h-4" /></button>
-                            <span className="text-xl font-black text-stone-900 dark:text-white min-w-[2ch] text-center">{claimQuantity}</span>
-                            <button onClick={increment} disabled={claimQuantity >= actualMax || isThisItemActive || isOutOfStock} className="w-10 h-10 rounded-lg flex items-center justify-center bg-orange-500 text-white shadow-sm hover:bg-orange-600 disabled:opacity-30 transition-all"><Plus className="w-4 h-4" /></button>
+                <div className="p-6 border-t border-stone-100 dark:border-stone-800">
+                    <div className="flex justify-between items-end mb-8">
+                        <div>
+                            <p className="font-mono text-stone-500 text-[10px] font-bold uppercase tracking-widest mb-2">Jumlah Ambil (Min: {minAllowed})</p>
+                            <div className="flex items-center gap-3">
+                                <button onClick={decrement} disabled={claimQuantity <= minAllowed || isThisItemActive || isOutOfStock} className="w-10 h-10 rounded-lg bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-600 dark:text-stone-300 hover:bg-stone-200 disabled:opacity-30 transition-colors">
+                                    <Minus className="w-4 h-4" />
+                                </button>
+                                <span className="font-bold text-xl w-8 text-center">{claimQuantity}</span>
+                                <button onClick={increment} disabled={claimQuantity >= actualMax || isThisItemActive || isOutOfStock} className="w-10 h-10 rounded-lg bg-orange-600 text-white flex items-center justify-center hover:bg-orange-700 disabled:opacity-30 transition-colors">
+                                    <Plus className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <p className="font-mono text-stone-500 text-[10px] font-bold uppercase tracking-widest mb-1">Total Tersedia</p>
+                            <p className="font-bold text-orange-600 dark:text-orange-400 text-lg"><span className="text-2xl">{actualMax}</span> Porsi</p>
+                            <p className="text-[10px] text-stone-400 italic mt-0.5">Maks per user: {actualMax}</p>
                         </div>
                     </div>
 
-                    <div className="text-right">
-                        <p className="text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-[0.15em] mb-1">METODE: {selectedMethod === 'pickup' ? 'Ambil' : 'Antar'}</p>
-                        <p className="text-xl font-extrabold text-orange-600 dark:text-orange-400 leading-none">{actualMax} <span className="text-xs font-bold text-stone-400">Porsi</span></p>
-                        <p className="text-[9px] text-stone-400 mt-1 italic font-bold">Maks per user: {actualMax}</p>
+                    <div className="flex gap-3 mt-4">
+                        <button onClick={handleChatToProvider} className="w-14 h-14 shrink-0 rounded-xl border border-stone-200 dark:border-stone-700 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors">
+                            <MessageCircle className="w-6 h-6" />
+                        </button>
+                        <Button 
+                            onClick={handleClaimClick} 
+                            isLoading={isClaiming} 
+                            disabled={isOutOfStock || isThisItemActive || hasAddress === false || isLoadingAddress || isReadOnly || expired}
+                            className={`flex-1 h-14 rounded-xl shadow-md font-bold tracking-widest uppercase flex items-center justify-center gap-2 border-0 ${
+                                (isOutOfStock || isThisItemActive || hasAddress === false || isLoadingAddress || isReadOnly || expired)
+                                ? 'bg-stone-200 dark:bg-stone-800 text-stone-400 shadow-none' 
+                                : 'bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white shadow-orange-500/20'
+                            }`}
+                        >
+                            {expired ? 'KEDALUWARSA' : isOutOfStock ? 'STOK HABIS' : isLoadingAddress ? 'MEMERIKSA...' : isReadOnly ? 'BACA SAJA' : hasAddress === false ? 'LENGKAPI ALAMAT' : isThisItemActive ? 'SUDAH DIKLAIM' : 'KLAIM SEKARANG'}
+                        </Button>
                     </div>
                 </div>
+            </div>
 
-                <div className="flex gap-3 w-full">
-                    <button onClick={handleChatToProvider} className="h-14 px-4 rounded-2xl border-2 border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2">
-                        <MessageCircle className="w-5 h-5" />
+            {/* MAP CONTEXT CARD */}
+            <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 shadow-sm border border-stone-200 dark:border-stone-800">
+                <div className="h-32 rounded-xl bg-stone-100 dark:bg-stone-950 overflow-hidden relative border border-stone-200 dark:border-stone-800 flex items-center justify-center group cursor-pointer" onClick={handleRoute}>
+                    {/* Fake Map Background using CSS or iframe */}
+                    <iframe width="100%" height="100%" frameBorder="0" src={`https://maps.google.com/maps?q=${mapQuery}&z=15&output=embed`} className="filter grayscale group-hover:grayscale-0 transition-all duration-500 pointer-events-none"></iframe>
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/80 dark:from-stone-900/90 to-transparent pointer-events-none"></div>
+                    <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                        <MapPin className="text-orange-600 w-4 h-4 shrink-0" />
+                        <span className="font-mono text-xs font-bold text-stone-800 dark:text-stone-200 truncate pr-20">{locationAddress}</span>
+                    </div>
+                    <button className="absolute top-3 right-3 text-[10px] font-mono font-bold bg-white/90 dark:bg-stone-800/90 backdrop-blur px-2.5 py-1.5 rounded-md text-orange-600 border border-orange-600/20 shadow-sm pointer-events-auto hover:bg-orange-50 transition-colors">
+                      Lihat Rute
                     </button>
-                    <Button 
-                        onClick={handleClaimClick} 
-                        isLoading={isClaiming} 
-                        disabled={isOutOfStock || isThisItemActive || hasAddress === false || isLoadingAddress || isReadOnly}
-                        className={`h-14 flex-1 text-base rounded-2xl shadow-xl font-black tracking-widest uppercase border-0 ${
-                            (isOutOfStock || isThisItemActive || hasAddress === false || isLoadingAddress || isReadOnly)
-                            ? 'bg-stone-200 dark:bg-stone-800 text-stone-400 cursor-not-allowed shadow-none grayscale' 
-                            : 'bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-orange-500/30'
-                        }`}
-                    >
-                        {isOutOfStock ? 'STOK HABIS' : isLoadingAddress ? 'MEMERIKSA DATA...' : isReadOnly ? 'MODE BACA SAJA' : hasAddress === false ? 'LENGKAPI ALAMAT' : isThisItemActive ? 'SUDAH DIKLAIM' : 'KLAIM SEKARANG'}
-                    </Button>
-
                 </div>
             </div>
+
+          </div>
         </div>
+      </div>
 
-        {showConfirmModal && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-                <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200">
-                    <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <ShoppingBag className="w-8 h-8 text-orange-600" />
-                    </div>
-                    <h3 className="text-xl font-black text-center text-stone-900 dark:text-white mb-2">Konfirmasi Klaim</h3>
-                    <p className="text-stone-500 dark:text-stone-400 text-center text-sm mb-6">
-                        Apakah Anda yakin ingin mengambil <span className="font-bold text-stone-900 dark:text-white">{claimQuantity} porsi</span> {item.name}?
-                    </p>
-                    <div className="flex gap-3">
-                        <Button variant="outline" className="flex-1 rounded-2xl" onClick={() => setShowConfirmModal(false)}>Batal</Button>
-                        <Button className="flex-1 rounded-2xl bg-orange-600 hover:bg-orange-700" onClick={confirmClaim}>Ya, Yakin</Button>
-                    </div>
-                </div>
-            </div>
-        )}
+      {/* MODALS */}
+      {showConfirmModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+              <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200">
+                  <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <ShoppingBag className="w-8 h-8 text-orange-600" />
+                  </div>
+                  <h3 className="text-xl font-black text-center text-stone-900 dark:text-white mb-2">Konfirmasi Klaim</h3>
+                  <p className="text-stone-500 dark:text-stone-400 text-center text-sm mb-6">
+                      Apakah Anda yakin ingin mengambil <span className="font-bold text-stone-900 dark:text-white">{claimQuantity} porsi</span> {item.name}?
+                  </p>
+                  <div className="flex gap-3">
+                      <Button variant="outline" className="flex-1 rounded-2xl" onClick={() => setShowConfirmModal(false)}>Batal</Button>
+                      <Button className="flex-1 rounded-2xl bg-orange-600 hover:bg-orange-700" onClick={confirmClaim}>Ya, Yakin</Button>
+                  </div>
+              </div>
+          </div>
+      )}
 
-        {/* Stage 2 Warning Modal */}
-        {showStockWarning && (
-            <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-white/10 backdrop-blur-xl animate-in fade-in">
-                <div className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-2xl p-8 rounded-[2.5rem] max-w-sm w-full shadow-2xl border border-white/20 relative overflow-hidden text-center">
-                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl"></div>
-                    <div className="w-20 h-20 bg-orange-100 dark:bg-orange-950/50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                        <AlertCircle className="w-10 h-10 text-orange-600" />
-                    </div>
-                    <h3 className="text-2xl font-black text-stone-900 dark:text-white mb-3 tracking-tight">Ketersediaan Kurir</h3>
-                    <p className="text-stone-600 dark:text-stone-400 text-sm mb-8 leading-relaxed">
-                        Maaf, relawan pengantar tidak tersedia jika sisa porsi <span className="font-bold text-orange-600">kurang dari 5</span>. Ini untuk menjaga efisiensi rute relawan kami.
-                    </p>
-                    
-                    <div className="bg-stone-100 dark:bg-stone-800/50 p-4 rounded-2xl mb-8 text-left border border-white/5">
-                        <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Solusi Lain:</p>
-                        <ul className="space-y-2">
-                             <li className="flex items-center gap-2 text-xs font-bold text-stone-700 dark:text-stone-300">
-                                 <CheckCircle className="w-3.5 h-3.5 text-green-500" /> Gunakan Self-Pickup (Ambil Sendiri)
-                             </li>
-                             <li className="flex items-center gap-2 text-xs font-bold text-stone-700 dark:text-stone-300">
-                                 <MessageCircle className="w-3.5 h-3.5 text-blue-500" /> Hubungi pemilik untuk COD via WA
-                             </li>
-                        </ul>
-                    </div>
+      {showStockWarning && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-white/10 backdrop-blur-xl animate-in fade-in">
+              <div className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-2xl p-8 rounded-[2.5rem] max-w-sm w-full shadow-2xl border border-white/20 relative overflow-hidden text-center">
+                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl"></div>
+                  <div className="w-20 h-20 bg-orange-100 dark:bg-orange-950/50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                      <AlertCircle className="w-10 h-10 text-orange-600" />
+                  </div>
+                  <h3 className="text-xl font-black text-stone-900 dark:text-white mb-3 tracking-tight">Ketersediaan Kurir</h3>
+                  <p className="text-stone-600 dark:text-stone-400 text-sm mb-8 leading-relaxed">
+                      Maaf, relawan pengantar tidak tersedia jika sisa porsi <span className="font-bold text-orange-600">kurang dari 5</span>. Ini untuk menjaga efisiensi rute relawan kami.
+                  </p>
+                  
+                  <div className="bg-stone-100 dark:bg-stone-800/50 p-4 rounded-2xl mb-8 text-left border border-white/5">
+                      <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Solusi Lain:</p>
+                      <ul className="space-y-2">
+                            <li className="flex items-center gap-2 text-xs font-bold text-stone-700 dark:text-stone-300">
+                                <CheckCircle className="w-3.5 h-3.5 text-green-500" /> Gunakan Self-Pickup (Ambil Sendiri)
+                            </li>
+                            <li className="flex items-center gap-2 text-xs font-bold text-stone-700 dark:text-stone-300">
+                                <MessageCircle className="w-3.5 h-3.5 text-blue-500" /> Hubungi pemilik untuk COD via WA
+                            </li>
+                      </ul>
+                  </div>
 
-                    <Button 
-                        className="w-full h-14 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black uppercase tracking-widest shadow-lg shadow-orange-500/20" 
-                        onClick={() => setShowStockWarning(false)}
-                    >
-                        MENGERTI
-                    </Button>
-                </div>
-            </div>
-        )}
+                  <Button 
+                      className="w-full h-14 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black uppercase tracking-widest shadow-lg shadow-orange-500/20" 
+                      onClick={() => setShowStockWarning(false)}
+                  >
+                      MENGERTI
+                  </Button>
+              </div>
+          </div>
+      )}
     </div>
   );
 };

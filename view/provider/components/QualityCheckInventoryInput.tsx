@@ -1,8 +1,5 @@
-
 import React, { useState } from 'react';
-import { ArrowRight, Upload, Sparkles, Timer, Weight, ShoppingBag, MapPin, AlertTriangle } from 'lucide-react';
-import { Button } from '../../components/Button';
-import { Input } from '../../components/Input';
+import { ArrowRight, Upload, Sparkles, Timer, Weight, ShoppingBag, MapPin, AlertTriangle, Utensils, Brain, Truck, Plus } from 'lucide-react';
 import { DeliveryMethod, Address } from '../../../types';
 import { foodVerification } from '../../../services/foodVerification';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
@@ -57,7 +54,8 @@ export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProp
     storageLocation: 'Suhu Ruang',
     packaging: 'plastic' as 'plastic' | 'recycled' | 'no-plastic', 
     deliveryMethod: 'pickup' as DeliveryMethod,
-    allergens: '',
+    allergens: [] as string[],
+    newAllergen: '',
     addressId: addresses.length > 0 ? (addresses.find(a => a.isPrimary)?.id || addresses[0].id) : ''
   });
 
@@ -85,15 +83,12 @@ export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProp
         const qtyNum = parseFloat(form.quantity) || 1;
         const weightNum = parseFloat(form.weightPerUnit) || 500;
         
-        // Hitung total berat batch
         const totalWeightGram = form.quantityUnit === 'Gram' 
             ? qtyNum 
             : qtyNum * weightNum;
 
-        // Tentukan jumlah porsi untuk perhitungan rata-rata
         const portionCount = form.quantityUnit === 'Gram' ? 1 : qtyNum;
 
-        // MENGIRIM SELURUH KONTEKS WAKTU UNTUK ANALISIS MIKROBIOLOGI AI
         const result = await foodVerification.analyze(img, {
             foodName: form.name,
             ingredients: form.ingredients,
@@ -105,12 +100,31 @@ export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProp
             quantityCount: portionCount 
         });
         
-        onAnalysisComplete(result, img, form);
+        onAnalysisComplete(result, img, { ...form, allergens: form.allergens.join(', ') });
     } catch (err) {
         console.error(err);
         alert("Gagal menganalisis. Silakan coba lagi.");
         setStep('upload');
     }
+  };
+
+  const toggleAllergen = (allergen: string) => {
+    setForm(prev => {
+        const newAllergens = prev.allergens.includes(allergen)
+            ? prev.allergens.filter(a => a !== allergen)
+            : [...prev.allergens, allergen];
+        return { ...prev, allergens: newAllergens };
+    });
+  };
+
+  const handleAddNewAllergen = () => {
+      if (form.newAllergen.trim() && !form.allergens.includes(form.newAllergen.trim())) {
+          setForm(prev => ({
+              ...prev,
+              allergens: [...prev.allergens, prev.newAllergen.trim()],
+              newAllergen: ''
+          }));
+      }
   };
 
   if (step === 'loading') {
@@ -139,169 +153,346 @@ export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProp
                 <span className="font-bold text-xl text-stone-800 dark:text-stone-200">Lanjutkan ke Foto</span>
                 <span className="text-sm text-stone-400 mt-2 px-6 text-center font-medium">AI akan mencocokkan kondisi visual foto dengan durasi penyimpanan Anda.</span>
             </div>
-            <Button variant="ghost" onClick={() => setStep('form')} className="mt-8">← Kembali Isi Detail</Button>
+            <button onClick={() => setStep('form')} className="mt-8 text-stone-500 hover:text-stone-900 dark:hover:text-white font-medium flex items-center justify-center w-full transition-colors">← Kembali Isi Detail</button>
         </div>
       );
   }
 
+  // The COMMON Allergen presets
+  const commonAllergens = ['Gluten', 'Dairy', 'Nuts', 'Soy'];
+
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 py-8">
-        <Input label="Nama Makanan" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Contoh: Nasi Box Ayam Bakar" required />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid grid-cols-2 gap-2">
-                <Input 
-                    label="Jumlah Stok" 
-                    type="number" 
-                    min="0"
-                    value={form.quantity} 
-                    onChange={e => {
-                        const val = parseFloat(e.target.value);
-                        setForm({...form, quantity: isNaN(val) ? '' : Math.max(0, val).toString()});
-                    }} 
-                    placeholder="0" 
-                    required
-                />
-                <div className="space-y-2">
-                    <label className="text-sm font-bold text-stone-700 dark:text-stone-300">Satuan</label>
-                    <select className="w-full p-3 rounded-xl border border-stone-300 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-900 dark:text-white" value={form.quantityUnit} onChange={e => setForm({...form, quantityUnit: e.target.value as any})}>
-                        <option value="Porsi">Porsi</option><option value="Box">Box</option><option value="Gram">Gram</option>
-                    </select>
-                </div>
-            </div>
+    <div className="animate-in fade-in slide-in-from-bottom-4 py-4 w-full">
+        {/* Header Section (already shown in QualityCheckInventory parent, but kept for context if needed, we'll just put the description) */}
+        <div className="mb-8 hidden md:block">
+            <p className="text-stone-500 dark:text-stone-400 text-sm">Isi detail di bawah ini untuk mencatat donasi makanan baru ke dalam sistem. AI kami akan secara otomatis mencocokkannya dengan logistik penerima yang optimal.</p>
+        </div>
+
+        {/* Bento Grid Form Layout */}
+        <form className="grid grid-cols-1 xl:grid-cols-12 gap-6" onSubmit={(e) => { e.preventDefault(); setStep('upload'); }}>
             
-            {(form.quantityUnit === 'Porsi' || form.quantityUnit === 'Box') && (
-                <div className="animate-in slide-in-from-left-2">
-                    <Input 
-                        label={`Berat per ${form.quantityUnit} (Gram)`} 
-                        type="number" 
-                        min="1"
-                        value={form.weightPerUnit} 
-                        onChange={e => setForm({...form, weightPerUnit: e.target.value})}
-                        placeholder="Contoh: 450"
-                        icon={<Weight className="w-4 h-4" />}
-                    />
-                </div>
-            )}
-        </div>
-
-        <div className="p-6 bg-stone-50 dark:bg-stone-900/50 rounded-2xl border border-stone-100 dark:border-stone-800 space-y-4">
-            <label className="text-sm font-bold text-stone-700 dark:text-stone-300 flex items-center gap-2">
-                <ShoppingBag className="w-4 h-4 text-orange-500" /> Batas Pengambilan per Penerima
-            </label>
-            <div className="grid grid-cols-2 gap-4">
-                <Input 
-                    label="Minimal Ambil" 
-                    type="number" 
-                    min="1"
-                    value={form.minClaim} 
-                    onChange={e => setForm({...form, minClaim: e.target.value})}
-                />
-                <Input 
-                    label="Maksimal Ambil" 
-                    type="number" 
-                    min="1"
-                    value={form.maxClaim} 
-                    onChange={e => setForm({...form, maxClaim: e.target.value})}
-                />
-            </div>
-        </div>
-
-        <div className="space-y-4">
-            <div className="space-y-2">
-                <label className="text-sm font-bold text-stone-700 dark:text-stone-300">Lokasi Penjemputan / Pengiriman</label>
-                <select 
-                    className="w-full p-3 rounded-xl border border-stone-300 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-900 dark:text-white font-bold" 
-                    value={form.addressId} 
-                    onChange={e => setForm({...form, addressId: e.target.value})}
-                >
-                    {addresses.length === 0 ? (
-                        <option value="">Belum ada alamat tersimpan</option>
-                    ) : (
-                        addresses.map(addr => (
-                            <option key={addr.id} value={addr.id}>{addr.label} - {addr.fullAddress}</option>
-                        ))
-                    )}
-                </select>
-            </div>
-
-            {selectedAddress && selectedAddress.lat && selectedAddress.lng && (
-                <div className="w-full h-40 bg-stone-100 dark:bg-[#0C0A09] rounded-2xl overflow-hidden border border-stone-200 dark:border-[#292524] relative z-0">
-                    <div className="w-full h-full dark:invert dark:hue-rotate-180">
-                        <MapContainer center={mapCenter} zoom={16} zoomControl={false} className="w-full h-full z-0">
-                            <TileLayer 
-                                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                            />
-                            <MapUpdater center={mapCenter} />
-                        </MapContainer>
+            {/* Left Column: Core Info */}
+            <div className="xl:col-span-7 space-y-6">
+                
+                {/* Food Information Card */}
+                <div className="bg-white dark:bg-stone-900 rounded-2xl p-6 shadow-sm border border-stone-200 dark:border-stone-800">
+                    <div className="flex items-center gap-3 mb-6 border-b border-stone-100 dark:border-stone-800 pb-4">
+                        <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-500">
+                            <Utensils className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-stone-900 dark:text-white">Informasi Makanan</h3>
                     </div>
-                    {/* Fixed center marker */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none drop-shadow-lg">
-                        <div className="relative">
-                            <MapPin className="w-8 h-8 text-orange-600 fill-orange-100 -mt-4" />
-                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-black/20 rounded-full blur-[1px]"></div>
+                    
+                    <div className="space-y-5">
+                        <div>
+                            <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest" htmlFor="foodName">Nama Item</label>
+                            <input 
+                                id="foodName" 
+                                required
+                                value={form.name}
+                                onChange={e => setForm({...form, name: e.target.value})}
+                                placeholder="Misal: Roti Gandum Utuh" 
+                                className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors" 
+                                type="text"
+                            />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="col-span-1">
+                                <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest" htmlFor="stock">Jml Stok</label>
+                                <input 
+                                    id="stock" 
+                                    required
+                                    type="number" 
+                                    min="1"
+                                    value={form.quantity}
+                                    onChange={e => {
+                                        const val = parseFloat(e.target.value);
+                                        setForm({...form, quantity: isNaN(val) ? '' : Math.max(0, val).toString()});
+                                    }}
+                                    placeholder="100" 
+                                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors" 
+                                />
+                            </div>
+                            <div className="col-span-1">
+                                <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest" htmlFor="unit">Satuan</label>
+                                <select 
+                                    id="unit" 
+                                    value={form.quantityUnit}
+                                    onChange={e => setForm({...form, quantityUnit: e.target.value as any})}
+                                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+                                >
+                                    <option value="Porsi">Porsi</option>
+                                    <option value="Box">Box</option>
+                                    <option value="Gram">Gram</option>
+                                </select>
+                            </div>
+                            <div className="col-span-1">
+                                <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest" htmlFor="weight">Est. Berat</label>
+                                <div className="relative">
+                                    <input 
+                                        id="weight" 
+                                        type="number"
+                                        min="1"
+                                        required={form.quantityUnit !== 'Gram'}
+                                        disabled={form.quantityUnit === 'Gram'}
+                                        value={form.weightPerUnit}
+                                        onChange={e => setForm({...form, weightPerUnit: e.target.value})}
+                                        placeholder={form.quantityUnit === 'Gram' ? 'Otomatis' : '50'} 
+                                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors" 
+                                    />
+                                    <span className="absolute right-4 top-3 text-stone-400 text-sm">
+                                        {form.quantityUnit === 'Gram' ? '-' : 'g/unit'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Waktu Masak & Penyimpanan */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest" htmlFor="madeTime">Waktu Dimasak / Diproduksi</label>
+                                <input 
+                                    id="madeTime" 
+                                    required
+                                    value={form.madeDateTime}
+                                    onChange={e => setForm({...form, madeDateTime: e.target.value})}
+                                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors [color-scheme:light] dark:[color-scheme:dark]" 
+                                    type="datetime-local"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest" htmlFor="storageLocation">Penyimpanan</label>
+                                <select 
+                                    id="storageLocation" 
+                                    value={form.storageLocation}
+                                    onChange={e => setForm({...form, storageLocation: e.target.value})}
+                                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+                                >
+                                    <option>Suhu Ruang</option>
+                                    <option>Kulkas</option>
+                                    <option>Pemanas</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-            )}
 
-            <div className="space-y-2 mt-2">
-                <label className="text-sm font-bold text-stone-700 dark:text-stone-300">Metode Pengambilan</label>
-                <select className="w-full p-3 rounded-xl border border-stone-300 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-900 dark:text-white font-bold" value={form.deliveryMethod} onChange={e => setForm({...form, deliveryMethod: e.target.value as any})}>
-                    <option value="pickup">Pick Up (Penerima Ambil Sendiri)</option>
-                    <option value="delivery">Diantar (Oleh Relawan)</option>
-                    <option value="both">Keduanya (Pick Up & Diantar)</option>
-                </select>
+                {/* Dietary & AI Metadata Card */}
+                <div className="bg-stone-900 dark:bg-black rounded-2xl p-6 shadow-sm relative overflow-hidden group">
+                    <div className="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-colors duration-500"></div>
+                    
+                    <div className="flex items-center gap-3 mb-6 border-b border-stone-800 pb-4 relative z-10">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                            <Brain className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white">Metadata Makanan & AI</h3>
+                        <div className="ml-auto flex items-center gap-1 bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider">
+                            <Sparkles className="w-3.5 h-3.5" /> AI Assisted
+                        </div>
+                    </div>
+                    
+                    <div className="space-y-5 relative z-10">
+                        <div>
+                            <label className="block text-[11px] font-bold text-stone-400 mb-1 uppercase tracking-widest" htmlFor="ingredients">Bahan Utama (Pisahkan dgn koma)</label>
+                            <textarea 
+                                id="ingredients" 
+                                value={form.ingredients}
+                                onChange={e => setForm({...form, ingredients: e.target.value})}
+                                placeholder="Tepung, Air, Ragi..." 
+                                rows={2}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors resize-none placeholder:text-stone-600" 
+                            ></textarea>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-[11px] font-bold text-stone-400 mb-2 uppercase tracking-widest">Alergen Terdeteksi</label>
+                            <div className="flex flex-wrap gap-2">
+                                {commonAllergens.map(allergen => (
+                                    <label key={allergen} className="cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            className="peer sr-only" 
+                                            checked={form.allergens.includes(allergen)}
+                                            onChange={() => toggleAllergen(allergen)}
+                                        />
+                                        <span className="inline-flex items-center px-4 py-2 rounded-full border border-stone-700 text-stone-400 peer-checked:bg-red-500/20 peer-checked:border-red-500 peer-checked:text-red-400 text-xs font-bold transition-all">
+                                            {allergen}
+                                        </span>
+                                    </label>
+                                ))}
+                                
+                                {/* Custom Allergens */}
+                                {form.allergens.filter(a => !commonAllergens.includes(a)).map(allergen => (
+                                    <label key={allergen} className="cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            className="peer sr-only" 
+                                            checked={true}
+                                            onChange={() => toggleAllergen(allergen)}
+                                        />
+                                        <span className="inline-flex items-center px-4 py-2 rounded-full border border-red-500 bg-red-500/20 text-red-400 text-xs font-bold transition-all">
+                                            {allergen}
+                                        </span>
+                                    </label>
+                                ))}
+
+                                <div className="flex items-center gap-2">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Lainnya..." 
+                                        value={form.newAllergen}
+                                        onChange={e => setForm({...form, newAllergen: e.target.value})}
+                                        onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddNewAllergen())}
+                                        className="w-24 bg-transparent border-b border-stone-700 px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                                    />
+                                    <button 
+                                        type="button" 
+                                        onClick={handleAddNewAllergen}
+                                        className="inline-flex items-center p-1.5 rounded-full border border-dashed border-stone-600 text-stone-400 hover:text-emerald-400 hover:border-emerald-400 text-xs font-bold transition-colors"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <Input label="Bahan Utama (Ketik manual)" value={form.ingredients} onChange={e => setForm({...form, ingredients: e.target.value})} placeholder="Ayam, Nasi, Sayur, Telur..." />
-        
-        <div className="animate-in slide-in-from-left-2 transition-all">
-            <Input 
-                label="Punya Alergen? (Kacang/Susu/dll)" 
-                value={form.allergens} 
-                onChange={e => setForm({...form, allergens: e.target.value})} 
-                placeholder="Kosongkan jika tidak ada" 
-                icon={<AlertTriangle className="w-4 h-4 text-amber-500" />}
-            />
-            <p className="text-[10px] text-stone-400 mt-1 italic leading-tight">*Input ini membantu AI melakukan verifikasi silang lebih akurat.</p>
-        </div>
+            {/* Right Column: Logistics */}
+            <div className="xl:col-span-5 space-y-6">
+                
+                {/* Logistics & Location Card */}
+                <div className="bg-white dark:bg-stone-900 rounded-2xl p-6 shadow-sm border border-stone-200 dark:border-stone-800 flex flex-col h-full">
+                    <div className="flex items-center gap-3 mb-6 border-b border-stone-100 dark:border-stone-800 pb-4">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-500">
+                            <Truck className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-stone-900 dark:text-white">Logistik & Lokasi</h3>
+                    </div>
+                    
+                    <div className="space-y-5 flex-1">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest" htmlFor="pickupStart">Waktu Buka</label>
+                                <input 
+                                    id="pickupStart" 
+                                    required
+                                    type="datetime-local" 
+                                    value={form.distributionStart}
+                                    onChange={e => setForm({...form, distributionStart: e.target.value})}
+                                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors [color-scheme:light] dark:[color-scheme:dark]"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest" htmlFor="pickupEnd">Batas Waktu</label>
+                                <input 
+                                    id="pickupEnd" 
+                                    required
+                                    type="datetime-local" 
+                                    value={form.distributionEnd}
+                                    onChange={e => setForm({...form, distributionEnd: e.target.value})}
+                                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors [color-scheme:light] dark:[color-scheme:dark]"
+                                />
+                            </div>
+                        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input 
-                label="Waktu Masak/Beli" 
-                type="datetime-local" 
-                value={form.madeDateTime} 
-                onChange={e => setForm({...form, madeDateTime: e.target.value})} 
-                className="!bg-stone-100 dark:!bg-stone-800 text-stone-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark]" 
-            />
+                        <div>
+                            <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest">Lokasi Pengambilan</label>
+                            
+                            <select 
+                                className="w-full mb-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors" 
+                                value={form.addressId} 
+                                onChange={e => setForm({...form, addressId: e.target.value})}
+                            >
+                                {addresses.length === 0 ? (
+                                    <option value="">Belum ada alamat tersimpan</option>
+                                ) : (
+                                    addresses.map(addr => (
+                                        <option key={addr.id} value={addr.id}>{addr.label} - {addr.fullAddress.substring(0, 30)}...</option>
+                                    ))
+                                )}
+                            </select>
+
+                            <div className="relative h-40 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-800 z-0">
+                                <div className="w-full h-full dark:invert dark:hue-rotate-180">
+                                    <MapContainer center={mapCenter} zoom={16} zoomControl={false} className="w-full h-full z-0">
+                                        <TileLayer 
+                                            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+                                        />
+                                        <MapUpdater center={mapCenter} />
+                                    </MapContainer>
+                                </div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4 pointer-events-none z-10">
+                                    <div className="text-white drop-shadow-md">
+                                        <div className="text-sm font-bold flex items-center gap-1.5">
+                                            <MapPin className="w-4 h-4 text-orange-500" />
+                                            {selectedAddress?.label || 'Lokasi Belum Diatur'}
+                                        </div>
+                                        <div className="text-[10px] font-medium opacity-90 pl-5.5 leading-tight mt-1 line-clamp-1">
+                                            {selectedAddress?.fullAddress || 'Silakan tambahkan alamat di menu profil.'}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Missing Options gracefully reintegrated */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest" htmlFor="deliveryMethod">Pengiriman</label>
+                                <select 
+                                    id="deliveryMethod" 
+                                    value={form.deliveryMethod}
+                                    onChange={e => setForm({...form, deliveryMethod: e.target.value as any})}
+                                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+                                >
+                                    <option value="pickup">Pick Up</option>
+                                    <option value="delivery">Diantar (Relawan)</option>
+                                    <option value="both">Keduanya</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 mb-1 uppercase tracking-widest" htmlFor="maxClaim">Maks Klaim/Org</label>
+                                <input 
+                                    id="maxClaim" 
+                                    type="number"
+                                    min="1"
+                                    value={form.maxClaim}
+                                    onChange={e => setForm({...form, maxClaim: e.target.value})}
+                                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+                                />
+                            </div>
+                        </div>
+
+                        {/* End of Logistics Card */}
+                    </div>
+                </div>
+
+            </div>
+
+            {/* Action Area */}
+            <div className="xl:col-span-12 mt-4 flex flex-col sm:flex-row items-center justify-end gap-4">
+                <button 
+                    type="button" 
+                    onClick={onBack}
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-sm font-bold text-stone-500 hover:text-stone-900 hover:bg-stone-100 dark:hover:text-white dark:hover:bg-stone-800 transition-colors"
+                >
+                    Batalkan
+                </button>
+                <button 
+                    type="submit" 
+                    disabled={!form.name || !form.quantity || (form.quantityUnit !== 'Gram' && !form.weightPerUnit)}
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-sm font-black text-white bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 shadow-lg shadow-orange-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Lanjut ke Foto & Audit AI
+                    <ArrowRight className="w-5 h-5" />
+                </button>
+            </div>
             
-            <div className="space-y-2">
-                <label className="text-sm font-bold text-stone-700 dark:text-stone-300">Penyimpanan</label>
-                <select className="w-full p-3 rounded-xl border border-stone-300 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-900 dark:text-white" value={form.storageLocation} onChange={e => setForm({...form, storageLocation: e.target.value})}>
-                    <option>Suhu Ruang</option><option>Kulkas</option><option>Pemanas</option>
-                </select>
-            </div>
-        </div>
-
-        <div className="space-y-2 p-6 bg-orange-50 dark:bg-orange-900/10 rounded-2xl border border-orange-100 dark:border-stone-800">
-            <label className="text-sm font-bold text-orange-700 dark:text-orange-300 flex items-center gap-2 mb-4">
-                <Timer className="w-4 h-4" /> Atur Jendela Waktu Distribusi
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input label="Buka Klaim" type="datetime-local" value={form.distributionStart} onChange={e => setForm({...form, distributionStart: e.target.value})} className="!bg-white" />
-                <Input label="Tutup / Exp" type="datetime-local" value={form.distributionEnd} onChange={e => setForm({...form, distributionEnd: e.target.value})} className="!bg-white" />
-            </div>
-            <p className="text-[10px] text-orange-600 dark:text-orange-400 italic mt-1">*Penting: AI akan menilai kualitas berdasarkan selisih waktu buka klaim dan waktu masak.</p>
-        </div>
-
-        <div className="pt-6">
-            <Button onClick={() => setStep('upload')} disabled={!form.name || !form.quantity || (form.quantityUnit !== 'Gram' && !form.weightPerUnit)}>
-                LANJUT KE FOTO & AUDIT AI <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-        </div>
+        </form>
     </div>
   );
 };

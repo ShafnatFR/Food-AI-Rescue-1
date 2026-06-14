@@ -109,6 +109,7 @@ async function callGeminiWithRotation(userId, prompt, options = {}) {
             isQuota:       msg.includes("quota") || msg.includes("exhausted") || msg.includes("429") || msg.includes("too many") || status === 429,
             isInvalidKey:  msg.includes("api_key_invalid") || msg.includes("forbidden") || msg.includes("401") || status === 401,
             isTimeout:     msg.includes("timeout") || msg.includes("deadline") || msg.includes("etimedout"),
+            isNotFound:    msg.includes("not found") || msg.includes("404") || status === 404,
         };
     };
 
@@ -128,41 +129,57 @@ async function callGeminiWithRotation(userId, prompt, options = {}) {
         return JSON.parse(cleanText);
     };
 
-    // Helper: coba satu request dengan backoff pada overload
+    // Helper: coba satu request dengan backoff pada overload, dan rotasi model
     const tryWithBackoff = async (entry, contents) => {
         const MAX_OVERLOAD_RETRIES = 3;
         const BASE_DELAY_MS = 4000; // 4 detik, naik 2× tiap retry
 
-        for (let retry = 0; retry <= MAX_OVERLOAD_RETRIES; retry++) {
-            try {
-                const genAI = new GoogleGenerativeAI(entry.key);
-                const model = genAI.getGenerativeModel({
-                    model: options.model || "gemini-2.0-flash",
-                    generationConfig: {
-                        responseMimeType: options.isJson ? "application/json" : "text/plain"
+        const fallbackModels = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"];
+        const modelsToTry = options.model ? [options.model] : fallbackModels;
+
+        let lastModelError = null;
+
+        for (const modelName of modelsToTry) {
+            for (let retry = 0; retry <= MAX_OVERLOAD_RETRIES; retry++) {
+                try {
+                    const genAI = new GoogleGenerativeAI(entry.key);
+                    const model = genAI.getGenerativeModel({
+                        model: modelName,
+                        generationConfig: {
+                            responseMimeType: options.isJson ? "application/json" : "text/plain"
+                        }
+                    });
+
+                    const result   = await model.generateContent({ contents });
+                    const response = await result.response;
+                    const text     = response.text();
+
+                    return options.isJson ? parseJsonSafe(text) : text;
+
+                } catch (error) {
+                    const { isOverload, isQuota, isInvalidKey, isTimeout, isNotFound } = classifyError(error);
+
+                    if ((isOverload || isTimeout) && retry < MAX_OVERLOAD_RETRIES) {
+                        const delayMs = BASE_DELAY_MS * Math.pow(2, retry);
+                        console.warn(`[AI Utils] ⏳ Overload/timeout on ${modelName} with ${entry.source}:...${entry.key.slice(-6)}, retry ${retry + 1}/${MAX_OVERLOAD_RETRIES} in ${delayMs / 1000}s`);
+                        await sleep(delayMs);
+                        continue;
                     }
-                });
 
-                const result   = await model.generateContent({ contents });
-                const response = await result.response;
-                const text     = response.text();
+                    if (isNotFound || isQuota) {
+                        console.warn(`[AI Utils] 🔄 Model ${modelName} unavailable (NotFound/Quota), falling back to next model...`);
+                        lastModelError = Object.assign(error, { _classified: { isOverload, isQuota, isInvalidKey, isTimeout, isNotFound } });
+                        break; // Break the retry loop, move to the next modelName
+                    }
 
-                return options.isJson ? parseJsonSafe(text) : text;
-
-            } catch (error) {
-                const { isOverload, isQuota, isInvalidKey, isTimeout } = classifyError(error);
-
-                if ((isOverload || isTimeout) && retry < MAX_OVERLOAD_RETRIES) {
-                    const delayMs = BASE_DELAY_MS * Math.pow(2, retry); // 4s, 8s, 16s
-                    console.warn(`[AI Utils] ⏳ Overload/timeout on ${entry.source}:...${entry.key.slice(-6)}, retry ${retry + 1}/${MAX_OVERLOAD_RETRIES} in ${delayMs / 1000}s`);
-                    await sleep(delayMs);
-                    continue;
+                    // Jika error invalid key atau lainnya, lempar agar key ini ditandai failed
+                    throw Object.assign(error, { _classified: { isOverload, isQuota, isInvalidKey, isTimeout, isNotFound } });
                 }
-
-                // Tidak bisa retry lebih lanjut untuk key ini — lempar agar caller tahu
-                throw Object.assign(error, { _classified: { isOverload, isQuota, isInvalidKey, isTimeout } });
             }
         }
+        
+        // Jika semua model gagal untuk key ini
+        if (lastModelError) throw lastModelError;
     };
 
     // Bangun contents sekali (dipakai ulang di semua key)

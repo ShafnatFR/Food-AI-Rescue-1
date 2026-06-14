@@ -22,9 +22,10 @@ export const OrderItemCard: React.FC<OrderItemCardProps> = ({ order, onClick }) 
             <div className="flex justify-between items-start mb-3 pl-2">
                 <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">{order.id}</span>
                 <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ${
+                    order.status === 'pending_approval' ? 'bg-orange-100 text-orange-700' :
                     order.status === 'claimed' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'
                 }`}>
-                    {order.status === 'claimed' ? 'Menunggu Ambil' : 'Diantar'}
+                    {order.status === 'pending_approval' ? 'Butuh ACC' : order.status === 'claimed' ? 'Menunggu Ambil' : 'Diantar'}
                 </span>
             </div>
 

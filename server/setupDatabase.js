@@ -55,8 +55,26 @@ async function setupDatabase() {
             // Database sudah ada, tidak perlu buat ulang
             console.log(`[DB] ✅ Database '${DB_NAME}' sudah ada. Melewati inisialisasi.`);
         } else {
-            // ── 3. Database belum ada → buat + jalankan schema ───────────────
             console.log(`[DB] ⚠️  Database '${DB_NAME}' tidak ditemukan.`);
+
+            const readline = require('readline');
+            const askQuestion = (query) => {
+                const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+                return new Promise(resolve => rl.question(query, ans => { rl.close(); resolve(ans); }));
+            };
+
+            const answer = await askQuestion("Anda belum memiliki databasenya, izinkan saya untuk melakukan migrasi (ya/tidak)? ");
+            if (!['ya', 'yes', 'y'].includes(answer.toLowerCase().trim())) {
+                console.log("[DB] Migrasi dibatalkan. Hentikan server.");
+                await connection.end();
+                process.exit(0);
+            }
+
+            console.log("\n[DB] Silakan buat akun superadmin untuk mengelola sistem. Akun ini akan otomatis disimpan di database.");
+            const superEmail = await askQuestion("email: ");
+            const superPassword = await askQuestion("password: ");
+
+            // ── 3. Database belum ada → buat + jalankan schema ───────────────
             console.log(`[DB] 🔧 Membuat database '${DB_NAME}'...`);
 
             await connection.query(
@@ -77,6 +95,28 @@ async function setupDatabase() {
             await connection.query(schemaSql);
 
             console.log('[DB] ✅ Semua tabel berhasil dibuat dari schema.sql.');
+
+            console.log('[DB] 🧑‍💻 Memasukkan data akun default...');
+            const bcrypt = require('bcryptjs');
+            const superHash = await bcrypt.hash(superPassword, 10);
+            const defaultHash = await bcrypt.hash('123456', 10);
+
+            const users = [
+                { name: 'Superadmin', email: superEmail, password: superHash, role: 'SUPER_ADMIN' },
+                { name: 'penerima1', email: 'penerima1@demo.com', password: defaultHash, role: 'RECIPIENT' },
+                { name: 'donaturKorporat', email: 'donaturkorporat@demo.com', password: defaultHash, role: 'CORPORATE_DONOR' },
+                { name: 'donaturIndividu1', email: 'donaturindividu@demo.com', password: defaultHash, role: 'INDIVIDUAL_DONOR' },
+                { name: 'relawan1', email: 'relawan1@demo.com', password: defaultHash, role: 'VOLUNTEER' }
+            ];
+
+            for (const user of users) {
+                await connection.query(
+                    'INSERT INTO users (name, email, password, role, status, points) VALUES (?, ?, ?, ?, ?, ?)',
+                    [user.name, user.email, user.password, user.role, 'ACTIVE', 0]
+                );
+            }
+            console.log('[DB] ✅ Akun default berhasil dibuat.');
+
             console.log(`[DB] 🎉 Database '${DB_NAME}' siap digunakan!\n`);
         }
     } catch (err) {

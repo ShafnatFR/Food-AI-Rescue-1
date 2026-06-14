@@ -189,7 +189,7 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
   };
 
   return (
-    <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm min-h-[80vh] flex flex-col relative overflow-hidden animate-in slide-in-from-right duration-300">
+    <div className="desktop-card relative flex min-h-[80vh] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm animate-in slide-in-from-right duration-300 dark:border-stone-800 dark:bg-stone-900 md:min-h-[70vh]">
         <div className="p-6 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between sticky top-0 bg-white dark:bg-stone-900 z-10 text-stone-900 dark:text-white">
             <div className="flex items-center gap-3">
                 <button onClick={view === 'result' ? () => setView('input') : onBack} className="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">

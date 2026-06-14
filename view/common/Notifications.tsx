@@ -50,10 +50,10 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({ role, onBa
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-3xl mx-auto min-h-screen pb-24 animate-in slide-in-from-right">
-      <div className="flex items-center justify-between mb-8">
+    <div className="mx-auto min-h-screen max-w-3xl animate-in p-4 pb-24 slide-in-from-right md:p-0 md:pb-8">
+      <div className="mb-8 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm hover:bg-stone-50 transition-colors">
+          <button onClick={onBack} className="rounded-2xl border border-stone-200 bg-white p-3 shadow-sm transition-colors hover:bg-stone-50 md:hidden dark:border-stone-800 dark:bg-stone-900">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>

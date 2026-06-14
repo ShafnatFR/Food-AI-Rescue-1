@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Donatur: Dashboard Donatur (Desktop)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#6f3900",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-tertiary-container": "#004725",
+                        "on-tertiary-fixed-variant": "#00522b",
+                        "primary-fixed": "#ffdcc4",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-surface": "#191c1d",
+                        "surface-bright": "#f8f9fa",
+                        "error-container": "#ffdad6",
+                        "on-background": "#191c1d",
+                        "on-surface-variant": "#564334",
+                        "inverse-surface": "#2e3132",
+                        "on-secondary-fixed-variant": "#44474b",
+                        "on-secondary-fixed": "#191c20",
+                        "tertiary-fixed-dim": "#30e286",
+                        "tertiary-fixed": "#5bffa0",
+                        "secondary-fixed-dim": "#c5c6cc",
+                        "tertiary-container": "#00c16d",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#e1e2e8",
+                        "primary-fixed-dim": "#ffb77f",
+                        "surface-dim": "#d9dadb",
+                        "outline-variant": "#ddc1ae",
+                        "on-secondary-container": "#626469",
+                        "surface": "#f8f9fa",
+                        "on-tertiary-fixed": "#00210e",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-variant": "#e1e3e4",
+                        "secondary": "#5c5e63",
+                        "outline": "#8a7362",
+                        "on-primary-fixed": "#2f1500",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#edeeef",
+                        "secondary-fixed": "#e1e2e8",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#ffb77f",
+                        "on-primary-container": "#613100",
+                        "tertiary": "#006d3b",
+                        "background": "#f8f9fa",
+                        "primary-container": "#ff8a00",
+                        "primary": "#914c00",
+                        "surface-tint": "#914c00",
+                        "surface-container-high": "#e7e8e9",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter-lg": "24px",
+                        "base": "8px",
+                        "container-padding": "32px",
+                        "card-gap": "16px",
+                        "sidebar-width": "280px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-mono": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- TopAppBar -->
+<nav class="fixed top-0 right-0 w-[calc(100%-280px)] z-40 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center h-16 px-8 ml-[280px]">
+<div class="hidden font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">
+            FoodRescue Pro
+        </div>
+<div class="flex-1"></div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-70 p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-70 p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-70 p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant ml-2" data-alt="A professional headshot of a corporate user, representing a modern portal profile picture. The lighting is soft and natural, emphasizing approachability and competence within a sleek, light-mode AI-driven dashboard environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpP17sQJpkIw3oKTkw_XaFYBPKfhH7glArbnD6f5A0qXYR68HqQ0HxZfvAkXFUwZ732eIQX4c6_G-kArvMgHWYVf399DDWyLXpyYkrraPZuoZ3ZkxnGfZ-vKzDHSV08HME3jlsxMP7ErauKMFsbv323_Uepr2DArCXkOKzVb-wPlVMgJGcwit2DhT38ZhdqTwAvDwYrl445x0ykCPNJLKAIVMMSgoEu77k9WWlMM-4zwcX5rhy1i3Lc-PDJsmzDeqlwg-JDhBO"/>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed h-full w-[280px] left-0 top-0 flex flex-col border-r border-outline-variant/50 z-50 bg-surface-container-lowest"><div class="px-8 py-10 flex items-center gap-3 mb-10"><div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary-container shadow-sm"><span class="material-symbols-outlined">eco</span></div><div class="flex flex-col"><h1 class="font-display-lg text-xl font-extrabold leading-none tracking-tight text-primary">FoodRescue</h1><p class="font-label-mono text-[10px] uppercase tracking-[0.2em] font-bold text-on-surface-variant">Pro Portal</p></div></div><div class="px-6 mb-10"><button class="w-full bg-primary hover:bg-primary/90 text-on-primary font-semibold py-4 px-4 rounded-xl shadow-md transition-all duration-200 active:scale-95 flex items-center justify-center gap-3"><span class="material-symbols-outlined">add_circle</span><span class="text-sm">New Donation</span></button></div><nav class="flex-1 px-4 space-y-2"><a class="flex items-center gap-4 px-6 py-4 text-primary bg-primary/10 rounded-xl font-bold transition-all duration-200" href="#"><span class="material-symbols-outlined fill">dashboard</span><span class="text-sm">Impact Dashboard</span></a><a class="flex items-center gap-4 px-6 py-4 font-medium hover:bg-surface-container-low rounded-xl transition-colors duration-200 text-on-surface-variant hover:text-primary" href="#"><span class="material-symbols-outlined">inventory_2</span><span class="text-sm">Stock Manager</span></a><a class="flex items-center gap-4 px-6 py-4 font-medium hover:bg-surface-container-low rounded-xl transition-colors duration-200 text-on-surface-variant hover:text-primary" href="#"><span class="material-symbols-outlined">volunteer_activism</span><span class="text-sm">Donate Food</span></a><a class="flex items-center gap-4 px-6 py-4 font-medium hover:bg-surface-container-low rounded-xl transition-colors duration-200 text-on-surface-variant hover:text-primary" href="#"><span class="material-symbols-outlined">assignment_turned_in</span><span class="text-sm">Audit Results</span></a><a class="flex items-center gap-4 px-6 py-4 font-medium hover:bg-surface-container-low rounded-xl transition-colors duration-200 text-on-surface-variant hover:text-primary" href="#"><span class="material-symbols-outlined">smart_toy</span><span class="text-sm">AI Kitchen</span></a><a class="flex items-center gap-4 px-6 py-4 font-medium hover:bg-surface-container-low rounded-xl transition-colors duration-200 text-on-surface-variant hover:text-primary" href="#"><span class="material-symbols-outlined">auto_stories</span><span class="text-sm">Storytelling</span></a></nav><div class="mt-auto px-4 pb-8"><div class="border-t border-outline-variant/30 pt-6 space-y-1"><a class="flex items-center gap-4 px-6 py-3 font-medium hover:bg-surface-container-low rounded-xl transition-all duration-200 text-on-surface-variant hover:text-primary" href="#"><span class="material-symbols-outlined">settings</span><span class="text-sm">Settings</span></a><a class="flex items-center gap-4 px-6 py-3 font-medium hover:bg-surface-container-low rounded-xl transition-all duration-200 text-on-surface-variant hover:text-primary" href="#"><span class="material-symbols-outlined">help</span><span class="text-sm">Support</span></a></div></div></aside>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] mt-16 p-container-padding max-w-[1440px] mx-auto space-y-gutter-lg">
+<!-- Status Hero Card -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-surface-container flex items-center justify-between relative overflow-hidden">
+<div class="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-primary-container/20 to-transparent pointer-events-none"></div>
+<div class="z-10 relative">
+<p class="font-label-mono text-label-mono text-primary uppercase tracking-wider mb-2">Current Status</p>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-4">Donatur Pemula</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                    You're making a great start! You are just 150 kg of rescued food away from reaching 'Silver Guardian' status. Keep up the good work.
+                </p>
+</div>
+<div class="z-10 bg-primary-container/20 p-6 rounded-full border-8 border-surface-container-lowest shadow-sm">
+<span class="material-symbols-outlined text-primary text-6xl">military_tech</span>
+</div>
+</div>
+<!-- Metrics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-lg">
+<!-- Incoming Orders -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow border border-surface-container flex flex-col justify-between group">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-tertiary-container/20 p-3 rounded-lg text-tertiary">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<span class="bg-tertiary-container text-on-tertiary-container font-label-mono text-label-mono px-2 py-1 rounded-full">+12% this week</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-1">Incoming Orders</p>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">1,240</h3>
+</div>
+</div>
+<!-- Issues -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow border border-surface-container flex flex-col justify-between group">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-error-container/50 p-3 rounded-lg text-error">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant font-label-mono text-label-mono px-2 py-1 rounded-full">Requires attention</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-1">Reported Issues</p>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">3</h3>
+</div>
+</div>
+<!-- Rating -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow border border-surface-container flex flex-col justify-between group">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-primary-container/20 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined">star</span>
+</div>
+<span class="bg-tertiary-container text-on-tertiary-container font-label-mono text-label-mono px-2 py-1 rounded-full">Top 5%</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-1">Donor Rating</p>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">4.9<span class="text-headline-md text-on-surface-variant">/5.0</span></h3>
+</div>
+</div>
+</div>
+<!-- Analytics Bento Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter-lg">
+<!-- Total Nilai Kebaikan (Value Chart) -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-surface-container">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">Total Nilai Kebaikan</h3>
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">more_horiz</span></button>
+</div>
+<div class="h-64 bg-surface-container-low rounded-lg border border-outline-variant flex items-end p-4 gap-2 relative">
+<!-- Placeholder for Chart -->
+<div class="absolute inset-0 flex items-center justify-center text-on-surface-variant opacity-50 font-label-mono">Chart Visualization Area</div>
+<div class="w-1/6 bg-primary/20 rounded-t-md h-1/4"></div>
+<div class="w-1/6 bg-primary/40 rounded-t-md h-2/4"></div>
+<div class="w-1/6 bg-primary/60 rounded-t-md h-1/3"></div>
+<div class="w-1/6 bg-primary/80 rounded-t-md h-3/4"></div>
+<div class="w-1/6 bg-primary rounded-t-md h-full relative group cursor-pointer hover:bg-primary-container transition-colors">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">IDR 4.2M</div>
+</div>
+</div>
+</div>
+<!-- Menjaga Bumi (Impact Map/Stats) -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-surface-container">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">Menjaga Bumi</h3>
+<span class="font-label-mono text-label-mono text-tertiary bg-tertiary-container/20 px-2 py-1 rounded">Environmental Impact</span>
+</div>
+<div class="flex gap-6 h-64">
+<div class="flex-1 bg-surface-container-low rounded-lg overflow-hidden relative border border-outline-variant">
+<img alt="Map" class="w-full h-full object-cover opacity-60 mix-blend-luminosity" data-alt="A highly detailed, stylized map visualization showing distribution nodes across a glowing, futuristic city grid. The map uses a light-mode color palette with soft gray backgrounds and vibrant orange/green data points indicating active eco-friendly delivery routes. The aesthetic is modern, crisp, and high-tech corporate." data-location="Jakarta" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsM14rLmHqxTlUrRZrLP8YJVbzJEiZ48xHYlXHZ9TenVBd_T3cfXWuafFNvWiT0W49s4A7kMWdyyoJ0IXJhIiXwUrNGg1fdXMrIURi53-4y7Kt1nc9ajX0-iAs0rD5M9HtTGX2ZMO1vzs1AIRs035F5uIUcbzcYxVc03QfyZ3YYyFwtwozE7h_7VDPIgfjJeop3zZGdSOgMGAcVIRnmCoBCSGCzOcpAZaE4kWxfcx3J-D6S372NlrxJsD8jD0GWIUtaGWt4P0t"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent"></div>
+</div>
+<div class="w-1/3 flex flex-col justify-center space-y-6">
+<div>
+<p class="font-label-mono text-label-mono text-on-surface-variant">CO2 Saved</p>
+<p class="font-headline-md text-headline-md text-tertiary">2.4<span class="text-body-md text-on-surface-variant">tons</span></p>
+</div>
+<div>
+<p class="font-label-mono text-label-mono text-on-surface-variant">Meals Provided</p>
+<p class="font-headline-md text-headline-md text-primary">850</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- AI Features Zone -->
+<h3 class="font-headline-md text-headline-md text-on-surface mt-12 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">smart_toy</span>
+            AI Copilot Features
+        </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-lg">
+<!-- Eco Packaging AI -->
+<div class="bg-inverse-surface text-inverse-on-surface rounded-xl p-6 relative overflow-hidden shadow-lg border border-outline">
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
+<div class="relative z-10 flex items-start gap-4">
+<div class="bg-primary/20 p-3 rounded-lg text-primary-fixed">
+<span class="material-symbols-outlined">inventory</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md mb-2">Eco Packaging Optimizer</h4>
+<p class="font-body-md text-body-md text-secondary-fixed-dim mb-4">
+                            AI analyzed your recent bulk donations and suggests switching to modular crating. Estimated cost savings: 14%.
+                        </p>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-mono px-4 py-2 rounded transition-colors text-sm">Review Suggestion</button>
+</div>
+</div>
+</div>
+<!-- CSR Copywriting AI -->
+<div class="bg-inverse-surface text-inverse-on-surface rounded-xl p-6 relative overflow-hidden shadow-lg border border-outline">
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-tertiary/20 rounded-full blur-3xl"></div>
+<div class="relative z-10 flex items-start gap-4">
+<div class="bg-tertiary/20 p-3 rounded-lg text-tertiary-fixed">
+<span class="material-symbols-outlined">edit_note</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md mb-2">CSR Copy Generation</h4>
+<p class="font-body-md text-body-md text-secondary-fixed-dim mb-4">
+                            Draft a press release for your Q3 impact using automated insights and 'Donatur Pemula' achievements.
+                        </p>
+<button class="bg-surface-container text-on-surface hover:bg-surface-bright font-label-mono px-4 py-2 rounded transition-colors text-sm">Generate Draft</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

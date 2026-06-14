@@ -508,9 +508,9 @@ export const ProfileIndex: React.FC<ProfileIndexProps> = ({
             {/* MAIN DASHBOARD LAYOUT (Hidden on mobile if viewing point history) */}
             <div className={`${currentView === 'point_history' ? 'hidden lg:block' : ''} animate-perspective-enter`}>
                 {/* FULL-WIDTH PROFILE HEADER */}
-                <div className="max-w-6xl mx-auto lg:px-8">
+                <div className="mx-auto max-w-6xl md:px-0 lg:px-8">
                     {userData && (
-                        <div className="lg:mt-8 lg:rounded-[2rem] lg:overflow-hidden lg:border lg:border-stone-200 dark:lg:border-stone-800 lg:shadow-lg">
+                        <div className="md:mt-0 md:overflow-hidden md:rounded-xl md:border md:border-stone-200 md:shadow-desktop-card lg:mt-8 lg:rounded-[2rem] dark:md:border-stone-800 dark:lg:border-stone-800 lg:shadow-lg">
                             <ProfileHeader 
                                 userData={userData} 
                                 role={role} 
@@ -526,11 +526,11 @@ export const ProfileIndex: React.FC<ProfileIndexProps> = ({
                 </div>
 
                 {/* CONTENT AREA: 2-COLUMN GRID ON PC */}
-                <div className="max-w-6xl mx-auto px-4 lg:px-8 mt-6 lg:mt-10">
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8 items-start">
+                <div className="mx-auto mt-6 max-w-6xl px-4 md:mt-8 md:px-0 lg:px-8 lg:mt-10">
+                    <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-5 md:gap-8 lg:gap-8">
                         
                         {/* LEFT COLUMN: GAMIFICATION & EXTRAS (2/5) */}
-                        <div className="lg:col-span-2 space-y-5">
+                        <div className="space-y-5 md:col-span-2">
                             {currentView === 'point_history' ? (
                                 <div className="bg-white dark:bg-stone-900 rounded-[2.5rem] border border-stone-100 dark:border-stone-800 shadow-sm overflow-hidden animate-in fade-in">
                                     <header className="p-5 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between">
@@ -557,7 +557,7 @@ export const ProfileIndex: React.FC<ProfileIndexProps> = ({
                         </div>
 
                     {/* RIGHT COLUMN: MENUS (3/5) */}
-                    <div className="lg:col-span-3 space-y-5">
+                    <div className="space-y-5 md:col-span-3">
                         {/* Aktivitas (Recipient only) */}
                         {role === 'recipient' && (
                             <div>

@@ -90,7 +90,7 @@ export interface ClaimHistoryItem {
   foodName: string;
   providerName: string;
   date: string;
-  status: 'active' | 'completed' | 'cancelled';
+  status: 'active' | 'completed' | 'cancelled' | 'pending_approval' | 'waiting_for_pickup';
   isScanned?: boolean;
   isReported?: boolean;
   reportReason?: string;
@@ -98,6 +98,7 @@ export interface ClaimHistoryItem {
   reportEvidence?: string[];
   imageUrl: string;
   uniqueCode?: string;
+  pickupCode?: string;
   claimedQuantity?: string;
   deliveryMethod?: 'pickup' | 'delivery';
   location?: { lat: number; lng: number; address: string; label?: string };
@@ -191,6 +192,7 @@ export interface Badge {
 export interface VolunteerTask {
   id: string | number;
   claimId?: string;
+  pickupCode?: string;
   from: string;
   to: string;
   distance: number;
@@ -314,11 +316,12 @@ export type DeliveryMethod = 'pickup' | 'delivery' | 'both';
 export interface ProviderOrder {
     id: string;
     uniqueCode?: string;
+    pickupCode?: string;
     foodName: string;
     description: string;
     quantity: string;
     imageUrl: string;
-    status: 'active' | 'claimed' | 'completed' | 'cancelled';
+    status: 'active' | 'claimed' | 'completed' | 'cancelled' | 'pending_approval' | 'waiting_for_pickup';
     isScanned?: boolean;
     deliveryMethod: 'pickup' | 'delivery';
     receiver: {

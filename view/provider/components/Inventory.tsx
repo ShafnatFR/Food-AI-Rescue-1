@@ -20,6 +20,8 @@ interface InventoryManagerProps {
     initialView?: 'stock' | 'orders' | 'history';
     isReadOnly?: boolean;
     disableExpiryLogic?: boolean;
+    openAddForm?: boolean;
+    onAddFormOpened?: () => void;
 }
 
 
@@ -37,7 +39,9 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
     onNavigate,
     initialView = 'stock',
     isReadOnly = false,
-    disableExpiryLogic = false
+    disableExpiryLogic = false,
+    openAddForm = false,
+    onAddFormOpened,
 }) => {
 
     const [currentView, setCurrentView] = useState<'stock' | 'orders' | 'history'>(initialView);
@@ -54,6 +58,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
     const mapClaimToOrder = (claim: ClaimHistoryItem): ProviderOrder => ({
         id: claim.id,
         uniqueCode: claim.uniqueCode,
+        pickupCode: claim.pickupCode,
         foodName: claim.foodName,
         description: claim.description || 'Tidak ada deskripsi',
         quantity: claim.claimedQuantity || '1 Porsi',
@@ -97,9 +102,9 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
         }
     });
 
-    const orders = claimHistory.filter(c => ['PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED'].includes(c.status?.toUpperCase() || '')).map(mapClaimToOrder);
+    const orders = claimHistory.filter(c => ['WAITING_PROVIDER', 'PENDING_APPROVAL', 'PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED'].includes(c.status?.toUpperCase() || '')).map(mapClaimToOrder);
     const activeCount = foodItems.filter(i => i.status?.toUpperCase() === 'AVAILABLE' || i.status?.toUpperCase() === 'ACTIVE').length;
-    const history = claimHistory.filter(c => !['PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED'].includes(c.status?.toUpperCase() || '')).map(mapClaimToOrder);
+    const history = claimHistory.filter(c => !['WAITING_PROVIDER', 'PENDING_APPROVAL', 'PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED'].includes(c.status?.toUpperCase() || '')).map(mapClaimToOrder);
 
     // Wrapper function to handle view switching with animation
     const handleSwitchView = (view: 'stock' | 'orders' | 'history') => {
@@ -130,6 +135,8 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
             onNavigate={onNavigate}
             isReadOnly={isReadOnly}
             disableExpiryLogic={disableExpiryLogic}
+            openAddForm={openAddForm}
+            onAddFormOpened={onAddFormOpened}
         />;
     }
 

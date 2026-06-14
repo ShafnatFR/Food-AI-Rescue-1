@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, MapPin, Phone, Clock, Navigation, CheckCircle, Package, ChevronRight, PlayCircle, Bike, Car, Box, AlertTriangle, ShieldCheck, MessageCircle, Copy } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, Clock, Navigation, CheckCircle, Package, ChevronRight, PlayCircle, Bike, Car, Box, AlertTriangle, ShieldCheck, MessageCircle, Copy, QrCode, X } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { VolunteerTask } from '../../../types';
 
@@ -14,6 +14,7 @@ interface MissionDetailProps {
 export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAccept, volunteerName = "Relawan" }) => {
     const isLargeQuantity = task.quantity?.toLowerCase().includes('box') && parseInt(task.quantity) > 5;
     const vehicleRecommendation = isLargeQuantity ? 'Mobil' : 'Motor';
+    const [showQRModal, setShowQRModal] = useState(false);
 
     const handleCopy = (text?: string) => {
         if (!text || text === "Alamat Donatur Tidak Ditemukan" || text === "Alamat Penerima Belum Diisi") return;
@@ -141,7 +142,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
                 </div>
             </div>
 
-            <div className="p-6 pb-40 space-y-6 max-w-2xl mx-auto">
+            <div className="mx-auto max-w-2xl space-y-6 p-6 pb-40 md:max-w-none md:grid md:grid-cols-2 md:gap-6 md:pb-24">
                 
                 {/* 2. Manifest Muatan (Detail Makanan) */}
                 <div className="bg-white dark:bg-stone-900 p-6 rounded-[2rem] border border-stone-200 dark:border-stone-800 shadow-sm">
@@ -305,13 +306,44 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
                     ) : (
                         <Button 
                             onClick={handleFullRoute}
-                            className="w-full h-14 rounded-2xl text-xs font-black uppercase tracking-widest bg-orange-600 hover:bg-orange-500 text-white shadow-lg border-0"
+                            className="w-full h-14 rounded-2xl text-xs font-black uppercase tracking-widest bg-stone-200 hover:bg-stone-300 text-stone-800 border-0 flex-1"
                         >
-                            <Navigation className="w-5 h-5 mr-2" /> LIHAT RUTE LENGKAP
+                            <Navigation className="w-5 h-5 mr-2 text-stone-500" /> LIHAT RUTE
+                        </Button>
+                    )}
+                    {task.status !== 'available' && task.stage === 'pickup' && task.pickupCode && (
+                        <Button 
+                            onClick={() => setShowQRModal(true)}
+                            className="w-full h-14 rounded-2xl text-xs font-black uppercase tracking-widest bg-orange-600 hover:bg-orange-500 text-white shadow-lg border-0 flex-1"
+                        >
+                            <QrCode className="w-5 h-5 mr-2" /> QR AMBIL
                         </Button>
                     )}
                 </div>
             </div>
+
+            {/* QR Modal for Pickup */}
+            {showQRModal && task.pickupCode && (
+                <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl max-w-sm w-full shadow-2xl relative animate-in zoom-in-95 duration-200 flex flex-col items-center text-center">
+                        <button onClick={() => setShowQRModal(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-colors">
+                            <X className="w-4 h-4" />
+                        </button>
+                        <h3 className="text-xl font-black text-stone-900 dark:text-white mb-2">Kode Ambil (Pickup)</h3>
+                        <p className="text-stone-500 dark:text-stone-400 text-sm mb-6">Tunjukkan kode ini kepada Donatur untuk dipindai (scan).</p>
+                        
+                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-stone-200 inline-block mb-6">
+                            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(task.pickupCode)}`} alt="QR Code" className="w-48 h-48" />
+                        </div>
+                        
+                        <div className="bg-stone-100 dark:bg-stone-800 px-6 py-3 rounded-xl border border-stone-200 dark:border-stone-700 w-full mb-6">
+                            <p className="text-2xl font-mono font-bold tracking-widest text-stone-800 dark:text-stone-200">{task.pickupCode}</p>
+                        </div>
+                        
+                        <Button className="w-full rounded-xl bg-stone-900 hover:bg-stone-800 text-white h-12" onClick={() => setShowQRModal(false)}>Tutup</Button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

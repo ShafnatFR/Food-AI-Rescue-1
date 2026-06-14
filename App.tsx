@@ -18,7 +18,8 @@ import { getSocialSystem } from './utils/socialSystem';
 import { ReviewsView } from './view/provider/components/Reviews';
 import { VerificationPendingModal } from './view/common/VerificationPendingModal'; 
 import { VerificationRejectedModal } from './view/common/VerificationRejectedModal';
-import { Sidebar } from './view/common/Sidebar';
+import { DesktopLayout } from './view/common/DesktopLayout';
+import type { SidebarNavAction } from './view/common/sidebarNavConfig';
 import { Home, User, Box, Loader2, History } from 'lucide-react';
 import { db } from './services/db';
 import { MaintenancePage } from './view/common/MaintenancePage';
@@ -37,7 +38,7 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   
   // State for Profile Initial Tab (Main vs Address vs History)
-  const [profileInitialTab, setProfileInitialTab] = useState<'main' | 'address' | 'history'>('main');
+  const [profileInitialTab, setProfileInitialTab] = useState<'main' | 'address' | 'history' | 'faq'>('main');
 
   // State for Deep Linking (Redirect to specific order detail)
   const [targetOrderId, setTargetOrderId] = useState<string | null>(null);
@@ -46,6 +47,9 @@ const App: React.FC = () => {
   const [historyFilter, setHistoryFilter] = useState<'all' | 'rated' | 'reported' | null>(null);
 
   const [isSubNavOpen, setIsSubNavOpen] = useState(false);
+  const [providerPendingTool, setProviderPendingTool] = useState<'kitchen' | 'kitchen-history' | 'csr' | 'packaging' | null>(null);
+  const [inventoryOpenAdd, setInventoryOpenAdd] = useState(false);
+  const [volunteerTab, setVolunteerTab] = useState<'available' | 'active' | 'history' | 'validation'>('available');
   
   // DATA STATE
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
@@ -447,7 +451,9 @@ const App: React.FC = () => {
       });
   };
 
-  const handleUpdateStatus = async (claimId: string, newStatus: 'completed' | 'active', extraData?: any) => {
+  const handleUpdateStatus = async (claimId: string, newStatus: 'completed' | 'active' | 'cancelled', extraData?: any) => {
+      let generatedCode: string | undefined;
+
       setClaimHistory(prev => prev.map(c => {
           if (c.id === claimId) {
               const updated = { ...c, status: newStatus, ...extraData };
@@ -460,6 +466,10 @@ const App: React.FC = () => {
                       updated.courierStatus = 'completed';
                   }
               }
+              if (newStatus === 'active' && (!updated.uniqueCode || updated.uniqueCode === 'PENDING')) {
+                  generatedCode = `FAR-${Math.floor(1000 + Math.random() * 9000)}`;
+                  updated.uniqueCode = generatedCode;
+              }
               return updated;
           }
           return c;
@@ -471,7 +481,15 @@ const App: React.FC = () => {
               payload.isScanned = true;
               payload.courierStatus = 'completed'; 
           }
+          if (generatedCode) {
+              payload.uniqueCode = generatedCode;
+          }
           await db.updateClaimStatus(claimId, newStatus, payload);
+          
+          // Invalidate cache so refresh fetches latest status
+          if (currentUser && role) {
+              localStorage.removeItem(`far_global_data_${currentUser.id}_${role}`);
+          }
       } catch (error) {
           console.error("Failed to update status in DB:", error);
           alert("Gagal menyimpan status ke server. Coba lagi.");
@@ -505,7 +523,6 @@ const App: React.FC = () => {
           };
       }
 
-      const uniqueCode = `FAR-${Math.floor(1000 + Math.random() * 9000)}`;
       const newClaim: ClaimHistoryItem = {
           id: `CLM-${Date.now()}`,
           foodId: item.id, 
@@ -514,10 +531,10 @@ const App: React.FC = () => {
           providerName: item.providerName,
           foodName: item.name,
           date: new Date().toISOString(),
-          status: 'active',
+          status: 'pending_approval',
           isScanned: false,
           imageUrl: item.imageUrl,
-          uniqueCode: uniqueCode, 
+          uniqueCode: 'PENDING', 
           claimedQuantity: quantityStr,
           deliveryMethod: method, 
           location: item.location,
@@ -537,7 +554,7 @@ const App: React.FC = () => {
               setClaimHistory(updatedClaims);
           }
           
-          return uniqueCode;
+          return 'PENDING';
 
       } catch (error: any) {
           console.error("Claim Transaction Failed:", error);
@@ -570,6 +587,39 @@ const App: React.FC = () => {
           alert("Gagal mengirim laporan ke database. Coba lagi.");
       }
   };
+
+  const handleSidebarAction = useCallback((action: SidebarNavAction) => {
+      if (action.kind === 'provider') {
+          if (action.tool === 'add-donation' || action.tool === 'audit') {
+              setCurrentView('inventory');
+              setInventoryOpenAdd(action.tool === 'add-donation');
+              return;
+          }
+          setCurrentView('dashboard');
+          if (action.tool === 'kitchen') setProviderPendingTool('kitchen');
+          else if (action.tool === 'kitchen-history') setProviderPendingTool('kitchen-history');
+          else if (action.tool === 'csr') setProviderPendingTool('csr');
+          else if (action.tool === 'packaging') setProviderPendingTool('packaging');
+          return;
+      }
+      if (action.kind === 'volunteer') {
+          setCurrentView('dashboard');
+          setVolunteerTab(action.tab);
+          return;
+      }
+      if (action.kind === 'footer') {
+          setProfileInitialTab(action.target === 'support' ? 'faq' : 'main');
+          setCurrentView('profile');
+      }
+  }, []);
+
+  const volunteerActiveMission = useMemo(() => {
+      if (role !== 'volunteer' || !currentUser?.name) return null;
+      const active = claimHistory.find(
+          (c) => c.volunteerName === currentUser.name && ['ACTIVE', 'IN_PROGRESS', 'CLAIMED'].includes(c.status?.toUpperCase() || '')
+      );
+      return active ? `#${String(active.id).slice(-4)}` : null;
+  }, [role, currentUser?.name, claimHistory]);
 
   const handleProviderNavigation = (view: string) => {
       if (view === 'inventory-reported') {
@@ -678,15 +728,17 @@ const App: React.FC = () => {
                 }} 
                 isReadOnly={appSettings.readonly_mode}
                 disableExpiryLogic={appSettings.disableExpiryLogic}
+                openAddForm={inventoryOpenAdd}
+                onAddFormOpened={() => setInventoryOpenAdd(false)}
             />
           );
 
 
           if (currentView === 'reports') return (
-              <div className="p-6 md:p-8 max-w-5xl mx-auto pb-32">
-                  <div className="flex items-center gap-4 mb-6">
-                      <button onClick={() => setCurrentView('dashboard')} className="p-2 rounded-full hover:bg-stone-100">
-                          <Box className="w-5 h-5 text-stone-500" />
+              <div className="mx-auto max-w-5xl p-6 pb-32 md:max-w-none md:p-0 md:pb-8">
+                  <div className="mb-6 flex items-center gap-4">
+                      <button onClick={() => setCurrentView('dashboard')} className="rounded-full p-2 hover:bg-stone-100 md:hidden">
+                          <Box className="h-5 w-5 text-stone-500" />
                       </button>
                       <h1 className="text-2xl font-black uppercase italic">Pusat Masalah</h1>
                   </div>
@@ -698,10 +750,10 @@ const App: React.FC = () => {
           );
 
           if (currentView === 'reviews') return (
-              <div className="p-6 md:p-8 max-w-5xl mx-auto pb-32">
-                  <div className="flex items-center gap-4 mb-6">
-                      <button onClick={() => setCurrentView('dashboard')} className="p-2 rounded-full hover:bg-stone-100">
-                          <Box className="w-5 h-5 text-stone-500" />
+              <div className="mx-auto max-w-5xl p-6 pb-32 md:max-w-none md:p-0 md:pb-8">
+                  <div className="mb-6 flex items-center gap-4">
+                      <button onClick={() => setCurrentView('dashboard')} className="rounded-full p-2 hover:bg-stone-100 md:hidden">
+                          <Box className="h-5 w-5 text-stone-500" />
                       </button>
                       <h1 className="text-2xl font-black uppercase italic">Ulasan Diterima</h1>
                   </div>
@@ -726,6 +778,8 @@ const App: React.FC = () => {
                 onRefresh={() => fetchData(true)}
                 socialSystem={socialSystem}
                 disableExpiryLogic={appSettings?.disableExpiryLogic}
+                pendingProviderTool={providerPendingTool}
+                onClearPendingProviderTool={() => setProviderPendingTool(null)}
             />
           );
       }
@@ -780,6 +834,8 @@ const App: React.FC = () => {
                 inventory={foodItems}
                 notifications={userNotifications}
                 socialSystem={socialSystem}
+                initialTab={volunteerTab}
+                onTabChange={setVolunteerTab}
             />
           );
       }
@@ -810,75 +866,104 @@ const App: React.FC = () => {
       return <div>Unknown Role</div>;
   };
 
-  const showNavigation = role && !['login', 'register', 'forgot-password'].includes(currentView) && !role.includes('admin') && currentUser?.status?.toUpperCase() === 'ACTIVE';
+  const showNavigation = role && !['login', 'register', 'forgot-password', 'landing'].includes(currentView) && !role.includes('admin') && currentUser?.status?.toUpperCase() === 'ACTIVE';
   const showBottomNav = showNavigation;
-  const showSidebar = showNavigation;
 
-  return (
-    <div className="bg-[#FDFBF7] dark:bg-stone-950 min-h-screen text-stone-900 dark:text-white font-sans flex flex-col md:flex-row">
-      {showSidebar && (
-          <Sidebar 
-            currentView={currentView}
-            setCurrentView={setCurrentView}
-            profileInitialTab={profileInitialTab}
-            setProfileInitialTab={setProfileInitialTab as any}
-            role={role}
-            currentUser={currentUser}
-            onLogout={handleLogout}
-            notificationsCount={userNotifications.filter(n => !n.isRead).length}
-            appSettings={appSettings}
-          />
+  const bottomNav = showBottomNav ? (
+    <nav className="safe-area-bottom sticky bottom-0 left-0 right-0 z-50 flex justify-around border-t border-stone-200 bg-white/95 py-3.5 shadow-[0_-5px_15px_rgba(0,0,0,0.03)] backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/95 md:hidden">
+      <button
+        onClick={() => { setProfileInitialTab('main'); setCurrentView('dashboard'); }}
+        className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${currentView === 'dashboard' ? 'text-orange-600' : 'text-stone-400'}`}
+      >
+        <Home className={`h-5 w-5 ${currentView === 'dashboard' ? 'fill-orange-600/10' : ''}`} />
+        <span className="text-[10px] font-black uppercase tracking-widest">Home</span>
+      </button>
+
+      {(role === 'individual_donor' || role === 'corporate_donor') && (
+        <>
+          <button
+            onClick={() => { setHistoryFilter(null); setCurrentView('inventory'); }}
+            className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${currentView === 'inventory' ? 'text-orange-600' : 'text-stone-400'}`}
+          >
+            <Box className={`h-5 w-5 ${currentView === 'inventory' ? 'fill-orange-600/10' : ''}`} />
+            <span className="text-[10px] font-black uppercase tracking-widest">Stok</span>
+          </button>
+          <button
+            onClick={() => { setHistoryFilter(null); setCurrentView('inventory-orders'); }}
+            className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${currentView === 'inventory-orders' ? 'text-orange-600' : 'text-stone-400'}`}
+          >
+            <Box className={`h-5 w-5 ${currentView === 'inventory-orders' ? 'fill-orange-600/10' : ''}`} />
+            <span className="text-[10px] font-black uppercase tracking-widest">Pesanan</span>
+          </button>
+          <button
+            onClick={() => { setHistoryFilter(null); setCurrentView('inventory-history'); }}
+            className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${currentView === 'inventory-history' ? 'text-orange-600' : 'text-stone-400'}`}
+          >
+            <History className={`h-5 w-5 ${currentView === 'inventory-history' ? 'fill-orange-600/10' : ''}`} />
+            <span className="text-[10px] font-black uppercase tracking-widest">Riwayat</span>
+          </button>
+        </>
       )}
 
-      
-      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
-        <main className="flex-1">
-          <div key={currentView} className="animate-view-enter">
-            {renderContent()}
-          </div>
-        </main>
-        
-        {showBottomNav && (
-            <nav className="md:hidden sticky bottom-0 left-0 right-0 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 flex justify-around py-3.5 z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.03)] safe-area-bottom">
+      {role === 'recipient' && (
+        <button
+          onClick={() => { setProfileInitialTab('history'); setCurrentView('profile'); }}
+          className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${currentView === 'profile' && profileInitialTab === 'history' ? 'text-orange-600' : 'text-stone-400'}`}
+        >
+          <History className={`h-5 w-5 ${currentView === 'profile' && profileInitialTab === 'history' ? 'fill-orange-600/10' : ''}`} />
+          <span className="text-[10px] font-black uppercase tracking-widest">Riwayat</span>
+        </button>
+      )}
 
-              <button 
-                onClick={() => { setProfileInitialTab('main'); setCurrentView('dashboard'); }} 
-                className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${currentView === 'dashboard' ? 'text-orange-600' : 'text-stone-400'}`}
-              >
-                  <Home className={`w-5 h-5 ${currentView === 'dashboard' ? 'fill-orange-600/10' : ''}`} />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Home</span>
-              </button>
-              
-              {(role === 'individual_donor' || role === 'corporate_donor') && (
-                  <button 
-                    onClick={() => { setHistoryFilter(null); setCurrentView('inventory'); }} 
-                    className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${currentView === 'inventory' ? 'text-orange-600' : 'text-stone-400'}`}
-                  >
-                      <Box className={`w-5 h-5 ${currentView === 'inventory' ? 'fill-orange-600/10' : ''}`} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Stok</span>
-                  </button>
-              )}
+      <button
+        onClick={() => { setProfileInitialTab('main'); setCurrentView('profile'); }}
+        className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${currentView === 'profile' && profileInitialTab !== 'history' ? 'text-orange-600' : 'text-stone-400'}`}
+      >
+        <User className={`h-5 w-5 ${currentView === 'profile' && profileInitialTab !== 'history' ? 'fill-orange-600/10' : ''}`} />
+        <span className="text-[10px] font-black uppercase tracking-widest">Profil</span>
+      </button>
+    </nav>
+  ) : null;
 
-              {role === 'recipient' && (
-                  <button 
-                    onClick={() => { setProfileInitialTab('history'); setCurrentView('profile'); }} 
-                    className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${currentView === 'profile' && profileInitialTab === 'history' ? 'text-orange-600' : 'text-stone-400'}`}
-                  >
-                      <History className={`w-5 h-5 ${currentView === 'profile' && profileInitialTab === 'history' ? 'fill-orange-600/10' : ''}`} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Riwayat</span>
-                  </button>
-              )}
+  const mainContent = (
+    <div key={currentView} className="animate-view-enter">
+      {renderContent()}
+    </div>
+  );
 
-              <button 
-                onClick={() => { setProfileInitialTab('main'); setCurrentView('profile'); }} 
-                className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${currentView === 'profile' && profileInitialTab !== 'history' ? 'text-orange-600' : 'text-stone-400'}`}
-              >
-                  <User className={`w-5 h-5 ${currentView === 'profile' && profileInitialTab !== 'history' ? 'fill-orange-600/10' : ''}`} />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Profil</span>
-              </button>
-            </nav>
-        )}
-      </div>
+  if (showNavigation) {
+    return (
+      <DesktopLayout
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        profileInitialTab={profileInitialTab}
+        setProfileInitialTab={setProfileInitialTab as (tab: string) => void}
+        role={role}
+        currentUser={currentUser}
+        onLogout={handleLogout}
+        notificationsCount={userNotifications.filter((n) => !n.isRead).length}
+        appSettings={appSettings}
+        onSidebarAction={handleSidebarAction}
+        volunteerTab={volunteerTab}
+        sidebarContext={
+          volunteerActiveMission ? (
+            <div className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 dark:border-stone-700 dark:bg-stone-800/50">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500">
+                Misi Aktif: {volunteerActiveMission}
+              </p>
+            </div>
+          ) : undefined
+        }
+        bottomNav={bottomNav}
+      >
+        {mainContent}
+      </DesktopLayout>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-[#FDFBF7] font-sans text-stone-900 dark:bg-stone-950 dark:text-white">
+      <main className="flex-1">{mainContent}</main>
     </div>
   );
 };

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Donatur Manajemen Stok (Desktop) - FoodRescue Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed-variant": "#6f3900",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-tertiary-container": "#004725",
+                        "on-tertiary-fixed-variant": "#00522b",
+                        "primary-fixed": "#ffdcc4",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-surface": "#191c1d",
+                        "surface-bright": "#f8f9fa",
+                        "error-container": "#ffdad6",
+                        "on-background": "#191c1d",
+                        "on-surface-variant": "#564334",
+                        "inverse-surface": "#2e3132",
+                        "on-secondary-fixed-variant": "#44474b",
+                        "on-secondary-fixed": "#191c20",
+                        "tertiary-fixed-dim": "#30e286",
+                        "tertiary-fixed": "#5bffa0",
+                        "secondary-fixed-dim": "#c5c6cc",
+                        "tertiary-container": "#00c16d",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#e1e2e8",
+                        "primary-fixed-dim": "#ffb77f",
+                        "surface-dim": "#d9dadb",
+                        "outline-variant": "#ddc1ae",
+                        "on-secondary-container": "#626469",
+                        "surface": "#f8f9fa",
+                        "on-tertiary-fixed": "#00210e",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-variant": "#e1e3e4",
+                        "secondary": "#5c5e63",
+                        "outline": "#8a7362",
+                        "on-primary-fixed": "#2f1500",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#edeeef",
+                        "secondary-fixed": "#e1e2e8",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#ffb77f",
+                        "on-primary-container": "#613100",
+                        "tertiary": "#006d3b",
+                        "background": "#f8f9fa",
+                        "primary-container": "#ff8a00",
+                        "primary": "#914c00",
+                        "surface-tint": "#914c00",
+                        "surface-container-high": "#e7e8e9",
+                        "on-secondary": "#ffffff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "gutter-lg": "24px",
+                        "base": "8px",
+                        "container-padding": "32px",
+                        "card-gap": "16px",
+                        "sidebar-width": "280px"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    fontSize: {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-mono": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .card-shadow {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        .card-hover-shadow:hover {
+            box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+        .btn-gradient {
+            background: linear-gradient(180deg, theme('colors.primary-container') 0%, theme('colors.primary') 100%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased min-h-screen">
+<!-- SideNavBar -->
+<nav class="fixed h-full w-[280px] left-0 top-0 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] flex flex-col py-8 border-r border-outline-variant z-50 bg-surface-container-lowest">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary font-headline-md shrink-0">
+                F
+            </div>
+<div class="flex flex-col">
+<h1 class="font-headline-lg text-[20px] font-bold tracking-tight leading-tight text-primary">FoodRescue Pro</h1>
+<p class="font-label-mono text-[11px] text-on-surface-variant uppercase tracking-wider">Corporate Donor Portal</p>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full font-headline-md text-[16px] py-3 rounded-lg shadow-md hover:opacity-90 active:scale-95 transition-all duration-150 flex items-center justify-center gap-2 bg-primary text-on-primary">
+<span class="material-symbols-outlined">add</span>
+                New Donation
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto flex flex-col gap-1 px-2"><a class="flex items-center gap-3 px-4 py-2.5 font-medium hover:bg-surface-container-low hover:text-on-surface transition-colors duration-200 rounded-lg mx-2 mb-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Impact Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 font-bold transition-colors duration-200 rounded-lg mx-2 mb-1 text-primary bg-primary/10" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2" data-weight="fill">inventory_2</span>
+                Stock Manager
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 font-medium hover:bg-surface-container-low hover:text-on-surface transition-colors duration-200 rounded-lg mx-2 mb-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="volunteer_activism">volunteer_activism</span>
+                Donate Food
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 font-medium hover:bg-surface-container-low hover:text-on-surface transition-colors duration-200 rounded-lg mx-2 mb-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_turned_in">assignment_turned_in</span>
+                Audit Results
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 font-medium hover:bg-surface-container-low hover:text-on-surface transition-colors duration-200 rounded-lg mx-2 mb-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+                AI Kitchen
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 font-medium hover:bg-surface-container-low hover:text-on-surface transition-colors duration-200 rounded-lg mx-2 mb-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+                Storytelling
+            </a></div>
+<div class="mt-auto px-2 border-t border-outline-variant/50 pt-4 pb-4 flex flex-col">
+<a class="flex items-center gap-3 px-4 py-2.5 font-medium hover:bg-surface-container-low hover:text-on-surface transition-colors duration-200 rounded-lg mx-2 mb-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 font-medium hover:bg-surface-container-low hover:text-on-surface transition-colors duration-200 rounded-lg mx-2 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center h-16 px-8 ml-[280px]">
+<div class="flex-1"></div> <!-- Spacer for layout if search was here -->
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+</button>
+</div>
+<div class="h-8 w-px bg-outline-variant"></div>
+<button class="hover:opacity-80 transition-opacity">
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="A professional headshot of a corporate manager in a modern office environment. The lighting is soft and natural, emphasizing a trustworthy and efficient persona. The image follows a high-key, modern aesthetic with subtle warm tones, aligning with the FoodRescue Pro brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJMY9Pa03EAanw60Khjvto6YsJY9w8ugSEgnDCMGMEZllf_j9-ph_0Gr6kaw84-tP83hKGjt9sb8AblD-Hy1z6KfcC5VJ-vmcKHY9_Vruj0uqx-44PEeZW715p00i2FGekMnWDIfuG6p2FVZ8bUi4AE8nhA0t4lcfHB-p8y23_OqWW0qSM-R4bFg5g1tsFIKYeU4wuBnXPw0TUF920Wx7xZ8volgZwH-UiTtbSSVNl6FunHISy7ZJBlpeyJsm9WPiGVzjKtgJJ"/>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-[280px] pt-16 min-h-screen p-container-padding">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-display-lg text-display-lg text-primary mb-2">Donatur: Manajemen Stok (Desktop)</h2>
+<p class="text-on-surface-variant font-body-lg text-body-lg">Manage your current available food items for donation.</p>
+</div>
+<button class="btn-gradient text-on-primary font-headline-md px-6 py-3 rounded-lg shadow-md hover:opacity-90 active:scale-95 transition-all duration-150 flex items-center gap-2">
+<span class="material-symbols-outlined">add_box</span>
+                TAMBAH DONASI
+            </button>
+</div>
+<!-- Controls Section -->
+<div class="flex items-center justify-between gap-4 mb-8 bg-surface-container-lowest p-4 rounded-xl card-shadow border border-surface-variant">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface rounded-lg border border-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-on-surface placeholder:text-on-surface-variant/50" placeholder="Search inventory..." type="text"/>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 border border-outline rounded-lg text-on-surface hover:bg-surface-container-low transition-colors font-label-mono text-label-mono">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                    FILTER
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 border border-outline rounded-lg text-on-surface hover:bg-surface-container-low transition-colors font-label-mono text-label-mono">
+<span class="material-symbols-outlined text-[18px]">sort</span>
+                    SORT
+                </button>
+</div>
+</div>
+<!-- Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-gutter-lg">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden card-shadow card-hover-shadow transition-all duration-300 border border-surface-variant group flex flex-col h-full">
+<div class="relative h-48 overflow-hidden">
+<img alt="Breakfast" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A high-quality, brightly lit overhead shot of a freshly prepared breakfast plate featuring sunny-side-up eggs, toast, and greens. The image has a clean, modern aesthetic with warm, inviting colors, typical of premium food photography. The setting implies a professional, sanitary commercial kitchen ready for high-impact donation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe5zKNzFBUGht-S0QDru3BuvSy0Z1Zf8ncChGCPUL0xDBnm-QfyQU2EyEUYorAkGoyGQzX2Y6DV4pcN34A4Zba3BIxgBiabLNX-fCABrYOtWj55aGwftMafGw_e1q9fTNNwZM5I1ga79lVg-q8-Dq0-ShobIROFRzjbEF66ohAhBPzA88RTLgCZMV4G6eYIZXGCjiNhvGKNjUX5eml4FS9sPm6b-vwcyKw8De6_9dG59mGWWffaitUn8pUr5wclA0wNfpI3G02"/>
+<!-- AI Badge -->
+<div class="absolute top-4 right-4 bg-inverse-surface/90 backdrop-blur-sm text-tertiary-fixed font-label-mono text-label-mono px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border border-tertiary-fixed/20">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                        AI Score: 100
+                    </div>
+<!-- Status Badge -->
+<div class="absolute top-4 left-4 bg-tertiary-container text-on-tertiary-container font-label-mono text-label-mono px-3 py-1 rounded-full font-bold shadow-sm">
+                        AKTIF
+                    </div>
+</div>
+<div class="p-card-gap flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-[20px] font-bold text-on-surface leading-tight">Telor Dadar Special</h3>
+</div>
+<p class="text-on-surface-variant font-body-md text-[14px] line-clamp-2 mb-4 flex-1">
+                        Freshly prepared scrambled eggs with herbs. High protein content, suitable for immediate distribution.
+                    </p>
+<div class="space-y-3 pt-4 border-t border-surface-variant">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono">
+<span class="material-symbols-outlined text-[16px]">inventory_2</span>
+                                Remaining Qty
+                            </div>
+<span class="font-headline-md text-[16px] text-primary">45 Porsi</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono">
+<span class="material-symbols-outlined text-[16px]">event</span>
+                                Expire
+                            </div>
+<span class="font-body-md text-[14px] text-error font-medium">Hari ini, 18:00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden card-shadow card-hover-shadow transition-all duration-300 border border-surface-variant group flex flex-col h-full">
+<div class="relative h-48 overflow-hidden">
+<img alt="Salad" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A vibrant, fresh salad bowl containing mixed greens, cherry tomatoes, and sliced avocados. Shot from slightly above in bright, natural light to emphasize crispness and nutritional value. The modern, clean aesthetic aligns with high-quality food logistics and healthy corporate donation initiatives." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeDwtYR7fiJ3KZMwN1DRhOq8Yj3MuAlOSlaX5_0bdTPKu8ORw1bBXNc9GjcRlh6JH3R5bybDI1iL0uUPMcXuAkjJfbstaAN77FjHnLm6AP6reZZgNFefopJNQg6VUM5YNhpUvfdzOA3QxQQQcAIRAvgZkbpM5oQrV-kMjEjpqKedkxi2Cve5e832LxWNtOGcdJe-QExkF2G746qDZCvHXINq0K8npx7BukyURQWF3J8mUYms2_46FxXYviC_3x32ZsTtWTHobZ"/>
+<div class="absolute top-4 right-4 bg-inverse-surface/90 backdrop-blur-sm text-tertiary-fixed font-label-mono text-label-mono px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border border-tertiary-fixed/20">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                        AI Score: 95
+                    </div>
+<div class="absolute top-4 left-4 bg-tertiary-container text-on-tertiary-container font-label-mono text-label-mono px-3 py-1 rounded-full font-bold shadow-sm">
+                        AKTIF
+                    </div>
+</div>
+<div class="p-card-gap flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-[20px] font-bold text-on-surface leading-tight">Salad Sayur Organik</h3>
+</div>
+<p class="text-on-surface-variant font-body-md text-[14px] line-clamp-2 mb-4 flex-1">
+                        Mixed organic greens, cherry tomatoes, and vinaigrette dressing separated. Needs refrigeration.
+                    </p>
+<div class="space-y-3 pt-4 border-t border-surface-variant">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono">
+<span class="material-symbols-outlined text-[16px]">inventory_2</span>
+                                Remaining Qty
+                            </div>
+<span class="font-headline-md text-[16px] text-primary">20 Box</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono">
+<span class="material-symbols-outlined text-[16px]">event</span>
+                                Expire
+                            </div>
+<span class="font-body-md text-[14px] text-on-surface font-medium">Besok, 12:00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden card-shadow card-hover-shadow transition-all duration-300 border border-surface-variant group flex flex-col h-full">
+<div class="relative h-48 overflow-hidden">
+<img alt="Chicken" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professionally plated serving of roasted chicken with herbs and side vegetables, presented in high-resolution with sharp focus on the texture of the meat. The warm lighting and clean, modern background convey a sense of high culinary standards and safe food handling suitable for an enterprise donor portal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7PvlMdDgPSeol0ykUejmDl2yRLh4QMrx2HZbS1WkH5Ku2j0lk9haurSKErPYqJexV4eCOkSfXhpDVY9Y5VvxTtQc7MD5UNejg_kAZ-dcMRqWmoucVBugF0CIMbsGInBqkpIc-ONfL3i1JLMxeui1lucYCwupzP4PIqgYqw9MPx99BZHJl94qvUZrx8wucV8j1YTurXzdfOKtfYgZBmIpw5FBlsjkwcCrOj9P5Qfdc29ZK6DXL3K93A_sDxw7I1VATWE59bqbY"/>
+<div class="absolute top-4 right-4 bg-inverse-surface/90 backdrop-blur-sm text-tertiary-fixed font-label-mono text-label-mono px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border border-tertiary-fixed/20">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                        AI Score: 88
+                    </div>
+<div class="absolute top-4 left-4 bg-tertiary-container text-on-tertiary-container font-label-mono text-label-mono px-3 py-1 rounded-full font-bold shadow-sm">
+                        AKTIF
+                    </div>
+</div>
+<div class="p-card-gap flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-[20px] font-bold text-on-surface leading-tight">Ayam Panggang</h3>
+</div>
+<p class="text-on-surface-variant font-body-md text-[14px] line-clamp-2 mb-4 flex-1">
+                        Herb-roasted chicken quarters. Fully cooked and blast chilled. Requires reheating before serving.
+                    </p>
+<div class="space-y-3 pt-4 border-t border-surface-variant">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono">
+<span class="material-symbols-outlined text-[16px]">inventory_2</span>
+                                Remaining Qty
+                            </div>
+<span class="font-headline-md text-[16px] text-primary">150 Porsi</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono">
+<span class="material-symbols-outlined text-[16px]">event</span>
+                                Expire
+                            </div>
+<span class="font-body-md text-[14px] text-on-surface font-medium">Lusa, 23:59</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 4 (Draft/Inactive State Example) -->
+<div class="bg-surface-container-low rounded-xl overflow-hidden card-shadow border border-outline-variant/50 group flex flex-col h-full opacity-75 grayscale-[20%]">
+<div class="relative h-48 overflow-hidden">
+<img alt="Burger" class="w-full h-full object-cover" data-alt="A macro shot of a gourmet burger wrapped partially in professional deli paper. The lighting is slightly muted to reflect an inactive status in the UI, but the details remain sharp. The overall composition is clean and modern, fitting within a structured corporate food management dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfFfpYKXQN_GFbh2gDtJMf1X0WkEsckuOEL57zMv69pT57L4ODQtEjZ-qTvkC5sUlZhUztMYS1q13W8Q3DaxyDXcDWA_-8OF7vVex98paT2TqU7wn_xFMRf_V2jWkO1hI4tNNsUiIAqDCVW9BpP49jH2n-UkkG-eMJBZk9YKcLmQiP2e6--HluVhc3oM6wkfKfqkpRaCd8cHQv6J_fHS0ctnCVAQ4qCg305LT6Qn_Hi9CZIGpptPO4qEFl0mYS_X8ZbAGmuece"/>
+<div class="absolute top-4 left-4 bg-surface-variant text-on-surface-variant font-label-mono text-label-mono px-3 py-1 rounded-full font-bold shadow-sm border border-outline-variant">
+                        DRAFT
+                    </div>
+</div>
+<div class="p-card-gap flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-[20px] font-bold text-on-surface-variant leading-tight">Beef Burger (Unassigned)</h3>
+</div>
+<p class="text-on-surface-variant font-body-md text-[14px] line-clamp-2 mb-4 flex-1">
+                        Pending nutritional analysis and logistics assignment. Do not distribute.
+                    </p>
+<div class="space-y-3 pt-4 border-t border-surface-variant">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono">
+<span class="material-symbols-outlined text-[16px]">inventory_2</span>
+                                Remaining Qty
+                            </div>
+<span class="font-headline-md text-[16px] text-on-surface-variant">--</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-mono text-label-mono">
+<span class="material-symbols-outlined text-[16px]">event</span>
+                                Expire
+                            </div>
+<span class="font-body-md text-[14px] text-on-surface-variant font-medium">TBD</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

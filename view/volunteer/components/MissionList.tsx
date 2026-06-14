@@ -57,7 +57,8 @@ export const MissionList: React.FC<MissionListProps> = ({ tasks, activeTab, onAc
                 description={activeTab === 'available' ? "Saat ini belum ada misi pengantaran yang tersedia di area Anda." : activeTab === 'active' ? "Anda belum mengambil misi apapun." : "Selesaikan misi pertamamu untuk melihat riwayat di sini!"}
             />
         ) : (
-            filteredTasks.map(task => {
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredTasks.map(task => {
                 const isCompletedLocally = completedTaskIds?.has(task.id);
                 const isTaskFinished = task.status === 'history' || isCompletedLocally || activeTab === 'history';
 
@@ -141,7 +142,8 @@ export const MissionList: React.FC<MissionListProps> = ({ tasks, activeTab, onAc
                     )}
                 </div>
                 </div>
-            )})
+            )})}
+            </div>
         )}
     </div>
   );

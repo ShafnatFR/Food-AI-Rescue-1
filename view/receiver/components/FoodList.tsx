@@ -94,7 +94,7 @@ export const FoodList: React.FC<FoodListProps> = ({
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-3xl mx-auto pb-32">
+    <div className="mx-auto max-w-3xl p-6 pb-32 md:max-w-none md:p-0 md:pb-8">
       <header className="mb-6 flex justify-between items-start gap-4">
         <div>
           <h1 className="text-2xl font-black text-stone-900 dark:text-white leading-none tracking-tight">Makanan Sekitar</h1>
@@ -111,7 +111,7 @@ export const FoodList: React.FC<FoodListProps> = ({
             </button>
             <button 
                 onClick={onOpenNotifications} 
-                className="relative p-3 text-stone-500 hover:text-orange-500 transition-all bg-white dark:bg-stone-900 rounded-2xl shadow-sm border border-stone-200 dark:border-stone-800 active:scale-95 group"
+                className="group relative rounded-2xl border border-stone-200 bg-white p-3 text-stone-500 shadow-sm transition-all hover:text-orange-500 active:scale-95 md:hidden dark:border-stone-800 dark:bg-stone-900"
             >
                 <Bell className="w-6 h-6" />
                 {notifications.filter(n => !n.isRead).length > 0 && (
@@ -195,7 +195,7 @@ export const FoodList: React.FC<FoodListProps> = ({
            />
         ) : (
             <>
-                <div className={`grid gap-3 md:gap-5 ${layoutMode === 'grid' ? 'grid-cols-2 md:grid-cols-2' : 'grid-cols-1'}`}>
+                <div className={`grid gap-3 md:gap-5 ${layoutMode === 'grid' ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
                     {currentItems.map((item) => (
                     <div 
                         key={item.id} 

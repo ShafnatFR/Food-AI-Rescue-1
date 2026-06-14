@@ -6,13 +6,13 @@ import { ProviderOrder } from '../../../../types';
 import { OrderDetail } from '../OrderDetail';
 import { OrderHeader } from './OrderHeader';
 import { OrderItemCard } from './OrderItemCard';
-import { InventoryNavigation } from '../InventoryNavigation';
+
 
 interface OrderListProps {
     orders?: ProviderOrder[];
     currentView: 'stock' | 'orders' | 'history';
     setCurrentView: (view: 'stock' | 'orders' | 'history') => void;
-    onUpdateStatus?: (claimId: string, status: 'completed' | 'active') => void;
+    onUpdateStatus?: (claimId: string, status: 'completed' | 'active' | 'cancelled' | 'pending') => void;
     isLoading?: boolean; // Prop baru
     onRefresh?: () => void;
 }
@@ -21,11 +21,17 @@ export const OrderList: React.FC<OrderListProps> = ({ orders = [], currentView, 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentTab, setCurrentTab] = useState<'WAITING' | 'ACTIVE'>('WAITING');
 
-  const filteredOrders = useMemo(() => orders.filter(order => 
+  const waitingOrders = useMemo(() => orders.filter(o => o.status?.toLowerCase() === 'pending_approval'), [orders]);
+  const activeOrders = useMemo(() => orders.filter(o => o.status?.toLowerCase() !== 'pending_approval' && o.status?.toLowerCase() !== 'completed' && o.status?.toLowerCase() !== 'cancelled'), [orders]);
+
+  const displayedOrders = currentTab === 'WAITING' ? waitingOrders : activeOrders;
+
+  const filteredOrders = useMemo(() => displayedOrders.filter(order => 
     order.foodName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     order.receiver.name.toLowerCase().includes(searchQuery.toLowerCase())
-  ), [orders, searchQuery]);
+  ), [displayedOrders, searchQuery]);
 
   // Temukan objek pesanan terbaru berdasarkan ID yang dipilih
   const currentSelectedOrder = useMemo(() => 
@@ -68,11 +74,15 @@ export const OrderList: React.FC<OrderListProps> = ({ orders = [], currentView, 
         <OrderHeader 
             searchQuery={searchQuery} 
             setSearchQuery={setSearchQuery} 
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+            waitingCount={waitingOrders.length}
+            activeCount={activeOrders.length}
             onRefresh={handleRefresh}
             isLoading={showLoading}
         />
 
-        <InventoryNavigation currentView={currentView} setCurrentView={setCurrentView} />
+
 
         {/* LOADING STATE (Only show big loader if parent is loading initial data, not on refresh) */}
         {isParentLoading ? (

@@ -8,7 +8,7 @@ import { ProductDetailModal } from './ProductDetailModal';
 import { StockItemCard } from './StockItemCard';
 import { StockHeader } from './StockHeader';
 import { StockPagination } from './StockPagination';
-import { InventoryNavigation } from '../InventoryNavigation';
+
 import { Button } from '../../../components/Button';
 import { db } from '../../../../services/db';
 import { checkAndExpireItems } from '../../../../utils/expiryChecker';
@@ -26,6 +26,8 @@ interface StockManagerProps {
     onNavigate: (view: string) => void;
     isReadOnly?: boolean;
     disableExpiryLogic?: boolean;
+    openAddForm?: boolean;
+    onAddFormOpened?: () => void;
 }
 
 
@@ -39,9 +41,18 @@ export const StockManager: React.FC<StockManagerProps> = ({
     onRefresh: onParentRefresh,
     onNavigate,
     isReadOnly = false,
-    disableExpiryLogic = false
+    disableExpiryLogic = false,
+    openAddForm = false,
+    onAddFormOpened,
 }) => {
     const [isAddingNew, setIsAddingNew] = useState(false);
+
+    useEffect(() => {
+        if (openAddForm) {
+            setIsAddingNew(true);
+            onAddFormOpened?.();
+        }
+    }, [openAddForm, onAddFormOpened]);
     const [selectedProduct, setSelectedProduct] = useState<FoodItem | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('grid');
@@ -192,7 +203,7 @@ export const StockManager: React.FC<StockManagerProps> = ({
 
     if (isAddingNew) {
         return (
-            <div className="p-4 md:p-8 max-w-5xl mx-auto pb-32">
+            <div className="mx-auto max-w-5xl p-4 pb-32 md:max-w-none md:p-0 md:pb-8">
                 <QualityCheckInventory 
                     onBack={() => setIsAddingNew(false)} 
                     onSuccess={handleAddNewItem}
@@ -215,7 +226,7 @@ export const StockManager: React.FC<StockManagerProps> = ({
     }
 
     return (
-        <div className="p-6 md:p-8 max-w-5xl mx-auto pb-32 animate-in fade-in slide-in-from-left-4">
+        <div className="mx-auto max-w-5xl animate-in p-6 pb-32 fade-in slide-in-from-left-4 md:max-w-none md:p-0 md:pb-8">
             {/* 1. Header (Judul + Search + Refresh) */}
             <StockHeader 
                 searchQuery={searchQuery} 
@@ -225,7 +236,7 @@ export const StockManager: React.FC<StockManagerProps> = ({
             />
 
             {/* 2. Navigation Tab (Navbar Stok, Pesanan, Riwayat) */}
-            <InventoryNavigation currentView={currentView} setCurrentView={setCurrentView} />
+
             
             {/* 3. Action & Toggle */}
             <div className="space-y-6">
@@ -315,7 +326,7 @@ export const StockManager: React.FC<StockManagerProps> = ({
                 />
             ) : (
                 <div className="mt-6">
-                    <div className={`grid gap-3 md:gap-5 ${layoutMode === 'grid' ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+                    <div className={`grid gap-3 md:gap-5 ${layoutMode === 'grid' ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
                         {currentItems.map(item => (
                             <StockItemCard 
                                 key={item.id} 

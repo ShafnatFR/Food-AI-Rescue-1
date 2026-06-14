@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { ShieldCheck, Info, Check, X, AlertCircle, Sparkles, Biohazard, AlertTriangle, ChevronRight } from 'lucide-react';
+import { ShieldCheck, Info, Check, X, Sparkles, Biohazard, AlertTriangle, ChevronRight, CheckCircle } from 'lucide-react';
 
 interface AIVerificationCardProps {
     verification: {
@@ -18,94 +17,67 @@ export const AIVerificationCard: React.FC<AIVerificationCardProps> = ({ verifica
     const isSyubhat = verification.halalScore >= 40 && verification.halalScore < 80;
 
     return (
-        <div className="bg-white dark:bg-stone-900 rounded-[2.5rem] border border-stone-100 dark:border-stone-800 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
-            <div className="p-6">
-                <header className="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-1">Verifikasi Food AI</h3>
-                        <div className="flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-purple-500" />
-                            <span className="text-lg font-black text-stone-900 dark:text-white uppercase italic tracking-tight">Kualitas & Kandungan</span>
-                        </div>
-                    </div>
-                    <div className={`px-4 py-2 rounded-2xl flex items-center gap-2 font-black text-[10px] uppercase tracking-widest ${verification.isEdible ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' : 'bg-red-50 text-red-600 dark:bg-red-900/20'}`}>
-                        {verification.isEdible ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
-                        {verification.isEdible ? "Layak Konsumsi" : "Tidak Layak"}
-                    </div>
-                </header>
+        <div className="bg-[#2e3132] text-[#f0f1f2] rounded-2xl p-6 shadow-md relative overflow-hidden font-body-md animate-in fade-in slide-in-from-bottom-4">
+            {/* Decorative background glow */}
+            <div className="absolute -right-20 -top-20 w-64 h-64 bg-green-500/10 rounded-full blur-3xl"></div>
+            
+            <div className="flex justify-between items-center mb-6 relative z-10">
+                <div className="flex items-center gap-3">
+                    <Sparkles className="text-[#5bffa0] w-6 h-6" />
+                    <h3 className="font-bold text-lg tracking-wide uppercase">Verifikasi Food AI</h3>
+                </div>
+                <div className={`px-3 py-1 rounded-full flex items-center gap-1.5 font-bold text-xs uppercase tracking-widest border border-white/10 ${verification.isEdible ? 'bg-green-900/40 text-[#5bffa0]' : 'bg-red-900/40 text-red-400'}`}>
+                    {verification.isEdible ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                    {verification.isEdible ? "Layak" : "Tidak Layak"}
+                </div>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Halal Status Section */}
-                    <div className={`p-5 rounded-3xl border ${isHalal ? 'bg-green-50/50 border-green-100 dark:bg-green-900/10 dark:border-green-900/30' : isSyubhat ? 'bg-amber-50/50 border-amber-100 dark:bg-amber-900/10 dark:border-amber-900/30' : 'bg-red-50/50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30'}`}>
-                        <div className="flex items-center justify-between mb-4">
-                            <span className={`text-[9px] font-black uppercase tracking-widest ${isHalal ? 'text-green-600' : isSyubhat ? 'text-amber-600' : 'text-red-600'}`}>Status Halal</span>
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white shadow-lg ${isHalal ? 'bg-green-500 shadow-green-500/20' : isSyubhat ? 'bg-amber-500 shadow-amber-500/20' : 'bg-red-500 shadow-red-500/20'}`}>
-                                {isHalal ? <ShieldCheck className="w-5 h-5" /> : isSyubhat ? <Info className="w-5 h-5" /> : <Biohazard className="w-5 h-5" />}
-                            </div>
-                        </div>
-                        <h4 className={`text-2xl font-black italic tracking-tighter ${isHalal ? 'text-green-700 dark:text-green-400' : isSyubhat ? 'text-amber-700 dark:text-amber-400' : 'text-red-700 dark:text-red-400'}`}>
-                            {isHalal ? "TERVERIFIKASI HALAL" : isSyubhat ? "BUTUH KONFIRMASI" : "TIDAK HALAL"}
-                        </h4>
-                        <p className="text-[10px] text-stone-500 mt-1 font-bold uppercase tracking-widest">Akurasi AI: {verification.halalScore}%</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+                {/* Halal Status Section */}
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <p className="font-mono text-[11px] mb-1 uppercase tracking-widest opacity-80 font-semibold" style={{ color: isHalal ? '#5bffa0' : isSyubhat ? '#ffb77f' : '#ffdad6' }}>
+                        Status Halal
+                    </p>
+                    <div className="flex items-center justify-between">
+                        <p className="font-bold text-xl" style={{ color: isHalal ? '#5bffa0' : isSyubhat ? '#ffb77f' : '#ffdad6' }}>
+                            {isHalal ? "Terverifikasi" : isSyubhat ? "Syubhat" : "Tidak Halal"}
+                        </p>
+                        {isHalal ? <CheckCircle className="w-6 h-6 text-[#5bffa0]" /> : isSyubhat ? <Info className="w-6 h-6 text-[#ffb77f]" /> : <Biohazard className="w-6 h-6 text-[#ffdad6]" />}
                     </div>
+                </div>
 
-                    {/* Ingredients Section */}
-                    <div className="space-y-4">
-                        <div className="space-y-3">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 px-1">Komposisi Terdeteksi</h4>
-                            <div className="flex flex-wrap gap-2">
-                                {verification.ingredients && verification.ingredients.length > 0 ? (
-                                    verification.ingredients.map((ing, i) => (
-                                        <span key={i} className="px-3 py-1.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-stone-700 rounded-xl text-[10px] font-bold text-stone-600 dark:text-stone-300 uppercase tracking-tight">
-                                            {ing}
-                                        </span>
-                                    ))
-                                ) : (
-                                    <span className="text-[10px] text-stone-400 italic font-medium px-1">Gagal mendeteksi komposisi spesifik.</span>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* DOUBLE BADGE SYSTEM: ALLERGENS (RECEIVER VIEW) */}
-                        {(verification.allergens && verification.allergens.length > 0) && (
-                            <div className="space-y-3 pt-2 animate-in slide-in-from-left-4 duration-500">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500 px-1 flex items-center gap-1">
-                                    <AlertTriangle className="w-3 h-3" /> Peringatan Alergen
-                                </h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {verification.allergens.map((allergen: string, i: number) => (
-                                        <span key={i} className="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/40 rounded-xl text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-tight">
-                                            {allergen}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
+                {/* Composition / Ingredients Section */}
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10 flex flex-col justify-center">
+                    <p className="font-mono text-[11px] text-[#e1e2e8] mb-2 uppercase tracking-widest opacity-80 font-semibold">Komposisi Terdeteksi</p>
+                    <div className="flex flex-wrap gap-2">
+                        {verification.ingredients && verification.ingredients.length > 0 ? (
+                            verification.ingredients.map((ing, i) => (
+                                <span key={i} className="text-xs font-mono bg-white/10 px-2 py-1 rounded-md text-[#f0f1f2]">
+                                    {ing}
+                                </span>
+                            ))
+                        ) : (
+                            <span className="text-xs text-white/50 italic">Tidak terdeteksi</span>
                         )}
                     </div>
                 </div>
+            </div>
 
-                {/* AI Reasoning */}
-                {verification.reason && (
-                    <div className="mt-6 p-4 bg-stone-50 dark:bg-stone-950/50 rounded-2xl border border-stone-100 dark:border-stone-800 flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-stone-400 shrink-0 mt-0.5" />
-                        <div>
-                            <p className="text-[9px] font-black text-stone-400 uppercase tracking-widest mb-1">Catatan Analisis</p>
-                            <p className="text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed font-medium">{verification.reason}</p>
-                        </div>
+            {/* Allergens (If any) */}
+            {(verification.allergens && verification.allergens.length > 0) && (
+                <div className="mt-4 bg-red-500/10 rounded-xl p-4 border border-red-500/20 relative z-10">
+                    <p className="font-mono text-[11px] text-red-400 mb-2 uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5" /> Peringatan Alergen
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                        {verification.allergens.map((allergen, i) => (
+                            <span key={i} className="text-xs font-mono bg-red-500/20 px-2 py-1 rounded-md text-red-200">
+                                {allergen}
+                            </span>
+                        ))}
                     </div>
-                )}
-            </div>
-
-            <div className="bg-stone-900 px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
-                    <span className="text-[9px] font-black text-stone-400 uppercase tracking-[0.15em]">AI Analysis Protection Active</span>
                 </div>
-                <button className="text-[9px] font-black text-purple-400 hover:text-purple-300 uppercase tracking-widest transition-colors flex items-center gap-1">
-                    Detail Teknis <ChevronRight className="w-3 h-3" />
-                </button>
-            </div>
+            )}
         </div>
     );
 };
-

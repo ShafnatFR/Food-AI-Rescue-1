@@ -27,6 +27,8 @@ interface VolunteerIndexProps {
   inventory?: FoodItem[];
   notifications?: any[]; // New Prop
   socialSystem?: any;
+  initialTab?: 'available' | 'active' | 'history' | 'validation';
+  onTabChange?: (tab: 'available' | 'active' | 'history' | 'validation') => void;
 }
 
 export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({ 
@@ -41,9 +43,26 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
     globalUsers = [],
     inventory = [],
     notifications = [],
-    socialSystem
+    socialSystem,
+    initialTab = 'available',
+    onTabChange,
 }) => {
-  const [activeTab, setActiveTab] = useState<'available' | 'active' | 'history'>('available');
+  const [activeTab, setActiveTab] = useState<'available' | 'active' | 'history' | 'validation'>(initialTab);
+
+  useEffect(() => {
+      setActiveTab(initialTab);
+      if (initialTab === 'validation') {
+          setShowScanner(true);
+      }
+  }, [initialTab]);
+
+  const handleTabChange = (tab: 'available' | 'active' | 'history' | 'validation') => {
+      setActiveTab(tab);
+      onTabChange?.(tab);
+      if (tab === 'validation') {
+          setShowScanner(true);
+      }
+  };
   
   // Local Loading State for Splash Content
   const [isMounting, setIsMounting] = useState(true);
@@ -58,7 +77,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
   const [viewMode, setViewMode] = useState<'main' | 'notifications'>('main');
   
   const [verificationResult, setVerificationResult] = useState<{ status: 'success' | 'error' | 'already_taken' | 'idle', message: string, code?: string }>({ status: 'idle', message: '' });
-  const [scannerMode, setScannerMode] = useState<'camera' | 'manual'>('camera');
+  const [scannerMode, setScannerMode] = useState<'show_qr' | 'camera' | 'manual'>('show_qr');
   const [manualCode, setManualCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   
@@ -73,6 +92,12 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
   const streamRef = useRef<MediaStream | null>(null);
   const requestRef = useRef<number | null>(null);
   const userName = currentUser?.name || 'Budi Santoso';
+
+  const targetClaimForScanner = useMemo(() => {
+      if (!scanningForTaskId) return null;
+      return activeClaims.find(c => String(c.id) === String(scanningForTaskId));
+  }, [activeClaims, scanningForTaskId]);
+  const isScannerPickup = targetClaimForScanner?.status === 'active';
 
   // Trigger splash loading on mount AND on tab change
   useEffect(() => {
@@ -316,6 +341,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
       return {
           id: claim.id,
           claimId: claim.id,
+          pickupCode: claim.pickupCode,
           from: claim.providerLocation?.label || claim.providerName,
           to: claim.receiverLocation?.label || claim.receiverName || 'Penerima Manfaat', 
           distance: 2.5,
@@ -342,7 +368,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
       if (!currentUser?.id) return [];
 
       return activeClaims
-        .filter(claim => claim.deliveryMethod !== 'pickup') 
+        .filter(claim => claim.deliveryMethod !== 'pickup' && claim.status?.toLowerCase() !== 'pending_approval') 
         .map(claim => {
             const isAssignedToMe = claim.volunteerId && String(claim.volunteerId) === String(currentUser.id);
             const isUnassigned = !claim.volunteerId && !claim.courierName;
@@ -416,6 +442,14 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
       setScanningForTaskId(taskId);
       setVerificationResult({ status: 'idle', message: '' });
       setManualCode('');
+      
+      const targetClaim = activeClaims.find(c => String(c.id) === String(taskId));
+      if (targetClaim && targetClaim.status === 'active') {
+          setScannerMode('show_qr');
+      } else {
+          setScannerMode('camera');
+      }
+      
       setShowScanner(true);
   };
 
@@ -452,7 +486,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
             onAccept={() => { 
                 if(onAcceptMission && selectedTask.claimId) onAcceptMission(selectedTask.claimId, userName); 
                 setSelectedTask(null); 
-                setActiveTab('active'); 
+                handleTabChange('active'); 
             }} 
             volunteerName={userName} 
         />
@@ -461,7 +495,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] dark:bg-stone-950 flex flex-col"> 
-       <div className="sticky top-0 z-50 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-6 py-4 md:py-6 shadow-sm">
+       <div className="sticky top-0 z-50 border-b border-stone-200 bg-white px-6 py-4 shadow-sm dark:border-stone-800 dark:bg-stone-900 md:static md:border-none md:bg-transparent md:px-0 md:py-0 md:shadow-none">
           <div className="flex items-center justify-between max-w-3xl mx-auto w-full">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-orange-900/20">
@@ -482,7 +516,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
                         {isRefreshing ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
                     </button>
                 )}
-                <button onClick={onOpenNotifications} className="relative p-3 bg-stone-50 dark:bg-stone-800 rounded-full border border-stone-200 dark:border-stone-700 text-stone-500 hover:text-orange-600 transition-all shadow-inner">
+                <button onClick={onOpenNotifications} className="relative rounded-full border border-stone-200 bg-stone-50 p-3 text-stone-500 shadow-inner transition-all hover:text-orange-600 md:hidden dark:border-stone-700 dark:bg-stone-800">
                     <Bell className="w-5 h-5" />
                     {notifications.filter((n: any) => !n.isRead).length > 0 && (
                         <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-pulse"></span>
@@ -499,7 +533,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
                 ].map(tab => (
                     <button 
                         key={tab.id} 
-                        onClick={() => setActiveTab(tab.id as any)} 
+                        onClick={() => handleTabChange(tab.id as 'available' | 'active' | 'history')} 
                         className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === tab.id ? 'bg-white dark:bg-stone-700 text-orange-600 shadow-md ring-1 ring-black/5' : 'text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'}`}
                     >
                         <tab.icon className={`w-3.5 h-3.5 ${activeTab === tab.id ? 'text-orange-600' : 'text-stone-400'}`} />
@@ -509,7 +543,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
           </div>
        </div>
 
-       <div className={`flex-1 p-4 md:p-8 max-w-3xl mx-auto w-full pb-32 transition-opacity duration-300 ${isRefreshing ? 'opacity-60 pointer-events-none' : 'opacity-100'}`}>
+       <div className={`mx-auto w-full max-w-3xl flex-1 p-4 pb-32 transition-opacity duration-300 md:max-w-none md:p-0 md:pb-8 ${isRefreshing ? 'pointer-events-none opacity-60' : 'opacity-100'}`}>
             {(activeTab === 'available' || activeTab === 'active') && (
                 <MissionList 
                     tasks={activeTab === 'available' ? availableTasks : myActiveTasks} 
@@ -520,6 +554,21 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
                     isLoading={isLoading} 
                     completedTaskIds={completedTaskIds} // Pass locally completed IDs
                 />
+            )}
+
+            {activeTab === 'validation' && !showScanner && (
+                <div className="desktop-card flex flex-col items-center justify-center p-10 text-center">
+                    <Camera className="mb-4 h-12 w-12 text-orange-600" />
+                    <h2 className="text-lg font-black uppercase italic tracking-tight text-stone-900 dark:text-white">Validasi Foto & QR</h2>
+                    <p className="mt-2 max-w-md text-sm text-stone-500">Buka kamera untuk memvalidasi penyerahan makanan dengan scan QR.</p>
+                    <button
+                        type="button"
+                        onClick={() => setShowScanner(true)}
+                        className="mt-6 rounded-xl bg-orange-600 px-6 py-3 text-sm font-bold text-white hover:bg-orange-700"
+                    >
+                        Mulai Validasi
+                    </button>
+                </div>
             )}
 
             {activeTab === 'history' && (
@@ -547,83 +596,96 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
            <button onClick={() => { setShowScanner(false); stopCamera(); }} className="absolute top-6 right-6 p-2 bg-stone-800 rounded-full text-white z-50 hover:bg-stone-700"><X className="w-6 h-6" /></button>
            
            <div className="w-full max-w-sm">
-                <div className="text-center mb-6">
-                    <h3 className="text-white font-black text-2xl uppercase italic tracking-tight">Validator Penyerahan</h3>
-                    <p className="text-stone-500 text-sm font-medium">Langkah 1: Verifikasi Identitas Penerima</p>
-                </div>
+              <div className="text-center mb-6">
+                  <h3 className="text-white font-black text-2xl uppercase italic tracking-tight">Validator Penyerahan</h3>
+                  <p className="text-stone-500 text-sm font-medium">Langkah {isScannerPickup ? '1: Tunjukkan QR ke Donatur' : '2: Scan QR Penerima'}</p>
+              </div>
 
-                {scannerMode === 'camera' ? (
-                    <div className="relative rounded-[2.5rem] overflow-hidden aspect-square bg-black border-2 border-stone-800 shadow-2xl mx-auto group">
-                        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-                        <canvas ref={canvasRef} className="hidden" />
-                        
-                        <div className="absolute inset-0 z-20 pointer-events-none">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.8)] animate-[scan_2s_infinite_linear]"></div>
-                            <div className="absolute inset-0 border-[40px] border-black/40"></div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-white/20 rounded-3xl"></div>
-                        </div>
+              {scannerMode === 'show_qr' ? (
+                  <div className="bg-stone-900 rounded-[2.5rem] p-8 border border-stone-800 shadow-2xl flex flex-col justify-center items-center relative overflow-hidden">
+                      <h4 className="text-white font-black text-lg mb-6 text-center uppercase tracking-widest italic">Kode Ambil (Pickup)</h4>
+                      <div className="bg-white p-4 rounded-2xl shadow-sm border border-stone-200 inline-block mb-6">
+                          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(targetClaimForScanner?.pickupCode || '')}`} alt="QR Code" className="w-48 h-48" />
+                      </div>
+                      <div className="bg-black border border-stone-700 px-6 py-3 rounded-xl w-full text-center">
+                          <p className="text-2xl font-mono font-bold tracking-widest text-white">{targetClaimForScanner?.pickupCode}</p>
+                      </div>
+                  </div>
+              ) : scannerMode === 'camera' ? (
+                  <div className="relative rounded-[2.5rem] overflow-hidden aspect-square bg-black border-2 border-stone-800 shadow-2xl mx-auto group">
+                      <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                      <canvas ref={canvasRef} className="hidden" />
+                      
+                      <div className="absolute inset-0 z-20 pointer-events-none">
+                          <div className="absolute top-0 left-0 w-full h-1 bg-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.8)] animate-[scan_2s_infinite_linear]"></div>
+                          <div className="absolute inset-0 border-[40px] border-black/40"></div>
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-white/20 rounded-3xl"></div>
+                      </div>
 
-                        {isVerifying && (
-                            <div className="absolute inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-                                <Loader2 className="w-10 h-10 text-orange-500 animate-spin" />
-                            </div>
-                        )}
+                      {isVerifying && (
+                          <div className="absolute inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                              <Loader2 className="w-10 h-10 text-orange-500 animate-spin" />
+                          </div>
+                      )}
 
-                        {verificationResult.status !== 'idle' && (
-                            <div className={`absolute inset-0 z-40 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in zoom-in duration-300 ${
-                                verificationResult.status === 'success' ? 'bg-green-600/90' : 
-                                verificationResult.status === 'already_taken' ? 'bg-amber-600/90' : 'bg-red-600/90'
-                            }`}>
-                                {verificationResult.status === 'success' ? <CheckCircle2 className="w-16 h-16 text-white mb-4 animate-bounce" /> : <AlertCircle className="w-16 h-16 text-white mb-4 animate-shake" />}
-                                <h3 className="text-white font-black text-xl uppercase italic leading-tight mb-2">{verificationResult.message}</h3>
-                                {verificationResult.status !== 'success' ? (
-                                    <Button onClick={() => setVerificationResult({status:'idle', message:''})} variant="outline" className="mt-6 border-white text-white">Coba Lagi</Button>
-                                ) : (
-                                    <Button onClick={() => { setShowScanner(false); stopCamera(); }} variant="outline" className="mt-6 border-white text-white">Lanjutkan</Button>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <div className="bg-stone-900 rounded-[2.5rem] p-8 border border-stone-800 shadow-2xl aspect-square flex flex-col justify-center relative overflow-hidden">
-                        {verificationResult.status !== 'idle' && (
-                            <div className={`absolute inset-0 z-40 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in duration-300 ${
-                                verificationResult.status === 'success' ? 'bg-green-600/95' : 
-                                verificationResult.status === 'already_taken' ? 'bg-amber-600/95' : 'bg-red-600/95'
-                            }`}>
-                                {verificationResult.status === 'success' ? <CheckCircle2 className="w-16 h-16 text-white mb-4" /> : <AlertCircle className="w-16 h-16 text-white mb-4 animate-shake" />}
-                                <h3 className="text-white font-black text-xl uppercase italic leading-tight mb-2">{verificationResult.message}</h3>
-                                {verificationResult.status !== 'success' ? (
-                                    <Button onClick={() => setVerificationResult({status:'idle', message:''})} variant="outline" className="mt-6 border-white text-white">Coba Lagi</Button>
-                                ) : (
-                                    <Button onClick={() => setShowScanner(false)} variant="outline" className="mt-6 border-white text-white">Tutup</Button>
-                                )}
-                            </div>
-                        )}
+                      {verificationResult.status !== 'idle' && (
+                          <div className={`absolute inset-0 z-40 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in zoom-in duration-300 ${
+                              verificationResult.status === 'success' ? 'bg-green-600/90' : 
+                              verificationResult.status === 'already_taken' ? 'bg-amber-600/90' : 'bg-red-600/90'
+                          }`}>
+                              {verificationResult.status === 'success' ? <CheckCircle2 className="w-16 h-16 text-white mb-4 animate-bounce" /> : <AlertCircle className="w-16 h-16 text-white mb-4 animate-shake" />}
+                              <h3 className="text-white font-black text-xl uppercase italic leading-tight mb-2">{verificationResult.message}</h3>
+                              {verificationResult.status !== 'success' ? (
+                                  <Button onClick={() => setVerificationResult({status:'idle', message:''})} variant="outline" className="mt-6 border-white text-white">Coba Lagi</Button>
+                              ) : (
+                                  <Button onClick={() => { setShowScanner(false); stopCamera(); }} variant="outline" className="mt-6 border-white text-white">Lanjutkan</Button>
+                              )}
+                          </div>
+                      )}
+                  </div>
+              ) : (
+                  <div className="bg-stone-900 rounded-[2.5rem] p-8 border border-stone-800 shadow-2xl aspect-square flex flex-col justify-center relative overflow-hidden">
+                      {verificationResult.status !== 'idle' && (
+                          <div className={`absolute inset-0 z-40 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in duration-300 ${
+                              verificationResult.status === 'success' ? 'bg-green-600/95' : 
+                              verificationResult.status === 'already_taken' ? 'bg-amber-600/95' : 'bg-red-600/95'
+                          }`}>
+                              {verificationResult.status === 'success' ? <CheckCircle2 className="w-16 h-16 text-white mb-4" /> : <AlertCircle className="w-16 h-16 text-white mb-4 animate-shake" />}
+                              <h3 className="text-white font-black text-xl uppercase italic leading-tight mb-2">{verificationResult.message}</h3>
+                              {verificationResult.status !== 'success' ? (
+                                  <Button onClick={() => setVerificationResult({status:'idle', message:''})} variant="outline" className="mt-6 border-white text-white">Coba Lagi</Button>
+                              ) : (
+                                  <Button onClick={() => setShowScanner(false)} variant="outline" className="mt-6 border-white text-white">Tutup</Button>
+                              )}
+                          </div>
+                      )}
 
-                        <ScanLine className="w-12 h-12 text-orange-500 mx-auto mb-4" />
-                        <h4 className="text-white font-black text-lg mb-6 text-center uppercase tracking-widest italic">Input Kode Manual</h4>
-                        <Input 
-                            label="KODE PENUKARAN"
-                            placeholder="CONTOH: FAR-1234" 
-                            value={manualCode} 
-                            onChange={e => setManualCode(e.target.value.toUpperCase())}
-                            className="bg-black border-stone-700 text-white text-center font-mono text-2xl h-16 mb-6"
-                        />
-                        <Button onClick={() => handleVerifyCode(manualCode)} disabled={!manualCode || isVerifying || verificationResult.status !== 'idle'} isLoading={isVerifying}>
-                            Verifikasi Kode
-                        </Button>
-                    </div>
-                )}
+                      <ScanLine className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                      <h4 className="text-white font-black text-lg mb-6 text-center uppercase tracking-widest italic">Input Kode Manual</h4>
+                      <Input 
+                          label="KODE PENUKARAN"
+                          placeholder="CONTOH: FAR-1234" 
+                          value={manualCode} 
+                          onChange={e => setManualCode(e.target.value.toUpperCase())}
+                          className="bg-black border-stone-700 text-white text-center font-mono text-2xl h-16 mb-6"
+                      />
+                      <Button onClick={() => handleVerifyCode(manualCode)} disabled={!manualCode || isVerifying || verificationResult.status !== 'idle'} isLoading={isVerifying}>
+                          Verifikasi Kode
+                      </Button>
+                  </div>
+              )}
 
-                <div className="mt-8 grid grid-cols-2 gap-4">
-                    <button onClick={() => { setScannerMode('camera'); setVerificationResult({status:'idle', message:''}); }} className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${scannerMode === 'camera' ? 'bg-orange-600 text-white border-orange-500' : 'bg-stone-900 text-stone-600 border-stone-800'}`}>
-                        <Camera className="w-6 h-6" /><span className="text-[10px] font-black uppercase">Kamera</span>
-                    </button>
-                    <button onClick={() => { setScannerMode('manual'); setVerificationResult({status:'idle', message:''}); }} className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${scannerMode === 'manual' ? 'bg-orange-600 text-white border-orange-500' : 'bg-stone-900 text-stone-600 border-stone-800'}`}>
-                        <Keyboard className="w-6 h-6" /><span className="text-[10px] font-black uppercase">Keyboard</span>
-                    </button>
-                </div>
+              <div className="mt-8 grid grid-cols-3 gap-2">
+                  <button onClick={() => setScannerMode('show_qr')} className={`flex flex-col items-center gap-2 py-3 rounded-2xl border transition-all ${scannerMode === 'show_qr' ? 'bg-orange-600 text-white border-orange-500' : 'bg-stone-900 text-stone-600 border-stone-800'}`}>
+                      <ScanLine className="w-5 h-5" /><span className="text-[9px] font-black uppercase text-center leading-none">QR Ambil<br/>(Ke Donatur)</span>
+                  </button>
+                  <button onClick={() => !isScannerPickup && setScannerMode('camera')} disabled={isScannerPickup} className={`flex flex-col items-center gap-2 py-3 rounded-2xl border transition-all ${isScannerPickup ? 'opacity-30 cursor-not-allowed bg-stone-900 border-stone-800 text-stone-700' : scannerMode === 'camera' ? 'bg-orange-600 text-white border-orange-500' : 'bg-stone-900 text-stone-600 border-stone-800'}`}>
+                      <Camera className="w-5 h-5" /><span className="text-[9px] font-black uppercase text-center leading-none">Kamera<br/>(Ke Penerima)</span>
+                  </button>
+                  <button onClick={() => !isScannerPickup && setScannerMode('manual')} disabled={isScannerPickup} className={`flex flex-col items-center gap-2 py-3 rounded-2xl border transition-all ${isScannerPickup ? 'opacity-30 cursor-not-allowed bg-stone-900 border-stone-800 text-stone-700' : scannerMode === 'manual' ? 'bg-orange-600 text-white border-orange-500' : 'bg-stone-900 text-stone-600 border-stone-800'}`}>
+                      <Keyboard className="w-5 h-5" /><span className="text-[9px] font-black uppercase text-center leading-none">Manual<br/>(Ke Penerima)</span>
+                  </button>
+              </div>
            </div>
         </div>
       )}

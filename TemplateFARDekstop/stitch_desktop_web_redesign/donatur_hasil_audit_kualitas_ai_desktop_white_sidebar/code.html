@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Donatur Hasil Audit Kualitas AI (Desktop) - FoodRescue Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed-variant": "#6f3900",
+                      "error": "#ba1a1a",
+                      "surface-container-highest": "#e1e3e4",
+                      "on-tertiary-container": "#004725",
+                      "on-tertiary-fixed-variant": "#00522b",
+                      "primary-fixed": "#ffdcc4",
+                      "inverse-on-surface": "#f0f1f2",
+                      "on-surface": "#191c1d",
+                      "surface-bright": "#f8f9fa",
+                      "error-container": "#ffdad6",
+                      "on-background": "#191c1d",
+                      "on-surface-variant": "#564334",
+                      "inverse-surface": "#2e3132",
+                      "on-secondary-fixed-variant": "#44474b",
+                      "on-secondary-fixed": "#191c20",
+                      "tertiary-fixed-dim": "#30e286",
+                      "tertiary-fixed": "#5bffa0",
+                      "secondary-fixed-dim": "#c5c6cc",
+                      "tertiary-container": "#00c16d",
+                      "on-error": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#e1e2e8",
+                      "primary-fixed-dim": "#ffb77f",
+                      "surface-dim": "#d9dadb",
+                      "outline-variant": "#ddc1ae",
+                      "on-secondary-container": "#626469",
+                      "surface": "#f8f9fa",
+                      "on-tertiary-fixed": "#00210e",
+                      "surface-container-low": "#f3f4f5",
+                      "surface-variant": "#e1e3e4",
+                      "secondary": "#5c5e63",
+                      "outline": "#8a7362",
+                      "on-primary-fixed": "#2f1500",
+                      "on-tertiary": "#ffffff",
+                      "surface-container": "#edeeef",
+                      "secondary-fixed": "#e1e2e8",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#ffb77f",
+                      "on-primary-container": "#613100",
+                      "tertiary": "#006d3b",
+                      "background": "#f8f9fa",
+                      "primary-container": "#ff8a00",
+                      "primary": "#914c00",
+                      "surface-tint": "#914c00",
+                      "surface-container-high": "#e7e8e9",
+                      "on-secondary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter-lg": "24px",
+                      "base": "8px",
+                      "container-padding": "32px",
+                      "card-gap": "16px",
+                      "sidebar-width": "280px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "display-lg": ["Hanken Grotesk"],
+                      "headline-md": ["Hanken Grotesk"],
+                      "headline-lg": ["Hanken Grotesk"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "label-mono": ["JetBrains Mono"],
+                      "headline-lg-mobile": ["Hanken Grotesk"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-mono": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.background'); }
+        .glass-panel {
+            background: rgba(46, 49, 50, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ai-glow {
+            box-shadow: 0 0 40px rgba(91, 255, 160, 0.15);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md text-on-surface antialiased">
+<!-- SideNavBar -->
+<nav class="fixed h-full w-[280px] left-0 top-0 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] flex flex-col py-8 border-r border-outline-variant z-50 bg-white text-on-surface">
+<div class="px-8 mb-8"><div class="flex items-center gap-3 mb-2"><div class="w-10 h-10 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary-container"><span class="material-symbols-outlined" data-weight="fill">deployed_code</span></div><div><h1 class="font-headline-md text-headline-md leading-none text-on-surface">FoodRescue Pro</h1><p class="font-label-mono text-label-mono text-on-surface-variant mt-1">Corporate Donor Portal</p></div></div></div>
+<button class="mx-6 mb-8 font-body-md text-body-md py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-primary-container/10 hover:shadow-md transition-all bg-primary-container text-on-primary">
+<span class="material-symbols-outlined">add</span>
+            New Donation
+        </button>
+<div class="flex-1 overflow-y-auto"><ul class="flex flex-col gap-1"><li class=""><a class="flex items-center gap-3 px-6 py-3 font-medium hover:bg-surface-container transition-colors duration-200 active:scale-95 text-on-surface-variant" href="#"><span class="material-symbols-outlined text-on-surface-variant">dashboard</span> Impact Dashboard</a></li><li class=""><a class="flex items-center gap-3 px-6 py-3 font-medium hover:bg-surface-container transition-colors duration-200 active:scale-95 text-on-surface-variant" href="#"><span class="material-symbols-outlined text-on-surface-variant">inventory_2</span> Stock Manager</a></li><li class=""><a class="flex items-center gap-3 px-6 py-3 font-medium hover:bg-surface-container transition-colors duration-200 active:scale-95 text-on-surface-variant" href="#"><span class="material-symbols-outlined text-on-surface-variant">volunteer_activism</span> Donate Food</a></li><li class=""><a class="flex items-center gap-3 px-6 py-3 text-primary-container font-bold active:scale-95 bg-primary-fixed/20 border-r-4 border-primary-container" href="#"><span class="material-symbols-outlined text-primary-container" data-weight="fill">assignment_turned_in</span> Audit Results</a></li><li class=""><a class="flex items-center gap-3 px-6 py-3 font-medium hover:bg-surface-container transition-colors duration-200 active:scale-95 text-on-surface-variant" href="#"><span class="material-symbols-outlined text-on-surface-variant">smart_toy</span> AI Kitchen</a></li><li class=""><a class="flex items-center gap-3 px-6 py-3 font-medium hover:bg-surface-container transition-colors duration-200 active:scale-95 text-on-surface-variant" href="#"><span class="material-symbols-outlined text-on-surface-variant">auto_stories</span> Storytelling</a></li></ul></div>
+<div class="mt-auto pt-4 border-t border-outline-variant/50"><ul class="flex flex-col gap-1"><li class=""><a class="flex items-center gap-3 px-6 py-3 font-medium hover:bg-surface-container transition-colors duration-200 text-on-surface-variant" href="#"><span class="material-symbols-outlined text-on-surface-variant">settings</span> Settings</a></li><li class=""><a class="flex items-center gap-3 px-6 py-3 font-medium hover:bg-surface-container transition-colors duration-200 text-on-surface-variant" href="#"><span class="material-symbols-outlined text-on-surface-variant">help</span> Support</a></li></ul></div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center h-16 px-8 ml-[280px]">
+<div class="flex-1">
+<!-- Search hidden as per 'on_right' generic instruction, integrated to right actions -->
+</div>
+<div class="flex items-center gap-4">
+<div class="relative flex items-center hidden md:flex mr-4">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-sm">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container rounded-full text-sm font-body-md border-none focus:ring-1 w-64 text-on-surface placeholder:text-on-surface-variant/70 focus:ring-primary-container" placeholder="Search..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" data-weight="fill">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-[280px] mt-16 p-container-padding min-h-screen">
+<div class="max-w-[1200px] mx-auto">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-mono text-label-mono text-primary-container bg-primary-container/20 px-2 py-1 rounded">BATCH ID: #FR-A892</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant">Analyzed: 10 mins ago</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Donatur: Hasil Audit Kualitas AI (Desktop)</h2>
+</div>
+<button class="flex items-center gap-2 font-label-mono text-label-mono text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span> Export Report
+                </button>
+</div>
+<!-- Bento Grid Dashboard -->
+<div class="grid grid-cols-12 gap-gutter-lg">
+<!-- Hero Metric: Quality Percentage -->
+<div class="col-span-12 md:col-span-4 glass-panel rounded-xl p-6 flex flex-col justify-between ai-glow relative overflow-hidden">
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-tertiary-fixed/10 rounded-full blur-2xl"></div>
+<div class="flex items-center gap-2 text-inverse-on-surface/70 mb-4 z-10">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+<h3 class="font-label-mono text-label-mono uppercase tracking-wider">Overall Quality</h3>
+</div>
+<div class="z-10">
+<div class="flex items-baseline gap-1">
+<span class="font-display-lg text-display-lg text-tertiary-fixed">85</span>
+<span class="font-headline-md text-headline-md text-tertiary-fixed-dim">%</span>
+</div>
+<p class="font-body-md text-body-md text-inverse-on-surface/80 mt-2">Optimal for immediate distribution.</p>
+</div>
+</div>
+<!-- Hero Metric: Hygiene Score -->
+<div class="col-span-12 md:col-span-4 bg-inverse-surface rounded-xl p-6 flex flex-col justify-between shadow-[0px_4px_20px_rgba(0,0,0,0.08)]">
+<div class="flex items-center gap-2 text-inverse-on-surface/70 mb-4">
+<span class="material-symbols-outlined text-[20px]">sanitizer</span>
+<h3 class="font-label-mono text-label-mono uppercase tracking-wider">Hygiene Score</h3>
+</div>
+<div>
+<div class="flex items-baseline gap-1">
+<span class="font-display-lg text-display-lg text-inverse-on-surface">92</span>
+<span class="font-body-lg text-body-lg text-inverse-on-surface/60">/100</span>
+</div>
+<div class="w-full bg-surface-container/10 h-1.5 rounded-full mt-4 overflow-hidden">
+<div class="bg-tertiary-fixed h-full w-[92%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Hero Metric: Social Score -->
+<div class="col-span-12 md:col-span-4 bg-inverse-surface rounded-xl p-6 flex flex-col justify-between shadow-[0px_4px_20px_rgba(0,0,0,0.08)]">
+<div class="flex items-center gap-2 text-inverse-on-surface/70 mb-4">
+<span class="material-symbols-outlined text-[20px]">groups</span>
+<h3 class="font-label-mono text-label-mono uppercase tracking-wider">Social Score</h3>
+</div>
+<div>
+<div class="flex items-baseline gap-1">
+<span class="font-display-lg text-display-lg text-inverse-on-surface">88</span>
+<span class="font-body-lg text-body-lg text-inverse-on-surface/60">/100</span>
+</div>
+<div class="w-full bg-surface-container/10 h-1.5 rounded-full mt-4 overflow-hidden">
+<div class="bg-primary-fixed-dim h-full w-[88%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Analysis Description -->
+<div class="col-span-12 md:col-span-8 bg-surface-container-lowest rounded-xl p-8 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-outline-variant/30">
+<div class="flex items-center gap-2 text-primary mb-6">
+<span class="material-symbols-outlined text-[24px]">psychiatry</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Deskripsi Hasil Analisis</h3>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                        Analisis visual dan struktural mengindikasikan bahwa batch ini mempertahankan integritas seluler yang sangat baik. Tidak terdeteksi adanya patogen permukaan melalui pemindaian spektral. Terdapat sedikit penurunan tingkat kelembaban pada 15% sampel, namun secara keseluruhan masih jauh di atas ambang batas standar donasi. Direkomendasikan untuk distribusi ke panti asuhan atau dapur umum dalam waktu 48 jam untuk nilai gizi maksimal.
+                    </p>
+</div>
+<!-- Predicted Shelf Life -->
+<div class="col-span-12 md:col-span-4 bg-inverse-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.08)] flex flex-col items-center justify-center text-center relative overflow-hidden">
+<div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-transparent to-transparent"></div>
+<span class="material-symbols-outlined text-[32px] text-primary-fixed mb-2 z-10">hourglass_top</span>
+<h3 class="font-label-mono text-label-mono text-inverse-on-surface/70 uppercase tracking-wider z-10 mb-4">Predicted Shelf Life</h3>
+<div class="z-10">
+<span class="font-display-lg text-display-lg text-inverse-on-surface block leading-none">4.5</span>
+<span class="font-body-md text-body-md text-primary-fixed-dim mt-1 block">Days Remaining</span>
+</div>
+</div>
+<!-- Detected Ingredients Tag Cloud -->
+<div class="col-span-12 md:col-span-6 bg-inverse-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.08)]">
+<div class="flex items-center gap-2 text-inverse-on-surface/70 mb-6">
+<span class="material-symbols-outlined text-[20px]">science</span>
+<h3 class="font-label-mono text-label-mono uppercase tracking-wider">Detected Ingredients</h3>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 rounded-full bg-surface-container/10 border border-surface-container/20 font-label-mono text-label-mono text-inverse-on-surface">Gandum Utuh (80%)</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container/10 border border-surface-container/20 font-label-mono text-label-mono text-inverse-on-surface">Gula Tebu (5%)</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container/10 border border-surface-container/20 font-label-mono text-label-mono text-inverse-on-surface">Minyak Nabati</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container/10 border border-surface-container/20 font-label-mono text-label-mono text-inverse-on-surface">Garam Laut</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container/10 border border-surface-container/20 font-label-mono text-label-mono text-inverse-on-surface">Vitamin B Kompleks</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container/10 border border-surface-container/20 font-label-mono text-label-mono text-inverse-on-surface text-tertiary-fixed border-tertiary-fixed/30">+12 Minor Traces</span>
+</div>
+</div>
+<!-- Allergen Warnings Tag Cloud -->
+<div class="col-span-12 md:col-span-6 bg-inverse-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.08)] border border-error/20">
+<div class="flex items-center gap-2 text-error mb-6">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+<h3 class="font-label-mono text-label-mono uppercase tracking-wider text-error-container">Allergen Warnings</h3>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 rounded-full bg-error/20 border border-error/30 font-label-mono text-label-mono text-error-container flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">info</span> Gluten
+                        </span>
+<span class="px-3 py-1.5 rounded-full bg-error/20 border border-error/30 font-label-mono text-label-mono text-error-container flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">info</span> Traces of Nuts
+                        </span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container/10 border border-surface-container/20 font-label-mono text-label-mono text-inverse-on-surface/50">Dairy Free</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container/10 border border-surface-container/20 font-label-mono text-label-mono text-inverse-on-surface/50">Soy Free</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

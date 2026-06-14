@@ -127,3 +127,133 @@ Please retry in 35.030619851s. [{"@type":"type.googleapis.com/google.rpc.Help","
     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
     at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
     at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-10T16:17:15.609Z VERIFY_FOOD Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: [429 Too Many Requests] You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash
+Please retry in 44.348470348s. [{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count","quotaId":"GenerateContentInputTokensPerModelPerMinute-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}},{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerMinutePerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}},{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-2.0-flash"}}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"44s"}]
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:146:34)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:186:34)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:295:26
+2026-06-10T16:17:41.980Z VERIFY_FOOD Error: Semua API Key gagal memproses permintaan.
+    at callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:223:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:295:26
+2026-06-10T16:19:56.841Z VERIFY_FOOD Error: Semua API Key gagal memproses permintaan.
+    at callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:223:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:295:26
+2026-06-10T16:26:47.088Z VERIFY_FOOD Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:146:34)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:186:34)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:295:26
+2026-06-10T16:29:59.285Z VERIFY_FOOD Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:153:38)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:203:34)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:295:26
+2026-06-11T13:43:54.446Z LOGIN_USER Error: Unknown column 'last_login_at' in 'field list'
+    at PromisePool.query (C:\Users\shafnats\development\food-ai-rescue-1-1\server\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.query (C:\Users\shafnats\development\food-ai-rescue-1-1\server\db.js:39:21)
+    at loginUser (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:485:14)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:91:41
+2026-06-11T13:44:19.640Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:472:21)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:91:41
+2026-06-11T13:44:28.997Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:472:21)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:91:41
+2026-06-11T16:44:58.640Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:555:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:103:26
+2026-06-11T16:45:21.534Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:555:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:103:26
+2026-06-11T16:45:57.200Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:555:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:103:26
+2026-06-11T23:20:16.954Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:555:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:103:26
+2026-06-11T23:21:02.334Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:555:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:103:26
+2026-06-11T23:30:29.796Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:472:21)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:91:41
+2026-06-11T23:31:33.505Z LOGIN_USER Error: Unknown column 'last_login_at' in 'field list'
+    at PromisePool.query (C:\Users\shafnats\development\food-ai-rescue-1-1\server\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.query (C:\Users\shafnats\development\food-ai-rescue-1-1\server\db.js:39:21)
+    at loginUser (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:485:14)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:91:41
+2026-06-11T23:31:55.242Z LOGIN_USER Error: Unknown column 'last_login_at' in 'field list'
+    at PromisePool.query (C:\Users\shafnats\development\food-ai-rescue-1-1\server\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.query (C:\Users\shafnats\development\food-ai-rescue-1-1\server\db.js:39:21)
+    at loginUser (C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:485:14)
+    at async C:\Users\shafnats\development\food-ai-rescue-1-1\server\index.js:91:41
+2026-06-11T23:38:45.522Z LOGIN_USER Error: Unknown column 'last_login_at' in 'field list'
+    at PromisePool.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\db.js:39:21)
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:485:14)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-11T23:47:47.422Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:472:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-11T23:57:26.642Z VERIFY_FOOD Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:153:38)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:203:34)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:295:26
+2026-06-14T10:56:25.230Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:472:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-14T11:02:18.532Z VERIFY_FOOD Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:153:38)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:203:34)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:295:26
+2026-06-14T11:09:42.333Z ADD_ADDRESS Error: Column 'latitude' cannot be null
+    at PromisePool.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\db.js:39:21)
+    at addAddress (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:811:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:158:42
+2026-06-14T11:09:56.690Z ADD_ADDRESS Error: Column 'latitude' cannot be null
+    at PromisePool.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\db.js:39:21)
+    at addAddress (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:811:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:158:42
+2026-06-14T15:25:13.875Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:448:21)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
