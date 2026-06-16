@@ -65,6 +65,7 @@ export const OrderList: React.FC<OrderListProps> = ({ orders = [], currentView, 
                 // Close detail view immediately
                 setSelectedOrderId(null);
             }}
+            onRefresh={handleRefresh}
         />
       );
   }

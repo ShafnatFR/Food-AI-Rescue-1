@@ -17,6 +17,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
     const isLargeQuantity = task.quantity?.toLowerCase().includes('box') && parseInt(task.quantity) > 5;
     const vehicleRecommendation = isLargeQuantity ? 'Mobil' : 'Motor';
     const [showQRModal, setShowQRModal] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);
 
     const handleCopy = (text?: string) => {
         if (!text || text === "Alamat Donatur Tidak Ditemukan" || text === "Alamat Penerima Belum Diisi") return;
@@ -297,7 +298,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
                     {task.status !== 'available' && onCancel && (
                         <Button
                             variant="outline"
-                            onClick={onCancel}
+                            onClick={() => setShowCancelModal(true)}
                             className="w-full h-12 rounded-xl text-[10px] font-black uppercase tracking-widest border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950 text-red-600 dark:text-red-400 mt-2"
                         >
                             <AlertTriangle className="w-4 h-4 mr-2" /> Batalkan Misi
@@ -354,6 +355,38 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
                         </div>
                         
                         <Button className="w-full rounded-xl bg-stone-900 hover:bg-stone-800 text-white h-12" onClick={() => setShowQRModal(false)}>Tutup</Button>
+                    </div>
+                </div>
+            )}
+
+            {/* Cancel Confirmation Modal */}
+            {showCancelModal && (
+                <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl max-w-sm w-full shadow-2xl relative animate-in zoom-in-95 duration-200 flex flex-col items-center text-center">
+                        <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+                            <AlertTriangle className="w-8 h-8 text-red-600" />
+                        </div>
+                        <h3 className="text-xl font-black text-stone-900 dark:text-white mb-2">Batalkan Misi?</h3>
+                        <p className="text-stone-500 dark:text-stone-400 text-sm mb-6">Yakin ingin membatalkan misi ini? Misi akan dikembalikan ke daftar Misi Tersedia untuk diambil relawan lain.</p>
+                        
+                        <div className="flex w-full gap-3">
+                            <Button 
+                                variant="outline"
+                                onClick={() => setShowCancelModal(false)}
+                                className="flex-1 rounded-xl h-12 text-xs font-bold text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700"
+                            >
+                                Kembali
+                            </Button>
+                            <Button 
+                                onClick={() => {
+                                    setShowCancelModal(false);
+                                    if (onCancel) onCancel();
+                                }}
+                                className="flex-1 rounded-xl h-12 text-xs font-bold bg-red-600 hover:bg-red-500 text-white border-0"
+                            >
+                                Ya, Batalkan
+                            </Button>
+                        </div>
                     </div>
                 </div>
             )}

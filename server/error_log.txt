@@ -441,3 +441,62 @@ Please retry in 44.348470348s. [{"@type":"type.googleapis.com/google.rpc.Help","
     at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:580:25)
     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
     at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:111:26
+2026-06-16T10:17:22.933Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:576:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:107:26
+2026-06-16T10:20:05.265Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:576:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:107:26
+2026-06-16T10:21:05.220Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:576:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:107:26
+2026-06-16T10:36:16.264Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:576:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:107:26
+2026-06-16T10:38:11.398Z LOGIN_USER Error: Unknown column 'last_login_at' in 'field list'
+    at PromisePool.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\db.js:39:21)
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:506:14)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:95:41
+2026-06-16T10:38:27.175Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:493:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:95:41
+2026-06-16T10:47:45.311Z LOGIN_USER Error: Unknown column 'last_login_at' in 'field list'
+    at PromisePool.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.query (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\db.js:39:21)
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:506:14)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:95:41
+2026-06-16T10:54:37.107Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:576:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:107:26
+2026-06-16T10:57:10.933Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:493:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:95:41
+2026-06-16T11:24:53.421Z VERIFY_FOOD Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:153:38)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:203:34)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:303:26
+2026-06-16T11:30:15.957Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:576:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:107:26
+2026-06-16T11:30:51.749Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:493:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:95:41
+2026-06-16T15:05:43.381Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:576:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:107:26
+2026-06-16T15:09:04.244Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:493:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:95:41

@@ -491,11 +491,9 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
                 handleTabChange('active'); 
             }} 
             onCancel={selectedTask.claimId ? () => {
-                if (window.confirm('Yakin ingin membatalkan misi ini? Misi akan dikembalikan ke daftar Misi Tersedia.')) {
-                    onCancelMission?.(selectedTask.claimId!);
-                    setSelectedTask(null);
-                    handleTabChange('available');
-                }
+                onCancelMission?.(selectedTask.claimId!);
+                setSelectedTask(null);
+                handleTabChange('available');
             } : undefined}
             volunteerName={userName} 
         />

@@ -1182,7 +1182,7 @@ async function updateClaimStatus(id, status, additionalData) {
     if (dbStatus === 'ACTIVE') dbStatus = 'IN_PROGRESS';
     
     // Ensure it's one of the valid ENUM values
-    const validStatuses = ['PENDING_APPROVAL', 'WAITING_PROVIDER', 'PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+    const validStatuses = ['PENDING_APPROVAL', 'CLAIMED', 'WAITING_PROVIDER', 'PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
     if (!validStatuses.includes(dbStatus)) {
         dbStatus = 'PENDING';
     }

@@ -21,9 +21,10 @@ interface OrderDetailProps {
     order: ProviderOrder;
     onBack: () => void;
     onComplete?: (status?: 'completed' | 'active' | 'cancelled' | 'pending') => void;
+    onRefresh?: () => void;
 }
 
-export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onComplete }) => {
+export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onComplete, onRefresh }) => {
     const [isVerifying, setIsVerifying] = useState(false);
     const [showVerifyModal, setShowVerifyModal] = useState(false);
     const [verificationResult, setVerificationResult] = useState<{ status: 'success' | 'error' | 'already_taken' | 'idle', message: string, code?: string, pointsEarned?: number }>({ status: 'idle', message: '' });
@@ -243,6 +244,8 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
                 isVerifying={isVerifying}
                 isCompleting={isCompleting}
                 isCompleted={order.status === 'completed' || isScanSuccess}
+                isInProgress={order.status === 'in_progress'}
+                isCancelled={order.status === 'cancelled'}
                 isWaitingProvider={order.status?.toLowerCase() === 'pending_approval'}
                 onComplete={handleManualCompletion} 
                 onAccept={handleAccept}
@@ -298,7 +301,11 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
                                         {verificationResult.status !== 'success' ? (
                                             <Button onClick={() => setVerificationResult({status:'idle', message:''})} variant="outline" className="mt-6 border-white text-white">Coba Lagi</Button>
                                         ) : (
-                                            <Button onClick={() => { setShowVerifyModal(false); stopCamera(); }} variant="outline" className="mt-6 border-white text-white">Lanjutkan</Button>
+                                            <Button onClick={() => { 
+                                                setShowVerifyModal(false); 
+                                                stopCamera(); 
+                                                if (onRefresh) onRefresh();
+                                            }} variant="outline" className="mt-6 border-white text-white">Lanjutkan</Button>
                                         )}
                                     </div>
                                 )}
@@ -315,7 +322,10 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
                                         {verificationResult.status !== 'success' ? (
                                             <Button onClick={() => setVerificationResult({status:'idle', message:''})} variant="outline" className="mt-6 border-white text-white">Coba Lagi</Button>
                                         ) : (
-                                            <Button onClick={() => setShowVerifyModal(false)} variant="outline" className="mt-6 border-white text-white">Tutup</Button>
+                                            <Button onClick={() => {
+                                                setShowVerifyModal(false);
+                                                if (onRefresh) onRefresh();
+                                            }} variant="outline" className="mt-6 border-white text-white">Tutup</Button>
                                         )}
                                     </div>
                                 )}
