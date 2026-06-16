@@ -20,10 +20,11 @@ interface RegisterViewProps {
   onNavigate: (view: 'login' | 'register' | 'forgot-password') => void;
   onRegister: (formData: any, remember: boolean) => void;
   disableSignup?: boolean;
+  requireOtpVerification?: boolean;
 }
 
 
-export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegister, disableSignup }) => {
+export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegister, disableSignup, requireOtpVerification = true }) => {
   // step: 'role' → 'form' → 'otp_channel' → 'otp_verify' → (register)
   const [step, setStep] = useState<'role' | 'form' | 'otp_channel' | 'otp_verify'>('role');
   const [selectedRole, setSelectedRole] = useState<UserRole>('recipient');
@@ -100,12 +101,40 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegist
     return () => clearInterval(interval);
   }, [step]);
 
-  // Step: form submit → arahkan ke pilih channel OTP
-  const handleFormNext = (e: React.FormEvent) => {
+  // Step: form submit → arahkan ke pilih channel OTP atau langsung daftar
+  const handleFormNext = async (e: React.FormEvent) => {
     e.preventDefault();
     setApiError(null);
     if (!validateForm()) return;
-    setStep('otp_channel');
+    
+    if (requireOtpVerification === false) {
+      setIsLoading(true);
+      try {
+        const result = await db.registerUser({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          role: selectedRole,
+          isNewUser: true,
+        });
+
+        const now = new Date();
+        const jakartaDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+        const wibTimestamp = `${jakartaDate.getFullYear()}-${String(jakartaDate.getMonth()+1).padStart(2,'0')}-${String(jakartaDate.getDate()).padStart(2,'0')} ${String(jakartaDate.getHours()).padStart(2,'0')}:${String(jakartaDate.getMinutes()).padStart(2,'0')}:${String(jakartaDate.getSeconds()).padStart(2,'0')}`;
+        result.joinDate = wibTimestamp;
+        await db.upsertUser({ ...result, joinDate: wibTimestamp });
+
+        onRegister(result, rememberMe);
+      } catch (error: any) {
+        console.error("Registration Failed:", error);
+        setApiError(error.message || "Gagal mendaftar. Silakan coba lagi.");
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setStep('otp_channel');
+    }
   };
 
   // Kirim OTP via channel yang dipilih

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { ArrowRight, Upload, Sparkles, Timer, Weight, ShoppingBag, MapPin, AlertTriangle, Utensils, Brain, Truck, Plus } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowRight, Upload, Camera, Sparkles, Timer, Weight, ShoppingBag, MapPin, AlertTriangle, Utensils, Brain, Truck, Plus } from 'lucide-react';
 import { DeliveryMethod, Address } from '../../../types';
 import { foodVerification } from '../../../services/foodVerification';
+import { db } from '../../../services/db';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { toast } from '../../common/ToastContext';
 
 const MapUpdater = ({ center }: { center: [number, number] }) => {
     const map = useMap();
@@ -24,6 +26,19 @@ interface QualityCheckInventoryInputProps {
 export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProps> = ({ onAnalysisComplete, onBack, addresses }) => {
   const [step, setStep] = useState<'form' | 'upload' | 'loading'>('form');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [allowGallery, setAllowGallery] = useState(true);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+
+  useEffect(() => {
+      db.getSettings().then(s => {
+          if (s && s.allow_gallery_upload !== undefined) {
+              setAllowGallery(s.allow_gallery_upload);
+          }
+      }).catch(console.error);
+  }, []);
 
   const getLocalDateStr = () => {
     return new Date().toLocaleDateString('en-CA'); // Format: YYYY-MM-DD
@@ -78,6 +93,48 @@ export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProp
     }
   };
 
+  const startCamera = async () => {
+      setIsCameraActive(true);
+      try {
+          const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+              video: { facingMode: 'environment' } 
+          });
+          setStream(mediaStream);
+          if (videoRef.current) {
+              videoRef.current.srcObject = mediaStream;
+          }
+      } catch (err) {
+          console.error("Camera access denied:", err);
+          toast.error("Gagal mengakses kamera. Pastikan izin kamera diberikan.");
+          setIsCameraActive(false);
+      }
+  };
+
+  const stopCamera = () => {
+      if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+          setStream(null);
+      }
+      setIsCameraActive(false);
+  };
+
+  const takePhoto = () => {
+      if (videoRef.current && canvasRef.current) {
+          const context = canvasRef.current.getContext('2d');
+          if (context) {
+              canvasRef.current.width = videoRef.current.videoWidth;
+              canvasRef.current.height = videoRef.current.videoHeight;
+              context.drawImage(videoRef.current, 0, 0);
+              const dataUrl = canvasRef.current.toDataURL('image/jpeg');
+              stopCamera();
+              
+              setImagePreview(dataUrl);
+              setStep('loading');
+              runAnalysis(dataUrl);
+          }
+      }
+  };
+
   const runAnalysis = async (img: string) => {
     try {
         const qtyNum = parseFloat(form.quantity) || 1;
@@ -103,7 +160,7 @@ export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProp
         onAnalysisComplete(result, img, { ...form, allergens: form.allergens.join(', ') });
     } catch (err) {
         console.error(err);
-        alert("Gagal menganalisis. Silakan coba lagi.");
+        toast.error("Gagal menganalisis. Silakan coba lagi.");
         setStep('upload');
     }
   };
@@ -145,15 +202,52 @@ export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProp
   if (step === 'upload') {
       return (
         <div className="w-full max-w-lg mx-auto py-12 animate-in zoom-in-95">
-             <div className="relative group cursor-pointer w-full max-w-xs aspect-square mx-auto border-4 border-dashed border-orange-200 dark:border-stone-700 rounded-[2.5rem] flex flex-col items-center justify-center hover:border-orange-500 hover:bg-orange-50/30 transition-all duration-500">
-                <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-20" onChange={handleImageUpload} />
-                <div className="w-20 h-20 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <Upload className="w-10 h-10 text-orange-600" />
+            {!isCameraActive ? (
+                <>
+                     <button onClick={startCamera} className="w-full relative group cursor-pointer max-w-xs aspect-square mx-auto border-4 border-dashed border-orange-200 dark:border-stone-700 rounded-[2.5rem] flex flex-col items-center justify-center hover:border-orange-500 hover:bg-orange-50/30 transition-all duration-500">
+                        <div className="w-20 h-20 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <Camera className="w-10 h-10 text-orange-600" />
+                        </div>
+                        <span className="font-bold text-xl text-stone-800 dark:text-stone-200">Buka Kamera</span>
+                        <span className="text-sm text-stone-400 mt-2 px-6 text-center font-medium">Kamera akan terbuka secara langsung untuk memfoto makanan.</span>
+                    </button>
+
+                    {allowGallery && (
+                        <div className="mt-6 flex justify-center">
+                             <label className="cursor-pointer text-stone-600 hover:text-orange-500 dark:text-stone-400 dark:hover:text-orange-400 font-bold text-sm flex items-center gap-2 transition-colors px-5 py-3 bg-stone-100 dark:bg-stone-800 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                                 <Upload className="w-5 h-5" />
+                                 <span>Pilih File (Galeri)</span>
+                                 <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                             </label>
+                        </div>
+                    )}
+
+                    <button onClick={() => setStep('form')} className="mt-8 text-stone-500 hover:text-stone-900 dark:hover:text-white font-medium flex items-center justify-center w-full transition-colors">← Kembali Isi Detail</button>
+                </>
+            ) : (
+                <div className="relative rounded-[3rem] overflow-hidden shadow-2xl bg-black aspect-[3/4] md:aspect-[4/3] lg:aspect-[3/4] max-w-md mx-auto">
+                    <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 border-2 border-white/20 rounded-[3rem] pointer-events-none"></div>
+                    <div className="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-8">
+                        <button 
+                            type="button"
+                            onClick={stopCamera}
+                            className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white"
+                        >
+                            <ArrowRight className="w-6 h-6 rotate-180" />
+                        </button>
+                        <button 
+                            type="button"
+                            onClick={takePhoto}
+                            className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-stone-900 shadow-2xl active:scale-90 transition-all"
+                        >
+                            <div className="w-16 h-16 border-4 border-stone-900/5 rounded-full"></div>
+                        </button>
+                        <div className="w-14"></div>
+                    </div>
                 </div>
-                <span className="font-bold text-xl text-stone-800 dark:text-stone-200">Lanjutkan ke Foto</span>
-                <span className="text-sm text-stone-400 mt-2 px-6 text-center font-medium">AI akan mencocokkan kondisi visual foto dengan durasi penyimpanan Anda.</span>
-            </div>
-            <button onClick={() => setStep('form')} className="mt-8 text-stone-500 hover:text-stone-900 dark:hover:text-white font-medium flex items-center justify-center w-full transition-colors">← Kembali Isi Detail</button>
+            )}
+            <canvas ref={canvasRef} className="hidden" />
         </div>
       );
   }

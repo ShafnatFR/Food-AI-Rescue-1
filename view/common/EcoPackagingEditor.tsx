@@ -4,6 +4,7 @@ import { Button } from '../components/Button';
 import { db } from '../../services/db';
 import { packagingDesign } from '../../services/packagingDesign';
 import { UserData, FoodItem } from '../../types';
+import { toast } from '../common/ToastContext';
 
 interface EcoPackagingEditorProps {
     currentUser: UserData | null;
@@ -59,7 +60,7 @@ export const EcoPackagingEditor: React.FC<EcoPackagingEditorProps> = ({ currentU
 
     const handleGenerate = async () => {
         const foodName = foodItems.find(f => f.id === selectedFoodId)?.name || customFoodName;
-        if (!foodName) return alert("Pilih menu atau masukkan nama makanan.");
+        if (!foodName) return toast.info("Pilih menu atau masukkan nama makanan.");
 
         setIsGenerating(true);
         try {
@@ -69,7 +70,7 @@ export const EcoPackagingEditor: React.FC<EcoPackagingEditorProps> = ({ currentU
             );
             setResult(content);
         } catch (e: any) {
-            alert(e.message);
+            toast.info(e.message);
         } finally {
             setIsGenerating(false);
         }
@@ -108,9 +109,9 @@ export const EcoPackagingEditor: React.FC<EcoPackagingEditorProps> = ({ currentU
                     editorConfig: { x: logoX, y: logoY, scale: logoScale }
                 })
             });
-            alert("Desain berhasil disimpan ke riwayat Anda!");
+            toast.success("Desain berhasil disimpan ke riwayat Anda!");
         } catch (e: any) {
-            alert(e.message);
+            toast.info(e.message);
         } finally {
             setIsSaving(false);
         }

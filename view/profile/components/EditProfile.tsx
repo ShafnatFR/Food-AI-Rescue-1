@@ -6,6 +6,7 @@ import { Input } from '../../components/Input';
 import { db } from '../../../services/db';
 import { UserData, Address } from '../../../types';
 import { ImageCropperModal } from '../../components/ImageCropperModal';
+import { toast } from '../../common/ToastContext';
 
 interface EditProfileProps {
     userData: UserData; 
@@ -103,7 +104,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ userData, onSave, addr
             }
         } catch (err) {
             console.error("Error accessing webcam:", err);
-            alert("Tidak dapat mengakses kamera. Pastikan izin kamera telah diberikan.");
+            toast.warning("Tidak dapat mengakses kamera. Pastikan izin kamera telah diberikan.");
             setIsWebcamOpen(false);
         }
     };
@@ -205,10 +206,10 @@ export const EditProfile: React.FC<EditProfileProps> = ({ userData, onSave, addr
             
             setIsSyncModalOpen(false);
             onSave(form); 
-            alert("Profil berhasil diperbarui!");
+            toast.success("Profil berhasil diperbarui!");
         } catch (error) {
             console.error("Failed to save profile:", error);
-            alert("Gagal menyimpan perubahan ke server. Pastikan koneksi aman.");
+            toast.error("Gagal menyimpan perubahan ke server. Pastikan koneksi aman.");
         } finally {
             setIsSaving(false);
         }

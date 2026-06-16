@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Key, Eye, EyeOff, X, Check, Loader2, AlertTriangle, HelpCircle } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
+import { toast } from '../../common/ToastContext';
 
 export const SecuritySettings: React.FC = () => {
     const [form, setForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
@@ -37,20 +38,20 @@ export const SecuritySettings: React.FC = () => {
         // Simulate API call to send reset link to current user's email
         await new Promise(resolve => setTimeout(resolve, 2000));
         setIsResetSending(false);
-        alert("Link untuk mereset password telah dikirim ke email terdaftar Anda.");
+        toast.info("Link untuk mereset password telah dikirim ke email terdaftar Anda.");
     };
 
     const handleSave = async () => {
         if (!form.oldPassword || !form.newPassword || !form.confirmPassword) {
-            alert("Mohon lengkapi semua field");
+            toast.warning("Mohon lengkapi semua field");
             return;
         }
         if (form.newPassword.length < 8) {
-            alert("Password baru minimal 8 karakter");
+            toast.warning("Password baru minimal 8 karakter");
             return;
         }
         if (form.newPassword !== form.confirmPassword) {
-            alert("Password baru dan konfirmasi tidak cocok");
+            toast.info("Password baru dan konfirmasi tidak cocok");
             return;
         }
 
@@ -59,7 +60,7 @@ export const SecuritySettings: React.FC = () => {
         await new Promise(resolve => setTimeout(resolve, 1500));
         setIsChangingPassword(false);
 
-        alert("✅ Password berhasil diubah!");
+        toast.success("✅ Password berhasil diubah!");
         setForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
         setPasswordStrength(0);
     };
@@ -179,7 +180,7 @@ export const SecuritySettings: React.FC = () => {
                     <p className="text-sm text-red-600 dark:text-red-400 mb-4">Tindakan ini tidak dapat dibatalkan.</p>
                     <Button
                         variant="danger"
-                        onClick={() => alert("Fitur hapus akun memerlukan konfirmasi via email")}
+                        onClick={() => toast.info("Fitur hapus akun memerlukan konfirmasi via email")}
                     >
                         Hapus Akun Saya
                     </Button>

@@ -4,6 +4,7 @@ import { Award, Plus, Trash2, Edit2, Save, X, ShieldCheck, Zap, Heart, Gift, Tar
 import { db } from '../../../services/db';
 import { Badge } from '../../../types';
 import { BadgeModal } from './Community/BadgeModal';
+import { toast } from '../../common/ToastContext';
 
 export const RanksManagement = () => {
     const [activeTab, setActiveTab] = useState<'levels' | 'badges'>('levels');
@@ -68,7 +69,7 @@ export const RanksManagement = () => {
             await db.deleteRankLevel(id.toString(), null);
             fetchData();
         } catch (error) {
-            alert("Gagal menghapus level.");
+            toast.error("Gagal menghapus level.");
         }
     };
 
@@ -83,7 +84,7 @@ export const RanksManagement = () => {
             setEditingLevel(null);
             fetchData();
         } catch (error) {
-            alert("Gagal menyimpan level.");
+            toast.error("Gagal menyimpan level.");
         }
     };
 
@@ -134,7 +135,7 @@ export const RanksManagement = () => {
         } catch (error) {
             console.error("Drop failed:", error);
             setLevels(originalLevels);
-            alert("Gagal memindahkan level. Periksa koneksi.");
+            toast.error("Gagal memindahkan level. Periksa koneksi.");
         } finally {
             setDraggedLevelId(null);
         }
@@ -153,7 +154,7 @@ export const RanksManagement = () => {
             setEditingBadge(null);
             fetchData();
         } catch (error) {
-            alert("Gagal menyimpan badge.");
+            toast.error("Gagal menyimpan badge.");
         }
     };
 
@@ -164,7 +165,7 @@ export const RanksManagement = () => {
             setEditingBadge(null);
             fetchData();
         } catch (error) {
-            alert("Gagal menghapus badge.");
+            toast.error("Gagal menghapus badge.");
         }
     };
 

@@ -4,6 +4,7 @@ import { Button } from '../components/Button';
 import { db } from '../../services/db';
 import { kitchenScanner } from '../../services/kitchenScanner';
 import { UserData } from '../../types';
+import { toast } from '../common/ToastContext';
 
 interface KitchenScannerProps {
     currentUser: UserData | null;
@@ -25,6 +26,15 @@ export const KitchenScanner: React.FC<KitchenScannerProps> = ({ currentUser, onB
     const [historyList, setHistoryList] = useState<any[]>([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
     const [selectedHistoryItem, setSelectedHistoryItem] = useState<any | null>(null);
+    const [allowGallery, setAllowGallery] = useState(true);
+
+    useEffect(() => {
+        db.getSettings().then(s => {
+            if (s && s.allow_gallery_upload !== undefined) {
+                setAllowGallery(s.allow_gallery_upload);
+            }
+        }).catch(console.error);
+    }, []);
 
     const [scanError, setScanError] = useState<{ message: string; isOverload: boolean } | null>(null);
     const [retryCountdown, setRetryCountdown] = useState(0);
@@ -64,7 +74,7 @@ export const KitchenScanner: React.FC<KitchenScannerProps> = ({ currentUser, onB
             }
         } catch (err) {
             console.error("Camera access denied:", err);
-            alert("Gagal mengakses kamera. Pastikan izin kamera diberikan.");
+            toast.error("Gagal mengakses kamera. Pastikan izin kamera diberikan.");
             setIsCameraActive(false);
         }
     };
@@ -289,13 +299,17 @@ export const KitchenScanner: React.FC<KitchenScannerProps> = ({ currentUser, onB
                                                 <span className="text-[11px] font-black uppercase tracking-widest text-stone-500 group-hover:text-stone-900 dark:group-hover:text-white">Pindai Bahan Baku</span>
                                             </button>
                                             
-                                            <button 
-                                                onClick={() => fileInputRef.current?.click()}
-                                                className="flex items-center justify-center gap-3 p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-[2rem] text-stone-600 dark:text-stone-400 hover:bg-stone-50 transition-all font-black uppercase text-[10px] tracking-widest"
-                                            >
-                                                <ImageIcon className="w-5 h-5" /> Unggah Dari Galeri
-                                            </button>
-                                            <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+                                            {allowGallery && (
+                                                <>
+                                                    <button 
+                                                        onClick={() => fileInputRef.current?.click()}
+                                                        className="flex items-center justify-center gap-3 p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-[2rem] text-stone-600 dark:text-stone-400 hover:bg-stone-50 transition-all font-black uppercase text-[10px] tracking-widest"
+                                                    >
+                                                        <ImageIcon className="w-5 h-5" /> Unggah Dari Galeri
+                                                    </button>
+                                                    <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+                                                </>
+                                            )}
                                         </div>
                                     ) : (
                                         <div className="relative rounded-[3rem] overflow-hidden shadow-2xl bg-black aspect-[3/4] md:aspect-[4/3] lg:aspect-[3/4]">
@@ -491,7 +505,7 @@ export const KitchenScanner: React.FC<KitchenScannerProps> = ({ currentUser, onB
                                                     title: `Kitchen AI Recipe: ${result.ingredients?.slice(0, 2).join(', ')}...`,
                                                     content: JSON.stringify(result)
                                                 });
-                                                alert("Resep resmi disimpan dalam riwayat!");
+                                                toast.info("Resep resmi disimpan dalam riwayat!");
                                                 fetchHistory(); // Refresh history tab
                                             } catch (e: any) {
                                                 alert("Gagal menyimpan resep: " + e.message);

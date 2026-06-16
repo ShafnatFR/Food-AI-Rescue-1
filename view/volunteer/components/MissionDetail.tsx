@@ -3,15 +3,17 @@ import React, { useState } from 'react';
 import { ArrowLeft, MapPin, Phone, Clock, Navigation, CheckCircle, Package, ChevronRight, PlayCircle, Bike, Car, Box, AlertTriangle, ShieldCheck, MessageCircle, Copy, QrCode, X } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { VolunteerTask } from '../../../types';
+import { toast } from '../../common/ToastContext';
 
 interface MissionDetailProps {
     task: VolunteerTask;
     onBack: () => void;
     onAccept?: () => void;
+    onCancel?: () => void;
     volunteerName?: string;
 }
 
-export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAccept, volunteerName = "Relawan" }) => {
+export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAccept, onCancel, volunteerName = "Relawan" }) => {
     const isLargeQuantity = task.quantity?.toLowerCase().includes('box') && parseInt(task.quantity) > 5;
     const vehicleRecommendation = isLargeQuantity ? 'Mobil' : 'Motor';
     const [showQRModal, setShowQRModal] = useState(false);
@@ -19,12 +21,12 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
     const handleCopy = (text?: string) => {
         if (!text || text === "Alamat Donatur Tidak Ditemukan" || text === "Alamat Penerima Belum Diisi") return;
         navigator.clipboard.writeText(text);
-        alert("Alamat berhasil disalin ke clipboard!");
+        toast.success("Alamat berhasil disalin ke clipboard!");
     };
 
     const handleFullRoute = () => {
         if (!userLocation) {
-            alert("Lokasi Anda belum terdeteksi. Pastikan GPS aktif.");
+            toast.warning("Lokasi Anda belum terdeteksi. Pastikan GPS aktif.");
             return;
         }
 
@@ -41,7 +43,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
                 : "";
 
         if (!donorQuery || !receiverQuery) {
-            alert("Lokasi penjemputan atau pengantaran tidak valid.");
+            toast.error("Lokasi penjemputan atau pengantaran tidak valid.");
             return;
         }
 
@@ -52,7 +54,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
 
     const handleContact = (phone: string | number | undefined, role: 'donor' | 'recipient') => {
         if (!phone || String(phone).length < 5) {
-            alert(`Nomor telepon ${role === 'donor' ? 'Donatur' : 'Penerima'} tidak tersedia atau belum diisi.`);
+            toast.error(`Nomor telepon ${role === 'donor' ? 'Donatur' : 'Penerima'} tidak tersedia atau belum diisi.`);
             return;
         }
 
@@ -290,6 +292,17 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
                             <MessageCircle className="w-4 h-4 mr-2 text-green-600" /> Chat Penerima
                         </Button>
                     </div>
+
+                    {/* Cancel Mission Button */}
+                    {task.status !== 'available' && onCancel && (
+                        <Button
+                            variant="outline"
+                            onClick={onCancel}
+                            className="w-full h-12 rounded-xl text-[10px] font-black uppercase tracking-widest border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950 text-red-600 dark:text-red-400 mt-2"
+                        >
+                            <AlertTriangle className="w-4 h-4 mr-2" /> Batalkan Misi
+                        </Button>
+                    )}
                 </div>
             </div>
 

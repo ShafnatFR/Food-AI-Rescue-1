@@ -5,6 +5,7 @@ import { Button } from '../components/Button';
 import { db } from '../../services/db';
 import { contentWriter } from '../../services/contentWriter';
 import { UserData, FoodItem } from '../../types';
+import { toast } from '../common/ToastContext';
 
 interface CSRWriterEditorProps {
     currentUser: UserData | null;
@@ -55,7 +56,7 @@ export const CSRWriterEditor: React.FC<CSRWriterEditorProps> = ({ currentUser, f
 
     const handleGenerate = async () => {
         const product = foodItems.find(f => f.id === selectedFoodId);
-        if (!product) return alert("Pilih produk untuk mendapatkan konteks dampak.");
+        if (!product) return toast.info("Pilih produk untuk mendapatkan konteks dampak.");
 
         setIsGenerating(true);
         try {
@@ -84,7 +85,7 @@ export const CSRWriterEditor: React.FC<CSRWriterEditorProps> = ({ currentUser, f
             setHashtags(result.hashtags || []);
             setIsEditing(true);
         } catch (e: any) {
-            alert(e.message);
+            toast.info(e.message);
         } finally {
             setIsGenerating(false);
         }
@@ -112,9 +113,9 @@ export const CSRWriterEditor: React.FC<CSRWriterEditorProps> = ({ currentUser, f
                     }
                 })
             });
-            alert("Berhasil disimpan ke riwayat Anda!");
+            toast.success("Berhasil disimpan ke riwayat Anda!");
         } catch (e: any) {
-            alert(e.message);
+            toast.info(e.message);
         } finally {
             setIsSaving(false);
         }

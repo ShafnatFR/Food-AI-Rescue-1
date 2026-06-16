@@ -24,9 +24,10 @@ import { Home, User, Box, Loader2, History } from 'lucide-react';
 import { db } from './services/db';
 import { MaintenancePage } from './view/common/MaintenancePage';
 import { LandingPage } from './view/landing/LandingPage';
+import { ToastContainer } from './view/common/ToastContext';
+import { toast } from './view/common/ToastContext';
 
 
-const CACHE_EXPIRY_MS = 10 * 60 * 1000; // 10 Minutes
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<string>('landing');
@@ -81,7 +82,9 @@ const App: React.FC = () => {
       disableExpiryLogic: false,
       maintenance: false,
       disable_signup: false,
-      readonly_mode: false
+      readonly_mode: false,
+      require_otp_verification: true,
+      require_admin_verification: false
   });
 
   // Dynamically update document title based on App Name
@@ -144,49 +147,13 @@ const App: React.FC = () => {
     const fetchData = useCallback(async (forceRefresh: boolean = false) => {
         if (!role || !currentUser) return; 
         
-        const cacheKey = `far_global_data_${currentUser.id}_${role}`;
-        
         // --- REAL-TIME NOTIFICATIONS (NO CACHE) ---
         db.getNotifications(currentUser.id, role).then(notifData => {
             if (notifData) setUserNotifications(notifData);
         }).catch(err => console.error("Real-time Notification Fetch Error:", err));
 
-        // 1. Check Global Cache
-        if (!forceRefresh) {
-            const cachedContent = localStorage.getItem(cacheKey);
-            if (cachedContent) {
-                try {
-                    const { inventory, claims, settings, timestamp } = JSON.parse(cachedContent);
-                    const now = Date.now();
-                    
-                    if (now - timestamp < CACHE_EXPIRY_MS) {
-                        console.log(`%c[GLOBAL-CACHE-VALID] Using cached data for ${role}`, 'color: #059669; font-weight: bold;');
-                        if (inventory) setFoodItems(inventory);
-                        if (claims) setClaimHistory(claims);
-                        if (settings) setAppSettings(settings);
-                        
-                        // Still need to fetch these if relevant as they aren't fully cached here
-                        if (role === 'volunteer') {
-                            const allAddrs = await db.getAddresses();
-                            setAllAddresses(allAddrs);
-                            const users = await db.getUsers();
-                            setGlobalUsers(users);
-                        }
-                        if (role === 'admin' || role === 'super_admin') {
-                            const users = await db.getUsers();
-                            setGlobalUsers(users);
-                        }
+        db.getRankLevels().then(levels => setRankLevels(levels)).catch(e => console.error(e));
 
-                        // Fetch Rank Levels if not in cache or just always for now to stay fresh
-                        db.getRankLevels().then(levels => setRankLevels(levels)).catch(e => console.error(e));
-
-                        return; // EXIT EARLY
-                    }
-                } catch (e) {
-                    console.error("Global cache parse error", e);
-                }
-            }
-        }
 
         setIsGlobalLoading(true);
         try {
@@ -245,13 +212,7 @@ const App: React.FC = () => {
             }
             setClaimHistory(finalClaims);
 
-            // Update GLOBAL CACHE
-            localStorage.setItem(cacheKey, JSON.stringify({
-                inventory: inventoryData,
-                claims: finalClaims,
-                settings: settingsData,
-                timestamp: Date.now()
-            }));
+
 
             if (role === 'volunteer') {
                 const allAddrs = await db.getAddresses();
@@ -390,10 +351,10 @@ const App: React.FC = () => {
                   const updatedUser = { ...currentUser, avatar: url };
                   await db.upsertUser(updatedUser);
                   handleUpdateUser(updatedUser);
-                  alert("Foto profil berhasil diperbarui!");
+                  toast.success("Foto profil berhasil diperbarui!");
               } catch (error) {
                   console.error("Avatar upload failed", error);
-                  alert("Gagal mengunggah foto profil. Periksa koneksi.");
+                  toast.error("Gagal mengunggah foto profil. Periksa koneksi.");
               } finally {
                   setIsGlobalLoading(false);
               }
@@ -438,17 +399,38 @@ const App: React.FC = () => {
   };
 
   const handleAcceptMission = (claimId: string, volunteerName: string) => {
+      const generatedPickupCode = `PICKUP-${Math.floor(1000 + Math.random() * 9000)}`;
+      
       setClaimHistory(prev => prev.map(c => 
           c.id === claimId 
-            ? { ...c, courierName: volunteerName, courierStatus: 'picking_up', volunteerId: currentUser?.id } 
+            ? { ...c, courierName: volunteerName, courierStatus: 'picking_up', volunteerId: currentUser?.id, pickupCode: generatedPickupCode } 
             : c
       ));
 
       db.updateClaimStatus(claimId, 'active', { 
           courierName: volunteerName, 
           courierStatus: 'picking_up',
-          volunteerId: currentUser?.id 
+          volunteerId: currentUser?.id,
+          pickupCode: generatedPickupCode
       });
+
+
+  };
+
+  const handleCancelMission = async (claimId: string) => {
+      if (!currentUser?.id) return;
+      try {
+          await db.cancelMission(claimId, currentUser.id);
+          setClaimHistory(prev => prev.map(c => 
+              c.id === claimId 
+                  ? { ...c, courierName: undefined, courierStatus: undefined, volunteerId: undefined, pickupCode: undefined, status: 'pending_approval' } 
+                  : c
+          ));
+          toast.success("Misi berhasil dibatalkan.");
+      } catch (error: any) {
+          console.error("Failed to cancel mission:", error);
+          toast.info(error.message || "Gagal membatalkan misi. Coba lagi.");
+      }
   };
 
   const handleUpdateStatus = async (claimId: string, newStatus: 'completed' | 'active' | 'cancelled', extraData?: any) => {
@@ -486,13 +468,10 @@ const App: React.FC = () => {
           }
           await db.updateClaimStatus(claimId, newStatus, payload);
           
-          // Invalidate cache so refresh fetches latest status
-          if (currentUser && role) {
-              localStorage.removeItem(`far_global_data_${currentUser.id}_${role}`);
-          }
+
       } catch (error) {
           console.error("Failed to update status in DB:", error);
-          alert("Gagal menyimpan status ke server. Coba lagi.");
+          toast.error("Gagal menyimpan status ke server. Coba lagi.");
       }
   };
 
@@ -504,7 +483,7 @@ const App: React.FC = () => {
       );
 
       if (isAlreadyClaimed) {
-          alert("Anda sudah memiliki klaim aktif untuk produk ini. Selesaikan dulu pesanan tersebut sebelum mengambil lagi.");
+          toast.info("Anda sudah memiliki klaim aktif untuk produk ini. Selesaikan dulu pesanan tersebut sebelum mengambil lagi.");
           return null;
       }
 
@@ -554,11 +533,13 @@ const App: React.FC = () => {
               setClaimHistory(updatedClaims);
           }
           
+
+          
           return 'PENDING';
 
       } catch (error: any) {
           console.error("Claim Transaction Failed:", error);
-          alert(`Gagal melakukan klaim: ${error.message}`);
+          toast.error(`Gagal melakukan klaim: ${error.message}`);
           return null;
       }
   };
@@ -571,7 +552,7 @@ const App: React.FC = () => {
           ));
       } catch (error) {
           console.error("Failed to submit review:", error);
-          alert("Gagal mengirim ulasan ke database. Coba lagi.");
+          toast.error("Gagal mengirim ulasan ke database. Coba lagi.");
       }
   };
 
@@ -584,7 +565,7 @@ const App: React.FC = () => {
           ));
       } catch (error) {
           console.error("Failed to submit report:", error);
-          alert("Gagal mengirim laporan ke database. Coba lagi.");
+          toast.error("Gagal mengirim laporan ke database. Coba lagi.");
       }
   };
 
@@ -638,7 +619,7 @@ const App: React.FC = () => {
   const renderContent = () => {
       if (currentView === 'landing') return <LandingPage onNavigate={setCurrentView} />;
       if (currentView === 'login') return <LoginView onLogin={handleLogin} onNavigate={setCurrentView as any} />;
-      if (currentView === 'register') return <RegisterView onNavigate={setCurrentView as any} onRegister={handleRegister} disableSignup={appSettings.disable_signup} />;
+      if (currentView === 'register') return <RegisterView onNavigate={setCurrentView as any} onRegister={handleRegister} disableSignup={appSettings.disable_signup} requireOtpVerification={appSettings.require_otp_verification} />;
       if (currentView === 'forgot-password') return <ForgotPasswordView onNavigate={setCurrentView as any} />;
       
       // CHECK ACCOUNT STATUS HERE
@@ -743,7 +724,7 @@ const App: React.FC = () => {
                       <h1 className="text-2xl font-black uppercase italic">Pusat Masalah</h1>
                   </div>
                   <ReportsView 
-                    onNavigateToOrder={(orderId) => { setTargetOrderId(orderId); setCurrentView('inventory'); }} 
+                    onNavigateToOrder={(orderId) => { setTargetOrderId(orderId); setCurrentView('inventory-history'); }} 
                     claims={claimHistory} 
                   />
               </div>
@@ -758,7 +739,7 @@ const App: React.FC = () => {
                       <h1 className="text-2xl font-black uppercase italic">Ulasan Diterima</h1>
                   </div>
                   <ReviewsView 
-                    onNavigateToOrder={(orderId) => { setTargetOrderId(orderId); setCurrentView('inventory'); }} 
+                    onNavigateToOrder={(orderId) => { setTargetOrderId(orderId); setCurrentView('inventory-history'); }} 
                     claims={claimHistory}
                   />
               </div>
@@ -825,6 +806,7 @@ const App: React.FC = () => {
                 onOpenNotifications={() => setCurrentView('notifications')} 
                 activeClaims={claimHistory}
                 onAcceptMission={handleAcceptMission}
+                onCancelMission={handleCancelMission}
                 onUpdateStatus={handleUpdateStatus} 
                 currentUser={currentUser}
                 allAddresses={allAddresses} 
@@ -933,6 +915,7 @@ const App: React.FC = () => {
 
   if (showNavigation) {
     return (
+      <>
       <DesktopLayout
         currentView={currentView}
         setCurrentView={setCurrentView}
@@ -958,13 +941,18 @@ const App: React.FC = () => {
       >
         {mainContent}
       </DesktopLayout>
+      <ToastContainer />
+      </>
     );
   }
 
   return (
+    <>
     <div className="flex min-h-screen flex-col bg-[#FDFBF7] font-sans text-stone-900 dark:bg-stone-950 dark:text-white">
       <main className="flex-1">{mainContent}</main>
     </div>
+    <ToastContainer />
+    </>
   );
 };
 

@@ -4,6 +4,7 @@ import { ComposeMessage } from './ComposeMessage';
 import { BroadcastHistory } from './BroadcastHistory';
 import { DevicePreview, DeviceType } from './DevicePreview';
 import { BroadcastMessage, UserData } from '../../../../types';
+import { toast } from '../../../common/ToastContext';
 
 interface CommunicationProps {
     broadcastMessages: BroadcastMessage[];
@@ -32,7 +33,7 @@ export const Communication: React.FC<CommunicationProps> = ({ broadcastMessages,
 
     const handleSendBroadcast = async () => {
         if (!formData.title.trim() || !formData.content.trim()) {
-            alert('Judul dan isi pesan tidak boleh kosong');
+            toast.info('Judul dan isi pesan tidak boleh kosong');
             return;
         }
 
@@ -57,10 +58,10 @@ export const Communication: React.FC<CommunicationProps> = ({ broadcastMessages,
 
             setFormData({ title: '', content: '', target: 'all', type: 'info' });
             setBroadcastTab('history');
-            alert('Pesan broadcast berhasil dikirim ke seluruh modul target!');
+            toast.success('Pesan broadcast berhasil dikirim ke seluruh modul target!');
         } catch (err) {
             console.error("Broadcast failed:", err);
-            alert("Gagal mengirim broadcast.");
+            toast.error("Gagal mengirim broadcast.");
         } finally {
             setIsSubmitting(false);
         }

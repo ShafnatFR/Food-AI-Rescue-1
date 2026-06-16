@@ -6,6 +6,7 @@ import { AIVerificationCard } from './AIVerificationCard';
 import { db } from '../../../services/db';
 import { formatDateTime, isFoodExpired } from '../../../utils/transformers';
 import { optimizeUnsplashUrl } from '../../../utils/imageOptimizer';
+import { toast } from '../../common/ToastContext';
 
 interface FoodDetailProps {
   item: FoodItem;
@@ -102,14 +103,14 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
     } else if (item.location?.lat && item.location?.lng && item.location.lat !== -6.914744) {
         destination = `${item.location.lat},${item.location.lng}`;
     } else {
-        return alert("Lokasi tidak valid.");
+        return toast.error("Lokasi tidak valid.");
     }
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`, '_blank');
   };
 
   const handleChatToProvider = () => {
     const rawPhone = item.providerPhone;
-    if (!rawPhone) return alert("Kontak tidak tersedia.");
+    if (!rawPhone) return toast.info("Kontak tidak tersedia.");
     let cleanPhone = rawPhone.replace(/\D/g, '');
     if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent("Halo, saya tertarik dengan donasi: " + item.name)}`, '_blank');

@@ -4,6 +4,7 @@ import { Button } from '../../components/Button';
 import { ClaimHistoryItem } from '../../../types';
 import { optimizeUnsplashUrl } from '../../../utils/imageOptimizer';
 import { MediaLightbox } from '../../common/MediaLightbox';
+import { toast } from '../../common/ToastContext';
 
 interface ClaimHistoryDetailProps {
     item: ClaimHistoryItem;
@@ -28,7 +29,7 @@ export const ClaimHistoryDetail: React.FC<ClaimHistoryDetailProps> = ({ item, on
         } else if (item.location?.lat && item.location?.lng) {
             destination = `${item.location.lat},${item.location.lng}`;
         } else {
-            return alert("Lokasi tidak valid.");
+            return toast.error("Lokasi tidak valid.");
         }
         window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`, '_blank');
     };
@@ -183,6 +184,73 @@ export const ClaimHistoryDetail: React.FC<ClaimHistoryDetailProps> = ({ item, on
                             )}
                         </div>
 
+                        {/* Hasil Ulasan */}
+                        {item.rating && (
+                            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-stone-100 dark:border-stone-800">
+                                <h3 className="text-lg font-black text-stone-800 dark:text-stone-100 mb-4 flex items-center gap-2">
+                                    <Star className="w-5 h-5 text-yellow-500 fill-current" /> Ulasan Anda
+                                </h3>
+                                <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl">
+                                    <div className="flex items-center gap-1 mb-2">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star key={i} className={`w-5 h-5 ${i < item.rating! ? 'text-yellow-500 fill-current' : 'text-stone-300 dark:text-stone-600'}`} />
+                                        ))}
+                                    </div>
+                                    {item.review && <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">{item.review}</p>}
+                                    {item.reviewMedia && item.reviewMedia.length > 0 && (
+                                        <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
+                                            {item.reviewMedia.map((media, idx) => (
+                                                <img key={idx} src={media} alt="Review Media" className="w-20 h-20 object-cover rounded-xl border border-stone-200 dark:border-stone-700 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => { setPreviewMediaArray(item.reviewMedia!); setPreviewMediaIndex(idx); }} />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Hasil Laporan */}
+                        {item.isReported && (
+                            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-stone-100 dark:border-stone-800">
+                                <h3 className="text-lg font-black text-stone-800 dark:text-stone-100 mb-4 flex items-center gap-2">
+                                    <AlertTriangle className="w-5 h-5 text-red-500" /> Laporan Anda
+                                </h3>
+                                <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/40 p-4 rounded-2xl">
+                                    <h4 className="font-bold text-red-800 dark:text-red-400 mb-1">{item.reportReason || 'Laporan Masalah'}</h4>
+                                    {item.reportDescription && <p className="text-sm text-red-600 dark:text-red-300 mb-3">{item.reportDescription}</p>}
+                                    {item.reportEvidence && item.reportEvidence.length > 0 && (
+                                        <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
+                                            {item.reportEvidence.map((media, idx) => (
+                                                <img key={idx} src={media} alt="Report Evidence" className="w-20 h-20 object-cover rounded-xl border border-red-200 dark:border-red-800 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => { setPreviewMediaArray(item.reportEvidence!); setPreviewMediaIndex(idx); }} />
+                                            ))}
+                                        </div>
+                                    )}
+                                    {(() => {
+                                        let label = 'Sedang Dalam Peninjauan Admin';
+                                        let bgClass = 'bg-red-100 dark:bg-red-900/40';
+                                        let textClass = 'text-red-700 dark:text-red-300';
+                                        
+                                        const rStatus = item.reportStatus?.toLowerCase();
+
+                                        if (rStatus === 'resolved') {
+                                            label = 'Telah Diselesaikan';
+                                            bgClass = 'bg-green-100 dark:bg-green-900/40';
+                                            textClass = 'text-green-700 dark:text-green-300';
+                                        } else if (rStatus === 'rejected' || rStatus === 'dismissed') {
+                                            label = 'Laporan Ditolak';
+                                            bgClass = 'bg-stone-100 dark:bg-stone-800';
+                                            textClass = 'text-stone-600 dark:text-stone-400';
+                                        }
+
+                                        return (
+                                            <div className={`mt-3 inline-block px-3 py-1.5 rounded-lg text-xs font-bold ${bgClass} ${textClass}`}>
+                                                {label}
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            </div>
+                        )}
+
                     </div>
 
                     {/* Right Column - Timeline & Insights */}
@@ -325,6 +393,15 @@ export const ClaimHistoryDetail: React.FC<ClaimHistoryDetailProps> = ({ item, on
                         <Button className="w-full rounded-xl bg-stone-900 hover:bg-stone-800 text-white h-12" onClick={() => setShowQRModal(false)}>Tutup</Button>
                     </div>
                 </div>
+            )}
+
+            {/* Media Lightbox */}
+            {previewMediaIndex !== null && previewMediaArray.length > 0 && (
+                <MediaLightbox 
+                    mediaUrls={previewMediaArray}
+                    initialIndex={previewMediaIndex}
+                    onClose={() => setPreviewMediaIndex(null)}
+                />
             )}
         </div>
     );

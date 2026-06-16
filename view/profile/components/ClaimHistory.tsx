@@ -6,6 +6,7 @@ import { ClaimHistoryItem } from '../../../types';
 import { db } from '../../../services/db';
 import { getDateTimeParts } from '../../../utils/transformers';
 import { optimizeUnsplashUrl } from '../../../utils/imageOptimizer';
+import { toast } from '../../common/ToastContext';
 
 export interface ReviewModalProps {
     item: ClaimHistoryItem;
@@ -25,7 +26,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ item, onClose, onSubmi
         if (!file || !e.target.files) return;
 
         if (media.length >= 5) {
-            alert('Maksimal 5 media per ulasan.');
+            toast.warning('Maksimal 5 media per ulasan.');
             return;
         }
 
@@ -33,7 +34,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ item, onClose, onSubmi
         const limit = isVid ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
         
         if (file.size > limit) {
-            alert(`Ukuran file terlalu besar. Maksimal ${isVid ? '50MB untuk video' : '5MB untuk foto'}.`);
+            toast.error(`Ukuran file terlalu besar. Maksimal ${isVid ? '50MB untuk video' : '5MB untuk foto'}.`);
             return;
         }
 
@@ -46,7 +47,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ item, onClose, onSubmi
 
     const handleSubmit = async () => {
         if (rating === 0) {
-            alert('Mohon berikan rating');
+            toast.warning('Mohon berikan rating');
             return;
         }
         setIsSubmitting(true);
@@ -67,7 +68,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ item, onClose, onSubmi
             onSubmit(rating, review, uploadedUrls);
         } catch (error) {
             console.error("Failed to upload review media:", error);
-            alert("Gagal mengunggah media ulasan. Tetap mengirim ulasan tanpa media baru.");
+            toast.error("Gagal mengunggah media ulasan. Tetap mengirim ulasan tanpa media baru.");
             onSubmit(rating, review, []);
         } finally {
             setIsSubmitting(false);
@@ -168,7 +169,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ item, onClose, onSubmi
         if (!file || !e.target.files) return;
 
         if (evidence.length >= 5) {
-            alert('Maksimal 5 media bukti per laporan.');
+            toast.warning('Maksimal 5 media bukti per laporan.');
             return;
         }
 
@@ -176,7 +177,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ item, onClose, onSubmi
         const limit = isVid ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
         
         if (file.size > limit) {
-            alert(`Ukuran file terlalu besar. Maksimal ${isVid ? '50MB untuk video' : '5MB untuk foto'}.`);
+            toast.error(`Ukuran file terlalu besar. Maksimal ${isVid ? '50MB untuk video' : '5MB untuk foto'}.`);
             return;
         }
 
@@ -207,7 +208,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ item, onClose, onSubmi
             onSubmit(reason, description, uploadedUrls);
         } catch (error) {
             console.error("Failed to upload evidence:", error);
-            alert("Gagal mengunggah media bukti. Laporan akan dikirim tanpa media.");
+            toast.error("Gagal mengunggah media bukti. Laporan akan dikirim tanpa media.");
             onSubmit(reason, description, []);
         } finally {
             setIsSubmitting(false);
@@ -328,7 +329,7 @@ export const ClaimHistory: React.FC<ClaimHistoryProps> = ({
     const handleReviewSubmit = (rating: number, review: string, media: string[]) => {
         if (reviewItem && onSubmitReview) {
             onSubmitReview(reviewItem.id, rating, review, media);
-            alert("Terima kasih! Ulasan Anda berhasil dikirim.");
+            toast.success("Terima kasih! Ulasan Anda berhasil dikirim.");
             setReviewItem(null);
         }
     };
@@ -336,7 +337,7 @@ export const ClaimHistory: React.FC<ClaimHistoryProps> = ({
     const handleReportSubmit = (reason: string, description: string, evidence: string[]) => {
         if (reportItem && onSubmitReport) {
             onSubmitReport(reportItem.id, reason, description, evidence);
-            alert("Laporan Anda telah dikirim dan akan segera ditinjau.");
+            toast.info("Laporan Anda telah dikirim dan akan segera ditinjau.");
             setReportItem(null);
         }
     };

@@ -4,6 +4,7 @@ import { Crown, UserPlus, Edit, Trash2, X, ChevronLeft, ChevronRight, Loader2, S
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { AdminUser, SystemLog, UserData } from '../../../types';
+import { toast } from '../../common/ToastContext';
 
 interface AdminListProps {
     currentUser: UserData | null;
@@ -73,7 +74,7 @@ export const AdminList: React.FC<AdminListProps> = ({ currentUser, onMenuRefresh
           setShowAddAdminModal(false);
           setNewAdminForm({ id: '', name: '', email: '', password: '', role: 'admin', permissions: [], status: 'active' });
           setIsEditingAdmin(false);
-          alert(isEditingAdmin ? "Data admin diperbarui!" : "Admin baru berhasil ditambahkan!");
+          toast.info(isEditingAdmin ? "Data admin diperbarui!" : "Admin baru berhasil ditambahkan!");
       } catch (err: any) {
           alert("Gagal menyimpan admin: " + err.message);
       } finally {
@@ -97,7 +98,7 @@ export const AdminList: React.FC<AdminListProps> = ({ currentUser, onMenuRefresh
 
   const handleDeleteAdmin = async (id: string) => {
       if (id === currentUser?.id) {
-          alert("Anda tidak bisa menghapus akun Anda sendiri.");
+          toast.info("Anda tidak bisa menghapus akun Anda sendiri.");
           return;
       }
       if (confirm('Apakah anda yakin ingin menghapus admin ini?')) {
@@ -107,7 +108,7 @@ export const AdminList: React.FC<AdminListProps> = ({ currentUser, onMenuRefresh
               await fetchAdmins();
               await fetchLogs();
               if (onMenuRefresh) onMenuRefresh();
-              alert("Admin dihapus.");
+              toast.info("Admin dihapus.");
           } catch (err: any) {
               alert("Gagal menghapus admin: " + err.message);
           }

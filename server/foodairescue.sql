@@ -513,7 +513,9 @@ INSERT INTO `system_settings` (`setting_key`, `setting_value`, `updated_at`) VAL
 ('supportEmail', 'support@foodairescue.id', '2026-04-20 13:01:37'),
 ('supportPhone', '628123456789', '2026-04-20 13:01:37'),
 ('whatsappApiKey', '', '2026-04-20 07:10:23'),
-('whatsappGateway', '', '2026-04-20 07:10:23');
+('whatsappGateway', '', '2026-04-20 07:10:23'),
+('require_otp_verification', 'true', '2026-04-20 07:10:23'),
+('require_admin_verification', 'false', '2026-04-20 07:10:23');
 
 -- --------------------------------------------------------
 

@@ -26,9 +26,16 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({ order, onBack }) =
             <div className="absolute bottom-0 left-0 right-0 p-6 pointer-events-none">
                 <div className="flex flex-wrap gap-2 mb-3">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg border border-white/10 ${
-                        order.status === 'claimed' ? 'bg-yellow-500 text-white' : 'bg-blue-500 text-white'
+                        order.status === 'pending_approval' ? 'bg-orange-500 text-white' :
+                        order.status === 'claimed' ? 'bg-yellow-500 text-white' : 
+                        order.status === 'waiting_provider' ? 'bg-purple-500 text-white' :
+                        order.status === 'in_progress' ? 'bg-blue-500 text-white' :
+                        'bg-green-500 text-white'
                     }`}>
-                        {order.status === 'claimed' ? 'Menunggu Pengambilan' : 'Sedang Diantar'}
+                        {order.status === 'pending_approval' ? 'Butuh Persetujuan' : 
+                         order.status === 'claimed' ? 'Menunggu Pengambilan' : 
+                         order.status === 'waiting_provider' ? 'Relawan Menuju Lokasi' :
+                         order.status === 'in_progress' ? 'Pesanan Diambil' : 'Selesai'}
                     </span>
                     <span className="px-3 py-1 bg-stone-800/80 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 flex items-center gap-1">
                         <Clock className="w-3 h-3 text-orange-500" /> Batas: 14:00 WIB

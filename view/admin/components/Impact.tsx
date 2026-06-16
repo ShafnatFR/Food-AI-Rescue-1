@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { TrendingUp, Leaf, Globe, Target, Calendar, Trees, Loader2, AlertTriangle, RefreshCcw, Edit2, Check, X, Info } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { UserData } from '../../../types';
+import { toast } from '../../common/ToastContext';
 
 interface AdminTarget {
     metric_key: string;
@@ -103,7 +104,7 @@ export const Impact: React.FC<ImpactProps> = ({ currentUser }) => {
       setTargets(prev => prev.map(t => t.metric_key === key ? { ...t, target_value: val } : t));
       setEditingTarget(null);
     } catch (err) {
-      alert('Gagal mengupdate target');
+      toast.error('Gagal mengupdate target');
     }
   };
 

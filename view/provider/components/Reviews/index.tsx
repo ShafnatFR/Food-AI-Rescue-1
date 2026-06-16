@@ -7,6 +7,7 @@ import { ReviewsHeader } from './ReviewsHeader';
 import { ReviewItemCard } from './ReviewItemCard';
 import { ReviewDetailModal } from './ReviewDetailModal';
 import { ReviewsPagination } from './ReviewsPagination';
+import { toast } from '../../../common/ToastContext';
 
 interface ReviewsViewProps {
     onNavigateToOrder?: (orderId: string) => void;
@@ -46,7 +47,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({ onNavigateToOrder, cla
           onNavigateToOrder(selectedReview.orderId);
           setSelectedReview(null);
       } else {
-          alert("ID Pesanan tidak ditemukan pada ulasan ini.");
+          toast.error("ID Pesanan tidak ditemukan pada ulasan ini.");
       }
   };
 

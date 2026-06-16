@@ -18,6 +18,7 @@ interface VolunteerIndexProps {
   onOpenNotifications: () => void;
   activeClaims?: ClaimHistoryItem[];
   onAcceptMission?: (claimId: string, volunteerName: string) => void;
+  onCancelMission?: (claimId: string) => void;
   onUpdateStatus?: (claimId: string, status: 'completed' | 'active', extraData?: any) => void;
   currentUser?: UserData | null;
   allAddresses?: Address[]; // New Prop
@@ -35,6 +36,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
     onOpenNotifications, 
     activeClaims = [],
     onAcceptMission,
+    onCancelMission,
     onUpdateStatus,
     currentUser,
     allAddresses = [],
@@ -488,6 +490,13 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
                 setSelectedTask(null); 
                 handleTabChange('active'); 
             }} 
+            onCancel={selectedTask.claimId ? () => {
+                if (window.confirm('Yakin ingin membatalkan misi ini? Misi akan dikembalikan ke daftar Misi Tersedia.')) {
+                    onCancelMission?.(selectedTask.claimId!);
+                    setSelectedTask(null);
+                    handleTabChange('available');
+                }
+            } : undefined}
             volunteerName={userName} 
         />
       );
@@ -604,11 +613,18 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
               {scannerMode === 'show_qr' ? (
                   <div className="bg-stone-900 rounded-[2.5rem] p-8 border border-stone-800 shadow-2xl flex flex-col justify-center items-center relative overflow-hidden">
                       <h4 className="text-white font-black text-lg mb-6 text-center uppercase tracking-widest italic">Kode Ambil (Pickup)</h4>
-                      <div className="bg-white p-4 rounded-2xl shadow-sm border border-stone-200 inline-block mb-6">
-                          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(targetClaimForScanner?.pickupCode || '')}`} alt="QR Code" className="w-48 h-48" />
+                      <div className="bg-white p-4 rounded-2xl shadow-sm border border-stone-200 inline-block mb-6 min-w-[14rem] min-h-[14rem] flex items-center justify-center">
+                          {targetClaimForScanner?.pickupCode ? (
+                              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(targetClaimForScanner.pickupCode)}`} alt="QR Code" className="w-48 h-48" />
+                          ) : (
+                              <div className="text-center text-stone-400">
+                                  <AlertCircle className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                                  <p className="text-xs font-bold uppercase">Belum Ada Kode</p>
+                              </div>
+                          )}
                       </div>
                       <div className="bg-black border border-stone-700 px-6 py-3 rounded-xl w-full text-center">
-                          <p className="text-2xl font-mono font-bold tracking-widest text-white">{targetClaimForScanner?.pickupCode}</p>
+                          <p className="text-2xl font-mono font-bold tracking-widest text-white">{targetClaimForScanner?.pickupCode || '-----'}</p>
                       </div>
                   </div>
               ) : scannerMode === 'camera' ? (

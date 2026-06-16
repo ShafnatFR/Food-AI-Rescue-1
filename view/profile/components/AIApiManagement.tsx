@@ -5,6 +5,7 @@ import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { db } from '../../../services/db';
 import { UserData } from '../../../types';
+import { toast } from '../../common/ToastContext';
 
 interface AIApiManagementProps {
     currentUser: UserData;
@@ -62,7 +63,7 @@ export const AIApiManagement: React.FC<AIApiManagementProps> = ({ currentUser })
             await db.deleteUserAIKey(currentUser.id, id);
             fetchKeys();
         } catch (e) {
-            alert('Gagal menghapus key');
+            toast.error('Gagal menghapus key');
         }
     };
 

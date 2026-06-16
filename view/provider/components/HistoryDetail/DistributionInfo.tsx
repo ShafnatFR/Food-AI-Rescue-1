@@ -2,6 +2,7 @@
 import React from 'react';
 import { User, Truck, MessageCircle } from 'lucide-react';
 import { ProviderOrder } from '../../../../types';
+import { toast } from '../../../common/ToastContext';
 
 interface DistributionInfoProps {
     receiver: ProviderOrder['receiver'];
@@ -17,7 +18,7 @@ export const DistributionInfo: React.FC<DistributionInfoProps> = ({ receiver, co
         const safePhone = String(phone || ""); 
         
         if (!safePhone || safePhone === "undefined" || safePhone.length < 5) {
-            alert("Nomor telepon pengguna ini tidak valid atau belum diisi.");
+            toast.error("Nomor telepon pengguna ini tidak valid atau belum diisi.");
             return;
         }
 

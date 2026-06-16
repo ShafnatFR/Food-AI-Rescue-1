@@ -6,6 +6,7 @@ import { UserData, FoodItem, ClaimHistoryItem } from '../../../../types';
 import { UserModal } from './UserModal';
 import { VerificationModal } from './VerificationModal';
 import { db } from '../../../../services/db';
+import { toast } from '../../../common/ToastContext';
 
 interface UserListProps {
     users: UserData[];
@@ -53,7 +54,7 @@ export const UserList: React.FC<UserListProps> = ({ users, setUsers, inventory, 
             setUsers(latestUsers);
         } catch (error) {
             console.error("Failed to refresh users:", error);
-            alert("Gagal memperbarui data pengguna.");
+            toast.error("Gagal memperbarui data pengguna.");
         } finally {
             setIsProcessing(false);
         }
@@ -97,10 +98,10 @@ export const UserList: React.FC<UserListProps> = ({ users, setUsers, inventory, 
             }
             setIsUserModalOpen(false);
             setSelectedUser(null);
-            alert("Data pengguna berhasil diperbarui!");
+            toast.success("Data pengguna berhasil diperbarui!");
         } catch (error) {
             console.error("Save failed:", error);
-            alert("Gagal menyimpan data pengguna.");
+            toast.error("Gagal menyimpan data pengguna.");
         } finally {
             setIsProcessing(false);
         }
@@ -125,13 +126,13 @@ export const UserList: React.FC<UserListProps> = ({ users, setUsers, inventory, 
             
             // 4. Feedback
             if (status === 'active') {
-                alert(`✅ Akun ${verificationUser.name} berhasil diaktifkan.`);
+                toast.success(`✅ Akun ${verificationUser.name} berhasil diaktifkan.`);
             } else {
-                alert(`⛔ Akun ${verificationUser.name} telah ditolak (Non-Activated).`);
+                toast.error(`⛔ Akun ${verificationUser.name} telah ditolak (Non-Activated).`);
             }
         } catch (error) {
             console.error("Verification failed:", error);
-            alert("Gagal memproses verifikasi. Periksa koneksi internet.");
+            toast.error("Gagal memproses verifikasi. Periksa koneksi internet.");
         } finally {
             setIsProcessing(false);
             setVerificationUser(null);

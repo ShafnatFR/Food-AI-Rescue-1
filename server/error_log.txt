@@ -257,3 +257,187 @@ Please retry in 44.348470348s. [{"@type":"type.googleapis.com/google.rpc.Help","
     at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:448:21)
     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
     at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-14T15:46:14.995Z VERIFY_ORDER_QR Error: Kode tidak valid
+    at verifyOrderQR (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:1248:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:171:46
+2026-06-15T02:41:48.806Z VERIFY_ORDER_QR Error: QR CODE INI BUKAN UNTUK PESANAN ANDA.
+    at verifyOrderQR (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:1270:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:171:46
+2026-06-15T04:30:44.144Z VERIFY_ORDER_QR Error: QR CODE INI BUKAN UNTUK PESANAN ANDA.
+    at verifyOrderQR (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:1272:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:171:46
+2026-06-15T04:30:46.027Z VERIFY_ORDER_QR Error: QR CODE INI BUKAN UNTUK PESANAN ANDA.
+    at verifyOrderQR (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:1272:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:171:46
+2026-06-15T04:31:22.251Z VERIFY_ORDER_QR Error: QR CODE INI BUKAN UNTUK PESANAN ANDA.
+    at verifyOrderQR (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:1272:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:171:46
+2026-06-15T04:31:53.512Z VERIFY_ORDER_QR Error: QR CODE INI BUKAN UNTUK PESANAN ANDA.
+    at verifyOrderQR (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:1272:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:171:46
+2026-06-15T04:31:55.184Z VERIFY_ORDER_QR Error: QR CODE INI BUKAN UNTUK PESANAN ANDA.
+    at verifyOrderQR (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:1272:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:171:46
+2026-06-15T04:55:52.220Z VERIFY_ORDER_QR Error: QR CODE INI BUKAN UNTUK PESANAN ANDA.
+    at verifyOrderQR (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:1272:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:171:46
+2026-06-15T08:26:11.367Z CORPORATE_AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:153:38)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:203:34)
+    at async writeCSRCopy (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\contentWriter.js:105:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:312:34
+2026-06-15T08:29:50.747Z CORPORATE_AI Error: Semua API Key gagal memproses permintaan.
+    at callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:240:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:315:34
+2026-06-15T09:30:49.612Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:448:21)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-15T10:44:50.833Z CORPORATE_AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:153:38)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:203:34)
+    at async scanKitchen (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\kitchenScanner.js:39:22)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:319:34
+2026-06-15T11:28:05.710Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:559:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+2026-06-15T11:29:57.369Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:559:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+2026-06-15T11:55:30.528Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:476:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-15T11:55:52.579Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:476:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-15T11:56:04.014Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:476:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-15T11:56:53.648Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:476:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-15T12:00:03.938Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:476:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-15T12:06:16.340Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:559:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+2026-06-15T12:06:25.743Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:559:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+2026-06-15T12:07:41.468Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:559:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+2026-06-15T12:07:51.991Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:559:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+2026-06-15T12:10:43.461Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:559:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+2026-06-15T12:10:54.170Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:559:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:103:26
+2026-06-15T13:51:34.357Z LOGIN_USER Error: Email atau Password salah.
+    at loginUser (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:476:21)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:91:41
+2026-06-15T14:28:50.962Z VERIFY_FOOD Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:153:38)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:203:34)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:300:26
+2026-06-15T14:50:53.309Z VERIFY_FOOD Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+    at handleResponseNotOk (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async tryWithBackoff (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:153:38)
+    at async callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:203:34)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:301:26
+2026-06-15T15:00:13.530Z VERIFY_FOOD Error: Semua API Key gagal memproses permintaan.
+    at callGeminiWithRotation (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\aiUtils.js:240:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async verifyFood (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\services\foodVerification.js:44:12)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:301:26
+2026-06-15T15:52:03.112Z VERIFY_ORDER_QR Error: Kode tidak valid
+    at verifyOrderQR (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:1285:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:173:46
+2026-06-15T15:52:04.804Z VERIFY_ORDER_QR Error: Kode tidak valid
+    at verifyOrderQR (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:1285:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:173:46
+2026-06-16T09:44:58.905Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:576:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:107:26
+2026-06-16T09:46:20.940Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:576:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:107:26
+2026-06-16T10:12:29.864Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:580:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:111:26
+2026-06-16T10:12:35.818Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:580:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:111:26
+2026-06-16T10:12:36.452Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:580:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:111:26
+2026-06-16T10:12:37.077Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:580:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:111:26
+2026-06-16T10:12:37.668Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:580:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:111:26
+2026-06-16T10:12:37.801Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:580:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:111:26
+2026-06-16T10:12:37.944Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:580:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:111:26
+2026-06-16T10:12:38.091Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:580:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:111:26
+2026-06-16T10:12:38.227Z SEND_REGISTRATION_OTP Error: Email ini sudah terdaftar.
+    at sendRegistrationOtpAction (C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:580:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\shafnats\Development\Food-AI-Rescue-1-1\server\index.js:111:26

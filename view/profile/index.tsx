@@ -17,6 +17,7 @@ import { AIApiManagement } from './components/AIApiManagement';
 import { HistoryList } from '../volunteer/components/HistoryList';
 import { FoodDetail } from '../receiver/components/FoodDetail';
 import { db } from '../../services/db';
+import { toast } from '../common/ToastContext';
 
 interface ProfileIndexProps {
   role: UserRole;
@@ -185,10 +186,10 @@ export const ProfileIndex: React.FC<ProfileIndexProps> = ({
                 // Update selected item status locally to reflect change immediately without closing modal if desired
                 setSelectedHistoryItem(prev => prev ? { ...prev, status: 'completed' } : null);
                 
-                alert("Pesanan berhasil diselesaikan!");
+                toast.success("Pesanan berhasil diselesaikan!");
             } catch (e) {
                 console.error("Gagal update status", e);
-                alert("Gagal memperbarui status pesanan.");
+                toast.error("Gagal memperbarui status pesanan.");
             }
         }
     };
@@ -207,7 +208,7 @@ export const ProfileIndex: React.FC<ProfileIndexProps> = ({
                 reportDescription: description,
                 reportEvidence: evidence
             } : null);
-            alert("Laporan Anda telah dikirim.");
+            toast.info("Laporan Anda telah dikirim.");
         }
     };
 
@@ -218,7 +219,7 @@ export const ProfileIndex: React.FC<ProfileIndexProps> = ({
             
             // Update local state to show rating & media immediately
             setSelectedHistoryItem(prev => prev ? { ...prev, rating, review, reviewMedia: media } : null);
-            alert("Terima kasih atas ulasan Anda!");
+            toast.success("Terima kasih atas ulasan Anda!");
         }
     };
 
@@ -394,7 +395,7 @@ export const ProfileIndex: React.FC<ProfileIndexProps> = ({
                     onDetail={(saved) => {
                         const food = availableFoodForDetail.find(f => f.id === saved.id);
                         if (food) setSelectedFoodItem(food);
-                        else alert("Item ini sudah tidak tersedia di inventory.");
+                        else toast.info("Item ini sudah tidak tersedia di inventory.");
                     }}
                 />
             </div>

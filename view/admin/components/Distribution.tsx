@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Truck, ArrowRight, MapPin, X, Navigation, MessageCircle, ArrowDown, CheckCircle2, Clock, PackageCheck, UserCheck, Phone, Box, ShieldCheck, Bike, Car, Loader2, Search, Users } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { DistributionTask, ClaimHistoryItem, UserData, FoodItem, Address } from '../../../types';
+import { toast } from '../../common/ToastContext';
 
 interface ExtendedDistributionTask extends DistributionTask {
     volunteerId?: string;
@@ -126,7 +127,7 @@ export const Distribution: React.FC<DistributionProps> = ({ claims = [], users =
           setVolunteerSearch('');
       } catch (err) {
           console.error("Assignment failed:", err);
-          alert("Gagal menugaskan relawan. Silakan coba lagi.");
+          toast.error("Gagal menugaskan relawan. Silakan coba lagi.");
       } finally {
           setIsAssigning(null);
       }

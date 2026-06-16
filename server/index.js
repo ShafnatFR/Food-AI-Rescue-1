@@ -58,9 +58,13 @@ let appSettings = {
     pointsPerKg: 100,
     co2Multiplier: 2.5,
     disableExpiryLogic: false,
+    prevent_duplicate_account: true,
+    allow_gallery_upload: true,
     maintenance: false,
     disable_signup: false,
-    readonly_mode: false
+    readonly_mode: false,
+    require_otp_verification: true,
+    require_admin_verification: false
 };
 
 
@@ -246,6 +250,10 @@ app.post('/api', async (req, res) => {
                 result = await assignVolunteer(data.claimId, data.volunteerId, data.volunteerName); 
                 await logAction(data.actor?.id, data.actor?.name, 'Assign Volunteer', `Tugaskan ${data.volunteerName} ke Klaim #${data.claimId}`);
                 break;
+            case 'CANCEL_MISSION':
+                result = await cancelMission(data.claimId, data.volunteerId);
+                await logAction(data.volunteerId, null, 'Cancel Mission', `Relawan membatalkan Klaim #${data.claimId}`);
+                break;
 
             case 'GET_ADMINS': result = await getAdmins(); break;
             case 'GET_SYSTEM_LOGS': result = await getSystemLogs(); break;
@@ -422,22 +430,35 @@ async function logAction(actorId, actorName, action, details, severity = 'info')
 
 async function registerUser(data) {
     const { name, email, password, role, phone, avatar } = data;
-    // Check if email exists
-    const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
-    if (existing.length > 0) {
-        const err = new Error('Email ini sudah terdaftar.');
-        err.statusCode = 409;
-        throw err;
+    
+    if (appSettings.prevent_duplicate_account) {
+        // Check if email or phone exists
+        const [existing] = await db.query('SELECT id FROM users WHERE email = ? OR (phone = ? AND phone != "" AND phone IS NOT NULL)', [email, phone]);
+        if (existing.length > 0) {
+            const err = new Error('Email atau Nomor Telepon ini sudah terdaftar.');
+            err.statusCode = 409;
+            throw err;
+        }
+    } else {
+        // Check if email exists
+        const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+        if (existing.length > 0) {
+            const err = new Error('Email ini sudah terdaftar.');
+            err.statusCode = 409;
+            throw err;
+        }
     }
 
     // Hash password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const initialStatus = appSettings.require_admin_verification ? 'PENDING' : 'ACTIVE';
+
     const [result] = await db.query(
         'INSERT INTO users (name, email, password, role, phone, avatar, points, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [name, email, hashedPassword, mapRole(role), phone, avatar, 0, 'PENDING']
+        [name, email, hashedPassword, mapRole(role), phone, avatar, 0, initialStatus]
     );
-    return { id: result.insertId, ...data, isNewUser: true, status: 'pending', points: 0, password: '[PROTECTED]' };
+    return { id: result.insertId, ...data, isNewUser: true, status: initialStatus.toLowerCase(), points: 0, password: '[PROTECTED]' };
 }
 
 async function loginUser(data) {
@@ -1190,6 +1211,10 @@ async function updateClaimStatus(id, status, additionalData) {
             query += ', unique_code = ?';
             params.push(additionalData.uniqueCode);
         }
+        if (additionalData.pickupCode !== undefined) {
+            query += ', pickup_code = ?';
+            params.push(additionalData.pickupCode);
+        }
     }
 
     query += ' WHERE id = ?';
@@ -1232,22 +1257,52 @@ async function updateClaimStatus(id, status, additionalData) {
 }
 
 async function verifyOrderQR(data) {
-    const { uniqueCode, scannedByProviderName } = data;
-    const isPickup = uniqueCode && uniqueCode.startsWith('PICKUP-');
+    const { uniqueCode: rawCode, scannedByProviderName, claimId, expectedType } = data;
+    const uniqueCode = rawCode ? rawCode.trim() : '';
 
-    let query = 'SELECT * FROM claims WHERE unique_code = ?';
-    if (isPickup) {
-        query = 'SELECT * FROM claims WHERE pickup_code = ?';
+    let rows = [];
+    let isPickup = false;
+
+    if (expectedType === 'pickup_code') {
+        // Donatur scan kode relawan — cari di kolom pickup_code
+        const query = 'SELECT c.*, fi.name AS food_name FROM claims c LEFT JOIN food_items fi ON c.food_id = fi.id WHERE c.pickup_code = ?';
+        [rows] = await db.query(query, [uniqueCode]);
+        if (rows.length > 0) isPickup = true;
+    } else if (expectedType === 'unique_code') {
+        // Donatur scan kode penerima — cari di kolom unique_code
+        const query = 'SELECT c.*, fi.name AS food_name FROM claims c LEFT JOIN food_items fi ON c.food_id = fi.id WHERE c.unique_code = ?';
+        [rows] = await db.query(query, [uniqueCode]);
+    } else {
+        // Fallback: cek unique_code dulu, lalu pickup_code
+        const query1 = 'SELECT c.*, fi.name AS food_name FROM claims c LEFT JOIN food_items fi ON c.food_id = fi.id WHERE c.unique_code = ?';
+        [rows] = await db.query(query1, [uniqueCode]);
+
+        if (rows.length === 0) {
+            const query2 = 'SELECT c.*, fi.name AS food_name FROM claims c LEFT JOIN food_items fi ON c.food_id = fi.id WHERE c.pickup_code = ?';
+            [rows] = await db.query(query2, [uniqueCode]);
+            if (rows.length > 0) {
+                isPickup = true;
+            }
+        }
     }
 
-    const [rows] = await db.query(query, [uniqueCode]);
     if (rows.length === 0) throw new Error('Kode tidak valid');
 
+    // Pastikan kode yang di-scan sesuai dengan pesanan yang sedang dibuka (jika claimId dikirim)
+    if (claimId && String(rows[0].id) !== String(claimId)) {
+        throw new Error('QR CODE INI BUKAN UNTUK PESANAN ANDA.');
+    }
+
     if (isPickup) {
-        if (rows[0].status === 'IN_PROGRESS' || rows[0].status === 'COMPLETED') {
+        // pickup_code digunakan Donatur untuk memverifikasi kehadiran Relawan.
+        // Status yang VALID untuk di-scan adalah PENDING atau IN_PROGRESS (relawan sudah diassign).
+        // Hanya blokir jika sudah COMPLETED (sudah diserahkan ke penerima).
+        if (rows[0].status === 'COMPLETED') {
             return { success: false, message: 'ALREADY_SCANNED' };
         }
-        await db.query('UPDATE claims SET status = "IN_PROGRESS" WHERE id = ?', [rows[0].id]);
+        // Saat pickup_code di-scan, status berubah dari PENDING/IN_PROGRESS -> IN_PROGRESS
+        // (menandakan relawan sudah tiba di donatur dan pesanan sedang dalam perjalanan)
+        await db.query('UPDATE claims SET status = "IN_PROGRESS", courier_status = "delivering" WHERE id = ?', [rows[0].id]);
         return { 
             success: true, 
             message: 'PICKUP_VERIFIED', 
@@ -1257,28 +1312,32 @@ async function verifyOrderQR(data) {
         };
     }
 
-    if (rows[0].is_scanned) return { success: false, message: 'ALREADY_SCANNED' };
+    // unique_code (penerima memverifikasi serah terima)
+    if (rows[0].is_scanned || rows[0].status === 'COMPLETED') {
+        return { success: false, message: 'ALREADY_SCANNED' };
+    }
 
-    // 1. Mark as scanned and complete with audit trail
+    // Mark as scanned and complete with audit trail
     const scannerId = data.actorId || rows[0].provider_id; 
-    await db.query('UPDATE claims SET is_scanned = 1, status = "COMPLETED", scanned_at = CURRENT_TIMESTAMP, scanned_by_id = ? WHERE id = ?', [scannerId, rows[0].id]);
+    await db.query(
+        'UPDATE claims SET is_scanned = 1, status = "COMPLETED", scanned_at = CURRENT_TIMESTAMP, scanned_by_id = ? WHERE id = ?',
+        [scannerId, rows[0].id]
+    );
     
-    // 1.5 Update Impact Cache (Phase 3)
+    // Update Impact Cache
     await syncUserImpact(rows[0].receiver_id);
     await syncUserImpact(rows[0].provider_id);
     if (rows[0].volunteer_id) await syncUserImpact(rows[0].volunteer_id);
 
-    // 2. Add points for the person who did the scanning (Handover Point)
-    // For now, if scannedByProviderName is provided, we use the provider_id from the claim
-    // Give points to the scanner (e.g. Volunteer) based on system settings
+    // Add points
     const pointsAmount = appSettings.pointsPerTrx ? parseInt(appSettings.pointsPerTrx) : 50;
-    const pointsData = await addPoints(scannerId, pointsAmount, 'QR Handover - Serah Terima Makanan', rows[0].id);
+    await addPoints(scannerId, pointsAmount, 'QR Handover - Serah Terima Makanan', rows[0].id);
 
     return { 
         success: true, 
         message: 'VERIFIED', 
         claimId: rows[0].id,
-        foodName: rows[0].food_name, 
+        foodName: rows[0].food_name || 'Makanan', 
         pointsEarned: 50 
     };
 }
@@ -2015,6 +2074,31 @@ async function assignVolunteer(claimId, volunteerId, volunteerName) {
     }
 
     return { claimId, volunteerId, volunteerName, status: 'IN_PROGRESS' };
+}
+
+async function cancelMission(claimId, volunteerId) {
+    const [claims] = await db.query('SELECT * FROM claims WHERE id = ? AND volunteer_id = ?', [claimId, volunteerId]);
+    if (claims.length === 0) {
+        throw new Error('Misi tidak ditemukan atau tidak sedang diambil oleh Anda.');
+    }
+    
+    await db.query(
+        `UPDATE claims 
+         SET volunteer_id = NULL, 
+             courier_name = NULL, 
+             status = 'PENDING', 
+             courier_status = NULL,
+             pickup_code = NULL
+         WHERE id = ?`,
+        [claimId]
+    );
+
+    const [cData] = await db.query('SELECT f.name as foodName, c.receiver_id FROM claims c JOIN food_items f ON c.food_id = f.id WHERE c.id = ?', [claimId]);
+    if (cData.length > 0) {
+        await createNotification(cData[0].receiver_id, 'warning', 'Relawan Membatalkan', `Relawan membatalkan pengantaran pesanan "${cData[0].foodName}". Kami akan mencari relawan lain.`, claimId);
+    }
+
+    return { success: true, claimId };
 }
 
 async function getAdmins() {

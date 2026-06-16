@@ -8,6 +8,7 @@ import { FoodItem, UserData, Address } from '../../../types';
 import { QualityCheckInventoryInput } from './QualityCheckInventoryInput';
 import { db } from '../../../services/db';
 import { ImpactBreakdownItem, foodVerification } from '../../../services/foodVerification';
+import { toast } from '../../common/ToastContext';
 
 interface QualityCheckInventoryProps {
   onBack: () => void;
@@ -78,7 +79,7 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
               } catch (e: any) {
                   console.error("Image upload failed:", e);
                   if (e.message && (e.message.includes("DriveApp") || e.message.includes("izin"))) {
-                      alert("GAGAL UPLOAD GAMBAR: Backend belum diotorisasi. Hubungi developer.");
+                      toast.error("GAGAL UPLOAD GAMBAR: Backend belum diotorisasi. Hubungi developer.");
                       setIsPublishing(false);
                       return; 
                   }
@@ -90,7 +91,7 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
           const selectedAddress = userAddresses.find(a => a.id === formData.addressId) || userAddresses.find(a => a.isPrimary) || userAddresses[0];
           
           if (!selectedAddress) {
-              alert("Anda belum memiliki alamat tersimpan. Mohon lengkapi profil.");
+              toast.warning("Anda belum memiliki alamat tersimpan. Mohon lengkapi profil.");
               setIsPublishing(false);
               return;
           }
@@ -149,7 +150,7 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
 
       } catch (error) {
           console.error("Failed to publish item:", error);
-          alert("Gagal menyimpan produk.");
+          toast.error("Gagal menyimpan produk.");
       } finally {
           setIsPublishing(false);
       }
@@ -179,10 +180,10 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
         setAnalysisResult(result);
         setEditedReasoning(result.reasoning || '');
         setEditedIngredients(result.detectedItems || []);
-        alert("Analisis ulang berhasil!");
+        toast.success("Analisis ulang berhasil!");
     } catch (err) {
         console.error(err);
-        alert("Gagal menganalisis ulang. Silakan coba lagi.");
+        toast.error("Gagal menganalisis ulang. Silakan coba lagi.");
     } finally {
         setIsReAnalyzing(false);
     }

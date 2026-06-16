@@ -3,6 +3,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { Layout, Trash2, Edit, Plus, X, BookOpen, HelpCircle, Bold, Italic, List, ListOrdered, Filter, Eye, Smartphone, Tablet, Laptop, ChevronDown, ChevronUp, MessageSquare, Truck, User, Store, Search, Loader2 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { FAQItem, UserData } from '../../../types';
+import { toast } from '../../common/ToastContext';
 
 interface ContentCMSProps {
     faqs?: FAQItem[];
@@ -119,7 +120,7 @@ export const ContentCMS: React.FC<ContentCMSProps> = ({ faqs = [], setFaqs, onRe
   const handleSaveFaq = async () => {
       if (!setFaqs) return;
       if (!faqForm.question.trim() || !faqForm.answer.trim()) {
-          alert('Mohon isi Judul (Pertanyaan) dan Deskripsi (Jawaban)');
+          toast.warning('Mohon isi Judul (Pertanyaan) dan Deskripsi (Jawaban)');
           return;
       }
 
@@ -137,7 +138,7 @@ export const ContentCMS: React.FC<ContentCMSProps> = ({ faqs = [], setFaqs, onRe
           setIsModalOpen(false);
       } catch (err) {
           console.error('[ContentCMS] Save failure:', err);
-          alert('Gagal menyimpan FAQ ke database.');
+          toast.error('Gagal menyimpan FAQ ke database.');
       } finally {
           setIsSaving(false);
       }
@@ -152,7 +153,7 @@ export const ContentCMS: React.FC<ContentCMSProps> = ({ faqs = [], setFaqs, onRe
               if (onRefresh) onRefresh();
               setFaqs(prev => prev.filter(f => f.id !== id));
           } catch (err) {
-              alert('Gagal menghapus FAQ.');
+              toast.error('Gagal menghapus FAQ.');
           }
       }
   };

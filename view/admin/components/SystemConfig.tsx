@@ -24,6 +24,11 @@ export const SystemConfig: React.FC<{ appSettings?: any, setAppSettings?: any, c
         { id: 'disable_signup', name: 'Disable New Signups', description: 'Cegah pendaftaran user baru.', value: appSettings?.disable_signup || false, type: 'toggle', category: 'emergency' },
         { id: 'readonly_mode', name: 'Read-Only Mode', description: 'User hanya bisa melihat, tidak bisa menambah/edit data.', value: appSettings?.readonly_mode || false, type: 'toggle', category: 'emergency' },
         
+        // Security
+        { id: 'require_otp_verification', name: 'Verifikasi OTP (Email/WA)', description: 'Wajibkan user baru untuk verifikasi OTP saat mendaftar.', value: appSettings?.require_otp_verification ?? true, type: 'toggle', category: 'security' },
+        { id: 'require_admin_verification', name: 'Verifikasi Manual Admin', description: 'Wajibkan admin menyetujui akun baru secara manual (akun baru akan berstatus pending).', value: appSettings?.require_admin_verification ?? false, type: 'toggle', category: 'security' },
+
+        
         // Branding
         { id: 'appName', name: 'Nama Aplikasi', description: 'Nama utama aplikasi yang ditampilkan.', value: appSettings?.appName || 'Food AI Rescue', type: 'input', category: 'branding' },
         { id: 'appSlogan', name: 'Slogan Aplikasi', description: 'Tagline aplikasi.', value: appSettings?.appSlogan || 'Selamatkan Makanan, Selamatkan Bumi', type: 'input', category: 'branding' },
@@ -45,7 +50,9 @@ export const SystemConfig: React.FC<{ appSettings?: any, setAppSettings?: any, c
         { id: 'whatsappApiKey', name: 'API Key WhatsApp Gateway', description: 'Token autentikasi WA API.', value: appSettings?.whatsappApiKey || '', type: 'input', category: 'integrations' },
 
         // Debug
-        { id: 'disableExpiryLogic', name: 'Abaikan Kedaluwarsa Data (Debug)', description: 'Tampilkan semua makanan tanpa mengecek waktu kedaluwarsa (bypass isFoodExpired frontend & backend).', value: appSettings?.disableExpiryLogic || false, type: 'toggle', category: 'debug' }
+        { id: 'disableExpiryLogic', name: 'Abaikan Kedaluwarsa Data (Debug)', description: 'Tampilkan semua makanan tanpa mengecek waktu kedaluwarsa (bypass isFoodExpired frontend & backend).', value: appSettings?.disableExpiryLogic || false, type: 'toggle', category: 'debug' },
+        { id: 'prevent_duplicate_account', name: 'Cegah Duplikasi Akun (Debug)', description: 'Cegah pendaftaran jika email atau nomor telepon sudah terdaftar di database.', value: appSettings?.prevent_duplicate_account ?? true, type: 'toggle', category: 'debug' },
+        { id: 'allow_gallery_upload', name: 'Izinkan Upload Galeri (AI)', description: 'Tampilkan tombol Pilih File / Unggah dari Galeri pada halaman verifikasi AI (kamera tetap jadi utama).', value: appSettings?.allow_gallery_upload ?? true, type: 'toggle', category: 'debug' }
     ]);
 
 
@@ -68,6 +75,7 @@ export const SystemConfig: React.FC<{ appSettings?: any, setAppSettings?: any, c
 
     const categories = [
         { id: 'emergency', name: 'Emergency Controls', icon: Lock, color: 'red' },
+        { id: 'security', name: 'Keamanan & Autentikasi', icon: Lock, color: 'orange' },
         { id: 'branding', name: 'Branding & Identitas', icon: Palette, color: 'orange' },
         { id: 'contact', name: 'Kontak & Support', icon: PhoneCall, color: 'orange' },
         { id: 'gamification', name: 'Aturan Gamifikasi', icon: Trophy, color: 'orange' },

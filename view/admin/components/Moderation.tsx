@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Shield, X, CheckCircle2, Clock, Filter, ChevronLeft, ChevronRight, Package, MessageCircle, Image as ImageIcon, ArrowUpDown } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { Report, ClaimHistoryItem } from '../../../types';
+import { toast } from '../../common/ToastContext';
 
 interface ModerationProps {
     claims?: ClaimHistoryItem[];
@@ -56,7 +57,7 @@ export const Moderation: React.FC<ModerationProps> = ({ claims = [], onReportUpd
               if (status !== 'IN_PROGRESS') setSelectedReport(null);
           } catch (error) {
               console.error("Failed to update report status:", error);
-              alert("Gagal memperbarui status laporan.");
+              toast.error("Gagal memperbarui status laporan.");
           }
       }
   };

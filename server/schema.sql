@@ -505,7 +505,9 @@ INSERT IGNORE INTO `system_settings` (`setting_key`, `setting_value`) VALUES
 ('disable_signup',     'false'),
 ('readonly_mode',      'false'),
 ('whatsappGateway',    ''),
-('whatsappApiKey',     '');
+('whatsappApiKey',     ''),
+('require_otp_verification', 'true'),
+('require_admin_verification', 'false');
 
 -- ------------------------------------------------------------
 -- Data default: admin_targets

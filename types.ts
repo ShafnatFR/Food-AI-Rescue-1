@@ -93,6 +93,7 @@ export interface ClaimHistoryItem {
   status: 'active' | 'completed' | 'cancelled' | 'pending_approval' | 'waiting_for_pickup';
   isScanned?: boolean;
   isReported?: boolean;
+  reportStatus?: 'new' | 'investigating' | 'resolved' | 'dismissed' | 'rejected' | 'in_progress';
   reportReason?: string;
   reportDescription?: string;
   reportEvidence?: string[];

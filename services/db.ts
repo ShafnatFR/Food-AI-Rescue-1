@@ -94,8 +94,8 @@ export const db = {
   submitReport: (claimId: string, reason: string, description: string, evidence?: string | string[]) =>
     sendRequest<any>('SUBMIT_REPORT', { claimId, reason, description, evidence }),
   
-  verifyOrderQR: (uniqueCode: string, providerName?: string) => 
-    sendRequest<any>('VERIFY_ORDER_QR', { uniqueCode, scannedByProviderName: providerName }),
+  verifyOrderQR: (uniqueCode: string, providerName?: string, claimId?: string | number, expectedType?: string) => 
+    sendRequest<any>('VERIFY_ORDER_QR', { uniqueCode, scannedByProviderName: providerName, claimId, expectedType }),
     
   getProviderDashboard: (providerName: string) => 
     sendRequest<any>('GET_PROVIDER_DASHBOARD', { providerName }),
@@ -128,6 +128,7 @@ export const db = {
   upsertFAQ: (faq: any, actor: any) => sendRequest<any>('UPSERT_FAQ', { faq, actor }),
   deleteFAQ: (id: any, actor: any) => sendRequest<any>('DELETE_FAQ', { id, actor }),
   assignVolunteer: (claimId: any, volunteerId: any, volunteerName: string, actor: any) => sendRequest<any>('ASSIGN_VOLUNTEER', { claimId, volunteerId, volunteerName, actor }),
+  cancelMission: (claimId: string | number, volunteerId: string | number) => sendRequest<any>('CANCEL_MISSION', { claimId, volunteerId }),
   getAdmins: () => sendRequest<AdminUser[]>('GET_ADMINS'),
   getSystemLogs: () => sendRequest<SystemLog[]>('GET_SYSTEM_LOGS'),
   upsertAdmin: (admin: any, actor: any) => sendRequest<any>('UPSERT_ADMIN', { admin, actor }),

@@ -5,6 +5,7 @@ import { Button } from '../../../components/Button';
 import { FoodItem, ImpactBreakdownItem } from '../../../../types';
 import { db } from '../../../../services/db';
 import { formatDateTime, isFoodExpired } from '../../../../utils/transformers';
+import { toast } from '../../../common/ToastContext';
 
 interface ProductDetailModalProps {
     product: FoodItem;
@@ -44,10 +45,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
             await db.updateFoodItem(formData);
             onUpdate(formData);
             setIsEditing(false);
-            alert("Data produk berhasil diperbarui!");
+            toast.success("Data produk berhasil diperbarui!");
         } catch (error) {
             console.error("Update failed:", error);
-            alert("Gagal memperbarui produk.");
+            toast.error("Gagal memperbarui produk.");
         } finally {
             setIsSaving(false);
         }
@@ -64,7 +65,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
             onClose();
         } catch (error) {
             console.error("Delete failed:", error);
-            alert("Gagal menghapus produk.");
+            toast.error("Gagal menghapus produk.");
             setIsDeleting(false);
         }
     };

@@ -7,6 +7,7 @@ import { ReportsHeader } from './ReportsHeader';
 import { ReportItemCard } from './ReportItemCard';
 import { ReportDetailModal } from './ReportDetailModal';
 import { ReportsPagination } from './ReportsPagination';
+import { toast } from '../../../common/ToastContext';
 
 interface ReportsViewProps {
     onNavigateToOrder?: (orderId: string) => void;
@@ -55,7 +56,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ onNavigateToOrder, cla
       if (selectedReport) {
           // In a real app, you would call an API here (e.g., db.respondReport)
           // For now, we simulate update locally or via alert
-          alert(`Laporan ditandai sebagai ${status === 'resolved' ? 'Selesai' : 'Ditolak'}. Status akan diperbarui di database.`);
+          toast.error(`Laporan ditandai sebagai ${status === 'resolved' ? 'Selesai' : 'Ditolak'}. Status akan diperbarui di database.`);
           setSelectedReport(null);
       }
   };
@@ -64,7 +65,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ onNavigateToOrder, cla
       if (selectedReport && selectedReport.orderId && onNavigateToOrder) {
           onNavigateToOrder(selectedReport.orderId);
       } else {
-          alert("ID Pesanan tidak ditemukan pada laporan ini.");
+          toast.error("ID Pesanan tidak ditemukan pada laporan ini.");
       }
   };
 

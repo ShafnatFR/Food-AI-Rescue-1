@@ -5,6 +5,7 @@ import { Button } from '../../components/Button';
 import { Address, UserData } from '../../../types';
 import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { toast } from '../../common/ToastContext';
 
 // Helper component to handle map events
 const MapEvents = ({ onMoveEnd }: { onMoveEnd: (lat: number, lng: number) => void }) => {
@@ -106,11 +107,11 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
                 setSuggestions(data);
             } else {
                 setSuggestions([]);
-                alert("Alamat tidak ditemukan. Silakan coba kata kunci lain.");
+                toast.error("Alamat tidak ditemukan. Silakan coba kata kunci lain.");
             }
         } catch (error) {
             console.error("Geocoding error:", error);
-            alert("Terjadi kesalahan saat mencari alamat.");
+            toast.info("Terjadi kesalahan saat mencari alamat.");
         } finally {
             setIsLocating(false);
         }
@@ -127,7 +128,7 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
 
     const handleUseMyLocation = (autoFill = false) => {
         if (!navigator.geolocation) {
-            if (!autoFill) alert("Browser Anda tidak mendukung fitur lokasi.");
+            if (!autoFill) toast.info("Browser Anda tidak mendukung fitur lokasi.");
             return;
         }
 
@@ -155,7 +156,7 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
                     errorMsg += " Pastikan izin lokasi diberikan.";
                 }
                 
-                if (!autoFill) alert(errorMsg);
+                if (!autoFill) toast.info(errorMsg);
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
@@ -189,7 +190,7 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
     };
 
     const handleSave = async () => {
-        if (!formData.fullAddress) return alert("Mohon isi alamat lengkap");
+        if (!formData.fullAddress) return toast.warning("Mohon isi alamat lengkap");
         
         setIsSaving(true);
         try {
@@ -204,7 +205,7 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
             resetForm();
         } catch (e) {
             console.error("Save address error:", e);
-            alert("Gagal menyimpan alamat. Silakan coba lagi.");
+            toast.error("Gagal menyimpan alamat. Silakan coba lagi.");
         } finally {
             setIsSaving(false);
         }

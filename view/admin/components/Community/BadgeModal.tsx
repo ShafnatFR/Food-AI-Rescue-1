@@ -4,6 +4,7 @@ import { X, Trash2, Upload } from 'lucide-react';
 import { Button } from '../../../components/Button';
 import { Input } from '../../../components/Input';
 import { Badge } from '../../../../types';
+import { toast } from '../../../common/ToastContext';
 
 interface BadgeModalProps {
     badge: Badge;
@@ -21,7 +22,7 @@ export const BadgeModal: React.FC<BadgeModalProps> = ({ badge, onClose, onSave, 
     }, [badge]);
 
     const handleSave = () => {
-        if (!formData.name) return alert("Nama badge wajib diisi");
+        if (!formData.name) return toast.info("Nama badge wajib diisi");
         onSave(formData);
     };
 
