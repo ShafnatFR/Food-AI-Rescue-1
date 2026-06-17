@@ -21,6 +21,7 @@ interface SidebarProps {
   onSidebarAction?: (action: SidebarNavAction) => void;
   sidebarContext?: React.ReactNode;
   volunteerTab?: string;
+  isSidebarHidden?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -36,6 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSidebarAction,
   sidebarContext,
   volunteerTab,
+  isSidebarHidden = false,
 }) => {
   const config = getSidebarConfig(role);
   if (!config) return null;
@@ -54,9 +56,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="fixed left-0 top-0 z-50 hidden h-screen w-[280px] shrink-0 flex-col overflow-hidden border-r border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900 md:flex">
+    <aside className={`fixed left-0 top-0 z-50 hidden h-screen w-[280px] shrink-0 flex-col overflow-hidden border-r border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900 md:flex transition-transform duration-300 ${isSidebarHidden ? '-translate-x-full' : 'translate-x-0'}`}>
       {/* Header / Logo */}
-      <div className="px-6 pb-4 pt-8">
+      <div className="px-6 pb-4 pt-8 relative">
         <button
           type="button"
           className="group flex w-full items-center gap-3 text-left"
@@ -68,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-600 shadow-lg shadow-orange-600/20 transition-transform group-hover:scale-105">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="truncate text-lg font-black uppercase italic leading-none tracking-tighter text-stone-900 dark:text-white">
               {appNameParts[0]}
             </h1>
@@ -76,6 +78,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {config.portalLabel}
             </p>
           </div>
+        </button>
+        {/* Toggle Button Inside Sidebar */}
+        <button 
+          onClick={() => {
+            const btn = document.querySelector('header button[title="Sembunyikan Sidebar"]') as HTMLButtonElement;
+            if(btn) btn.click();
+          }}
+          className="absolute right-4 top-8 p-2 rounded-xl text-stone-400 hover:bg-stone-100 hover:text-stone-900 transition-colors"
+          title="Sembunyikan Sidebar"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></svg>
         </button>
       </div>
 

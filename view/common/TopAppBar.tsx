@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Search, User } from 'lucide-react';
+import { Bell, Search, User, Menu } from 'lucide-react';
 import { UserData } from '../../types';
 
 interface TopAppBarProps {
@@ -8,6 +8,8 @@ interface TopAppBarProps {
   onOpenNotifications: () => void;
   onOpenProfile: () => void;
   searchPlaceholder?: string;
+  isSidebarHidden?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 export const TopAppBar: React.FC<TopAppBarProps> = ({
@@ -16,18 +18,32 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   onOpenNotifications,
   onOpenProfile,
   searchPlaceholder = 'Cari...',
+  isSidebarHidden = false,
+  onToggleSidebar,
 }) => {
   return (
-    <header className="hidden md:flex fixed top-0 right-0 z-40 h-16 w-[calc(100%-280px)] ml-[280px] items-center justify-between border-b border-stone-200 bg-white/80 px-8 backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/80">
-      <div className="flex max-w-xl flex-1 items-center rounded-full border border-stone-200 bg-white px-4 py-2 transition-all focus-within:border-orange-600 focus-within:ring-1 focus-within:ring-orange-600 dark:border-stone-700 dark:bg-stone-900">
-        <Search className="mr-2 h-4 w-4 shrink-0 text-stone-400" />
-        <input
-          type="text"
-          placeholder={searchPlaceholder}
-          className="w-full border-none bg-transparent p-0 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-0 dark:text-white"
-          readOnly
-          aria-label="Pencarian"
-        />
+    <header className={`hidden md:flex fixed top-0 right-0 z-40 h-16 items-center justify-between border-b border-stone-200 bg-white/80 px-8 backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/80 transition-all duration-300 ${isSidebarHidden ? 'w-full ml-0' : 'w-[calc(100%-280px)] ml-[280px]'}`}>
+      <div className="flex items-center gap-4 flex-1">
+        {onToggleSidebar && (
+          <button 
+            onClick={onToggleSidebar}
+            className="p-2 -ml-2 rounded-xl hover:bg-stone-100 text-stone-500 hover:text-stone-900 dark:hover:bg-stone-800 dark:hover:text-white transition-colors"
+            title={isSidebarHidden ? "Tampilkan Sidebar" : "Sembunyikan Sidebar"}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+        
+        <div className="flex max-w-xl flex-1 items-center rounded-full border border-stone-200 bg-white px-4 py-2 transition-all focus-within:border-orange-600 focus-within:ring-1 focus-within:ring-orange-600 dark:border-stone-700 dark:bg-stone-900">
+          <Search className="mr-2 h-4 w-4 shrink-0 text-stone-400" />
+          <input
+            type="text"
+            placeholder={searchPlaceholder}
+            className="w-full border-none bg-transparent p-0 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-0 dark:text-white"
+            readOnly
+            aria-label="Pencarian"
+          />
+        </div>
       </div>
 
       <div className="ml-6 flex items-center gap-3">

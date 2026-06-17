@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UserData } from '../../types';
 import { Sidebar } from './Sidebar';
 import { TopAppBar } from './TopAppBar';
@@ -37,6 +37,8 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
   volunteerTab,
   bottomNav,
 }) => {
+  const [isSidebarHidden, setIsSidebarHidden] = useState(false);
+
   return (
     <div className="flex min-h-screen flex-col bg-[#FDFBF7] text-stone-900 dark:bg-stone-950 dark:text-white md:flex-row">
       <Sidebar
@@ -52,6 +54,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
         onSidebarAction={onSidebarAction}
         sidebarContext={sidebarContext}
         volunteerTab={volunteerTab}
+        isSidebarHidden={isSidebarHidden}
       />
 
       <div className="flex min-h-screen flex-1 flex-col overflow-x-hidden">
@@ -63,9 +66,11 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
             setProfileInitialTab('main');
             setCurrentView('profile');
           }}
+          isSidebarHidden={isSidebarHidden}
+          onToggleSidebar={() => setIsSidebarHidden(!isSidebarHidden)}
         />
 
-        <main className="flex-1 md:ml-[280px] md:mt-16">
+        <main className={`flex-1 transition-all duration-300 md:mt-16 ${isSidebarHidden ? 'md:ml-0' : 'md:ml-[280px]'}`}>
           <div className="desktop-canvas animate-view-enter mx-auto w-full max-w-desktop">
             {children}
           </div>
@@ -76,3 +81,4 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
     </div>
   );
 };
+

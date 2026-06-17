@@ -134,7 +134,7 @@ async function callGeminiWithRotation(userId, prompt, options = {}) {
         const MAX_OVERLOAD_RETRIES = 3;
         const BASE_DELAY_MS = 4000; // 4 detik, naik 2× tiap retry
 
-        const fallbackModels = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"];
+        const fallbackModels = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"];
         const modelsToTry = options.model ? [options.model] : fallbackModels;
 
         let lastModelError = null;

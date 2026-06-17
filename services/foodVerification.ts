@@ -134,22 +134,25 @@ const calculateDetailedImpact = (
   const count = items.length || 1;
   const weightPerItem = (weightGram / count) / 1000; // to kg
 
+  // Helper to format numbers to 2 decimal places max
+  const formatNum = (num: number) => Number(num.toFixed(2));
+
   // Dynamically adjust CO2 calculations using config multiplier (if available, scale against average factor 2.5)
   const co2Scale = appSettings.co2Multiplier ? parseFloat(appSettings.co2Multiplier) / 2.5 : 1.0;
 
   const co2Breakdown: ImpactBreakdownItem[] = items.map(item => ({
     name: item.name,
-    weightKg: weightPerItem,
-    factor: (EMISSION_FACTORS[item.category] || 1.2) * co2Scale,
-    result: weightPerItem * ((EMISSION_FACTORS[item.category] || 1.2) * co2Scale),
+    weightKg: formatNum(weightPerItem),
+    factor: formatNum((EMISSION_FACTORS[item.category] || 1.2) * co2Scale),
+    result: formatNum(weightPerItem * ((EMISSION_FACTORS[item.category] || 1.2) * co2Scale)),
     category: item.category
   }));
 
   const socialBreakdown: ImpactBreakdownItem[] = items.map(item => ({
     name: item.name,
-    weightKg: weightPerItem,
-    factor: SOCIAL_IMPACT_FACTORS[item.category] || 1.0,
-    result: weightPerItem * (SOCIAL_IMPACT_FACTORS[item.category] || 1.0),
+    weightKg: formatNum(weightPerItem),
+    factor: formatNum(SOCIAL_IMPACT_FACTORS[item.category] || 1.0),
+    result: formatNum(weightPerItem * (SOCIAL_IMPACT_FACTORS[item.category] || 1.0)),
     category: item.category
   }));
 
@@ -158,17 +161,16 @@ const calculateDetailedImpact = (
   const totalCo2 = co2Breakdown.reduce((sum, item) => sum + item.result, 0) * quantityCount;
   const totalPoints = Math.round(socialBreakdown.reduce((sum, item) => sum + item.result, 0) * pointsMultiplier * quantityCount);
 
-
   return {
-    co2Saved: totalCo2,
-    totalPoints: totalPoints,
+    co2Saved: formatNum(totalCo2),
+    totalPoints: totalPoints, // Already rounded to integer via Math.round
     waterSaved: 0,
     landSaved: 0,
-    wasteReduction: weightGram * quantityCount / 1000, // waste reduction in kg
+    wasteReduction: formatNum(weightGram * quantityCount / 1000), // waste reduction in kg
     co2Breakdown,
     socialBreakdown,
     portionCount: quantityCount,
-    co2PerPortion: totalCo2 / quantityCount,
-    pointsPerPortion: totalPoints / quantityCount
+    co2PerPortion: formatNum(totalCo2 / quantityCount),
+    pointsPerPortion: formatNum(totalPoints / quantityCount)
   };
 };
