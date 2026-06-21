@@ -3,6 +3,7 @@ import {
   ArrowLeft, ShieldCheck, Zap, CheckCircle2, AlertOctagon, 
   Clock, List, FileText, ShieldAlert, BookOpen, AlertTriangle, Edit3, Save, X, Plus, Leaf, TrendingUp, Info, ChevronDown, Award, Loader2, RefreshCw
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { Button } from '../../components/Button';
 import { FoodItem, UserData, Address } from '../../../types';
 import { QualityCheckInventoryInput } from './QualityCheckInventoryInput';
@@ -405,8 +406,18 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
                                     {isEditing ? (
                                         <textarea value={editedReasoning} onChange={(e) => setEditedReasoning(e.target.value)} className="w-full bg-black/20 text-white p-3 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-orange-500" rows={4} />
                                     ) : (
-                                        <div className="relative group">
-                                            <p className="text-stone-200 text-sm leading-relaxed font-medium italic">"{editedReasoning || analysisResult.reasoning}"</p>
+                                        <div className="relative group text-stone-200 text-sm leading-relaxed font-medium">
+                                            <ReactMarkdown
+                                                components={{
+                                                    p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
+                                                    ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-4 space-y-1" {...props} />,
+                                                    ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-4 space-y-1" {...props} />,
+                                                    li: ({node, ...props}) => <li className="text-stone-300" {...props} />,
+                                                    strong: ({node, ...props}) => <strong className="font-bold text-white" {...props} />
+                                                }}
+                                            >
+                                                {editedReasoning || analysisResult.reasoning || ''}
+                                            </ReactMarkdown>
                                             {!analysisResult.reasoning?.includes("Gagal menghubungi AI") && (
                                                 <button 
                                                     onClick={handleReAnalyze}

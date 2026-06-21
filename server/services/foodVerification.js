@@ -26,6 +26,11 @@ async function verifyFood(data, userId) {
         TUGAS 2: Audit Keamanan (Microbiology Risk) berdasarkan selisih waktu.
         TUGAS 3: Hitung skor Halal berdasarkan bahan yang disebutkan.
 
+        PANDUAN PENULISAN 'reasoning':
+        - WAJIB gunakan bahasa yang BERSAHABAT, SEDERHANA, dan MUDAH DIMENGERTI oleh ibu-ibu atau orang awam (hindari istilah teknis IT/Sains yang rumit).
+        - WAJIB gunakan format MARKDOWN (gunakan bullet points, paragraf terpisah, dan teks tebal untuk poin penting).
+        - Berikan penjelasan mengapa makanan ini aman/tidak aman, dan bagaimana status kehalalannya dengan nada yang edukatif dan ramah.
+
         OUTPUT JSON:
         {
           "isSafe": boolean,
