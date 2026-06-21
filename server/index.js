@@ -349,7 +349,7 @@ app.post('/api', async (req, res) => {
             case 'GET_LEADERBOARD': 
                 const [leaderboardRows] = await db.query(
                     'SELECT id, name, points, avatar, role FROM users ' + 
-                    'WHERE role = 'VOLUNTEER' ORDER BY points DESC LIMIT 10'
+                    "WHERE role = 'VOLUNTEER' ORDER BY points DESC LIMIT 10"
                 );
                 result = leaderboardRows.map((u, index) => ({
                     ...u,
@@ -445,7 +445,7 @@ async function registerUser(data) {
     
     if (appSettings.prevent_duplicate_account) {
         // Check if email or phone exists
-        const [existing] = await db.query('SELECT id FROM users WHERE email = ? OR (phone = ? AND phone != '' AND phone IS NOT NULL)', [email, phone]);
+        const [existing] = await db.query("SELECT id FROM users WHERE email = ? OR (phone = ? AND phone != '' AND phone IS NOT NULL)", [email, phone]);
         if (existing.length > 0) {
             const err = new Error('Email atau Nomor Telepon ini sudah terdaftar.');
             err.statusCode = 409;
@@ -1314,7 +1314,7 @@ async function verifyOrderQR(data) {
         }
         // Saat pickup_code di-scan, status berubah dari PENDING/IN_PROGRESS -> IN_PROGRESS
         // (menandakan relawan sudah tiba di donatur dan pesanan sedang dalam perjalanan)
-        await db.query('UPDATE claims SET status = 'IN_PROGRESS', courier_status = 'delivering' WHERE id = ?', [rows[0].id]);
+        await db.query("UPDATE claims SET status = 'IN_PROGRESS', courier_status = 'delivering' WHERE id = ?", [rows[0].id]);
         return { 
             success: true, 
             message: 'PICKUP_VERIFIED', 
@@ -1332,7 +1332,7 @@ async function verifyOrderQR(data) {
     // Mark as scanned and complete with audit trail
     const scannerId = data.actorId || rows[0].provider_id; 
     await db.query(
-        'UPDATE claims SET is_scanned = 1, status = 'COMPLETED', scanned_at = CURRENT_TIMESTAMP, scanned_by_id = ? WHERE id = ?',
+        "UPDATE claims SET is_scanned = 1, status = 'COMPLETED', scanned_at = CURRENT_TIMESTAMP, scanned_by_id = ? WHERE id = ?",
         [scannerId, rows[0].id]
     );
     
@@ -1495,7 +1495,7 @@ async function syncUserImpact(userId) {
 
 async function generateLeaderboardSnapshot(period = 'WEEKLY') {
     const [topVolunteers] = await db.query(
-        'SELECT id, points FROM users WHERE role = 'VOLUNTEER' ORDER BY points DESC LIMIT 10'
+        "SELECT id, points FROM users WHERE role = 'VOLUNTEER' ORDER BY points DESC LIMIT 10"
     );
     
     const today = new Date().toISOString().split('T')[0];
