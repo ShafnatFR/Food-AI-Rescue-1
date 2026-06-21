@@ -349,7 +349,7 @@ app.post('/api', async (req, res) => {
             case 'GET_LEADERBOARD': 
                 const [leaderboardRows] = await db.query(
                     'SELECT id, name, points, avatar, role FROM users ' + 
-                    'WHERE role = "VOLUNTEER" ORDER BY points DESC LIMIT 10'
+                    'WHERE role = 'VOLUNTEER' ORDER BY points DESC LIMIT 10'
                 );
                 result = leaderboardRows.map((u, index) => ({
                     ...u,
@@ -445,7 +445,7 @@ async function registerUser(data) {
     
     if (appSettings.prevent_duplicate_account) {
         // Check if email or phone exists
-        const [existing] = await db.query('SELECT id FROM users WHERE email = ? OR (phone = ? AND phone != "" AND phone IS NOT NULL)', [email, phone]);
+        const [existing] = await db.query('SELECT id FROM users WHERE email = ? OR (phone = ? AND phone != '' AND phone IS NOT NULL)', [email, phone]);
         if (existing.length > 0) {
             const err = new Error('Email atau Nomor Telepon ini sudah terdaftar.');
             err.statusCode = 409;
@@ -839,7 +839,7 @@ async function getAddresses(userId) {
 async function addAddress(data) {
     const { userId, label, fullAddress, contactName, contactPhone, isPrimary, lat, lng } = data;
     if (isPrimary) {
-        await db.query('UPDATE addresses SET is_primary = FALSE WHERE user_id = ?', [userId]);
+        await db.query('UPDATE addresses SET is_primary = 0 WHERE user_id = ?', [userId]);
     }
     const [result] = await db.query(
         'INSERT INTO addresses (user_id, label, full_address, contact_name, contact_phone, is_primary, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -852,7 +852,7 @@ async function updateAddress(data) {
     console.log(`[DB] Updating address ID: ${data.id}`);
     const { id, userId, label, fullAddress, contactName, contactPhone, isPrimary, lat, lng } = data;
     if (isPrimary) {
-        await db.query('UPDATE addresses SET is_primary = FALSE WHERE user_id = ?', [userId]);
+        await db.query('UPDATE addresses SET is_primary = 0 WHERE user_id = ?', [userId]);
     }
     await db.query(
         'UPDATE addresses SET label=?, full_address=?, contact_name=?, contact_phone=?, is_primary=?, latitude=?, longitude=? WHERE id=?',
@@ -1314,7 +1314,7 @@ async function verifyOrderQR(data) {
         }
         // Saat pickup_code di-scan, status berubah dari PENDING/IN_PROGRESS -> IN_PROGRESS
         // (menandakan relawan sudah tiba di donatur dan pesanan sedang dalam perjalanan)
-        await db.query('UPDATE claims SET status = "IN_PROGRESS", courier_status = "delivering" WHERE id = ?', [rows[0].id]);
+        await db.query('UPDATE claims SET status = 'IN_PROGRESS', courier_status = 'delivering' WHERE id = ?', [rows[0].id]);
         return { 
             success: true, 
             message: 'PICKUP_VERIFIED', 
@@ -1332,7 +1332,7 @@ async function verifyOrderQR(data) {
     // Mark as scanned and complete with audit trail
     const scannerId = data.actorId || rows[0].provider_id; 
     await db.query(
-        'UPDATE claims SET is_scanned = 1, status = "COMPLETED", scanned_at = CURRENT_TIMESTAMP, scanned_by_id = ? WHERE id = ?',
+        'UPDATE claims SET is_scanned = 1, status = 'COMPLETED', scanned_at = CURRENT_TIMESTAMP, scanned_by_id = ? WHERE id = ?',
         [scannerId, rows[0].id]
     );
     
@@ -1472,7 +1472,7 @@ async function syncUserImpact(userId) {
             FROM claims c
             JOIN food_items f ON c.food_id = f.id
             LEFT JOIN social_impacts si ON f.id = si.food_id
-            WHERE (c.receiver_id = ? OR c.provider_id = ? OR c.volunteer_id = ?)
+            WHERE (c.receiver_id = ? OR f.provider_id = ? OR c.volunteer_id = ?)
             AND c.status = 'COMPLETED'
         `, [userId, userId, userId]);
 
@@ -1495,7 +1495,7 @@ async function syncUserImpact(userId) {
 
 async function generateLeaderboardSnapshot(period = 'WEEKLY') {
     const [topVolunteers] = await db.query(
-        'SELECT id, points FROM users WHERE role = "VOLUNTEER" ORDER BY points DESC LIMIT 10'
+        'SELECT id, points FROM users WHERE role = 'VOLUNTEER' ORDER BY points DESC LIMIT 10'
     );
     
     const today = new Date().toISOString().split('T')[0];
@@ -1967,7 +1967,7 @@ async function getAdminImpact(period = 'harian') {
         labels = ['Mg 1', 'Mg 2', 'Mg 3', 'Mg 4'];
         const [rows] = await db.query(`
             SELECT 
-                FLOOR((DAY(c.created_at) - 1) / 7) as weekIdx,
+                FLOOR((${db.isPostgres ? 'EXTRACT(DAY FROM c.created_at)' : 'DAY(c.created_at)'} - 1) / 7) as weekIdx,
                 COALESCE(SUM(si.co2_per_portion * c.claimed_quantity * 0.45), 0) as wasteKg,
                 COALESCE(SUM(si.co2_per_portion * c.claimed_quantity), 0) as co2Kg,
                 COUNT(c.id) as transactions
@@ -1975,8 +1975,8 @@ async function getAdminImpact(period = 'harian') {
             JOIN food_items f ON c.food_id = f.id
             LEFT JOIN social_impacts si ON f.id = si.food_id
             WHERE c.status = 'COMPLETED'
-            AND MONTH(c.created_at) = MONTH(CURRENT_DATE())
-            AND YEAR(c.created_at) = YEAR(CURRENT_DATE())
+            AND ${db.isPostgres ? 'EXTRACT(MONTH FROM c.created_at)' : 'MONTH(c.created_at)'} = ${db.isPostgres ? 'EXTRACT(MONTH FROM CURRENT_DATE)' : 'MONTH(CURRENT_DATE())'}
+            AND ${db.isPostgres ? 'EXTRACT(YEAR FROM c.created_at)' : 'YEAR(c.created_at)'} = ${db.isPostgres ? 'EXTRACT(YEAR FROM CURRENT_DATE)' : 'YEAR(CURRENT_DATE())'}
             GROUP BY weekIdx
             ORDER BY weekIdx
         `);
@@ -1996,7 +1996,7 @@ async function getAdminImpact(period = 'harian') {
         labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         const [rows] = await db.query(`
             SELECT 
-                MONTH(c.created_at) as monthIdx,
+                ${db.isPostgres ? 'EXTRACT(MONTH FROM c.created_at)' : 'MONTH(c.created_at)'} as monthIdx,
                 COALESCE(SUM(si.co2_per_portion * c.claimed_quantity * 0.45), 0) as wasteKg,
                 COALESCE(SUM(si.co2_per_portion * c.claimed_quantity), 0) as co2Kg,
                 COUNT(c.id) as transactions
@@ -2004,7 +2004,7 @@ async function getAdminImpact(period = 'harian') {
             JOIN food_items f ON c.food_id = f.id
             LEFT JOIN social_impacts si ON f.id = si.food_id
             WHERE c.status = 'COMPLETED'
-            AND YEAR(c.created_at) = YEAR(CURRENT_DATE())
+            AND ${db.isPostgres ? 'EXTRACT(YEAR FROM c.created_at)' : 'YEAR(c.created_at)'} = ${db.isPostgres ? 'EXTRACT(YEAR FROM CURRENT_DATE)' : 'YEAR(CURRENT_DATE())'}
             GROUP BY monthIdx
             ORDER BY monthIdx
         `);
