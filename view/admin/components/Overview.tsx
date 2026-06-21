@@ -1,6 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { Leaf, Users, Globe, AlertTriangle, Package, Truck, UserPlus, FileText, Megaphone, ArrowRight, Activity, TrendingUp, TrendingDown, Clock, Crown, Loader2, RefreshCcw, Timer } from 'lucide-react';
+import { DashboardSkeleton } from '../../components/Skeleton';
 
 interface AdminDashboardData {
     stats: {
@@ -162,14 +162,7 @@ export const Overview: React.FC<OverviewProps> = ({ onNavigate, currentUser }) =
 
     // Loading State
     if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 animate-in fade-in">
-                <div className="w-16 h-16 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 text-orange-600 animate-spin" />
-                </div>
-                <p className="text-sm font-bold text-stone-500 uppercase tracking-widest">Memuat Dashboard...</p>
-            </div>
-        );
+        return <DashboardSkeleton />;
     }
 
     // Error State

@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { Filter, Navigation, ScanLine, Search, ChevronRight, Eye, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { EmptyState } from '../../common/EmptyState';
+import { ListSkeleton } from '../../components/Skeleton';
 import { VolunteerTask } from '../../../types';
 
 interface MissionListProps {
@@ -42,13 +42,8 @@ export const MissionList: React.FC<MissionListProps> = ({ tasks, activeTab, onAc
         )}
 
         {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white dark:bg-stone-900 rounded-2xl border border-dashed border-stone-300 dark:border-stone-800 min-h-[300px]">
-                <div className="relative mb-4">
-                    <div className="w-16 h-16 border-4 border-stone-100 dark:border-stone-800 rounded-full"></div>
-                    <div className="absolute top-0 left-0 w-16 h-16 border-4 border-orange-500 rounded-full animate-spin border-t-transparent"></div>
-                </div>
-                <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-1">{activeTab === 'history' ? 'Memuat Riwayat...' : 'Mencari Misi...'}</h3>
-                <p className="text-sm text-stone-500 dark:text-stone-400">{activeTab === 'history' ? 'Sinkronisasi data pengantaran.' : 'Menghubungkan ke database misi area Anda.'}</p>
+            <div className="pt-8">
+                <ListSkeleton />
             </div>
         ) : filteredTasks.length === 0 ? (
             <EmptyState 

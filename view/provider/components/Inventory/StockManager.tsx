@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Package, LayoutGrid, StretchHorizontal, Plus, Loader2, Lock, AlertCircle, MapPin } from 'lucide-react';
 import { EmptyState } from '../../../common/EmptyState';
-import { FoodItem, UserData } from '../../../../types';
+import { FoodItem, UserData, FoodCategory, PackageType, StorageType, ProviderRole } from '../../../../types';
+import { ListSkeleton } from '../../../components/Skeleton';
 import { QualityCheckInventory } from '../QualityCheckInventory';
 import { ProductDetailModal } from './ProductDetailModal';
 import { StockItemCard } from './StockItemCard';
@@ -305,14 +306,8 @@ export const StockManager: React.FC<StockManagerProps> = ({
             
             {/* CONTENT AREA: Loading OR Data */}
             {showLoading ? (
-                <div className="flex flex-col items-center justify-center py-32 animate-in fade-in">
-                    <div className="relative">
-                        <div className="w-16 h-16 border-4 border-orange-200 dark:border-stone-800 rounded-full"></div>
-                        <div className="absolute top-0 left-0 w-16 h-16 border-4 border-orange-500 rounded-full animate-spin border-t-transparent"></div>
-                    </div>
-                    <p className="text-orange-600 dark:text-orange-400 font-black text-xs uppercase tracking-[0.2em] mt-6 animate-pulse">
-                        Memuat Data Stok...
-                    </p>
+                <div className="pt-8">
+                    <ListSkeleton />
                 </div>
             ) : currentItems.length === 0 ? (
                 <EmptyState 

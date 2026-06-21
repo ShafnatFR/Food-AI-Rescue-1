@@ -26,6 +26,7 @@ import { MaintenancePage } from './view/common/MaintenancePage';
 import { LandingPage } from './view/landing/LandingPage';
 import { ToastContainer } from './view/common/ToastContext';
 import { toast } from './view/common/ToastContext';
+import { DashboardSkeleton } from './view/components/Skeleton';
 
 
 
@@ -645,9 +646,8 @@ const App: React.FC = () => {
 
       if (isGlobalLoading && !foodItems.length && role !== 'recipient' && role !== 'volunteer') {
           return (
-              <div className="flex flex-col items-center justify-center min-h-[80vh]">
-                  <Loader2 className="w-12 h-12 text-orange-500 animate-spin mb-4" />
-                  <p className="text-stone-500 font-bold animate-pulse">Menghubungkan ke Database...</p>
+              <div className="flex justify-center min-h-[80vh] w-full pt-8">
+                  <DashboardSkeleton />
               </div>
           );
       }

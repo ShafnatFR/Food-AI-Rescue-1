@@ -1,9 +1,9 @@
-
 import React, { useEffect, useState, useMemo } from 'react';
 import { TrendingUp, Leaf, Globe, Target, Calendar, Trees, Loader2, AlertTriangle, RefreshCcw, Edit2, Check, X, Info } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { UserData } from '../../../types';
 import { toast } from '../../common/ToastContext';
+import { DashboardSkeleton } from '../../components/Skeleton';
 
 interface AdminTarget {
     metric_key: string;
@@ -116,12 +116,7 @@ export const Impact: React.FC<ImpactProps> = ({ currentUser }) => {
   const strokeOffset = circumference - (circumference * targetPercentage / 100);
 
   if (loading && !chartData) {
-    return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 animate-in fade-in">
-            <Loader2 className="w-12 h-12 text-orange-600 animate-spin" />
-            <p className="text-xs font-black text-stone-500 uppercase tracking-widest">Menganalisis Data ESG...</p>
-        </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (error) {
