@@ -15,8 +15,16 @@
  *   - Cek via GET /api/wa-status
  */
 
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
+let Client, LocalAuth;
+let qrcode;
+try {
+    const wa = require('whatsapp-web.js');
+    Client = wa.Client;
+    LocalAuth = wa.LocalAuth;
+    qrcode = require('qrcode-terminal');
+} catch (err) {
+    console.warn('[WA] whatsapp-web.js atau qrcode-terminal tidak terinstall. WhatsApp dimatikan.');
+}
 const path = require('path');
 
 // ─── State ────────────────────────────────────────────────────────────────────

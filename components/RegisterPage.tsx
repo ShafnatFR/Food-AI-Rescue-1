@@ -12,7 +12,7 @@ interface RegisterPageProps {
 type RegisterStep = 'form' | 'choose_channel' | 'verification' | 'success';
 type OtpChannel = 'email' | 'whatsapp';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 
 interface WaStatus {
   status: 'initializing' | 'qr_pending' | 'ready' | 'disconnected';

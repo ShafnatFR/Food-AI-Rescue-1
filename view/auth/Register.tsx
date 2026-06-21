@@ -6,7 +6,7 @@ import { Input } from '../components/Input';
 import { UserRole } from '../../types';
 import { db } from '../../services/db';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 
 type OtpChannel = 'email' | 'whatsapp';
 
@@ -90,7 +90,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegist
     if (step !== 'otp_channel') return;
 
     const checkWa = () => {
-      fetch('http://localhost:5000/api/wa-status')
+      fetch('/api/wa-status')
         .then(r => r.json())
         .then(setWaStatus)
         .catch(() => setWaStatus(null));

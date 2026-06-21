@@ -12,13 +12,12 @@ export const MaintenancePage: React.FC<MaintenancePageProps> = ({ appSettings })
             {/* Background elements */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-600/20 rounded-full blur-[120px] animate-pulse"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-900/20 rounded-full blur-[120px] animate-pulse duration-[5s]"></div>
-
             <div className="max-w-4xl w-full space-y-12 relative z-10 animate-in fade-in zoom-in duration-1000">
                 {/* Illustration */}
                 <div className="relative mx-auto w-fit group">
                     <div className="absolute inset-0 bg-orange-500/20 rounded-[3rem] blur-2xl group-hover:bg-orange-500/40 transition-all duration-700"></div>
                     <img 
-                        src="http://localhost:5000/assets/maintenance.png" 
+                        src="/assets/maintenance.png" 
                         alt="Maintenance" 
                         className="w-full max-w-lg rounded-[3rem] border border-white/10 shadow-2xl relative z-10 transform group-hover:scale-[1.02] transition-transform duration-700"
                     />
