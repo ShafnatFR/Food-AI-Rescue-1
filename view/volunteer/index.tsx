@@ -99,7 +99,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
       if (!scanningForTaskId) return null;
       return activeClaims.find(c => String(c.id) === String(scanningForTaskId));
   }, [activeClaims, scanningForTaskId]);
-  const isScannerPickup = targetClaimForScanner?.status === 'active';
+  const isScannerPickup = targetClaimForScanner?.status === 'get_provider' || targetClaimForScanner?.status === 'active';
 
   // Trigger splash loading on mount AND on tab change
   useEffect(() => {
@@ -171,7 +171,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
               
               if (isPickingUp) {
                   // Phase 1: Pickup from Provider -> Move to 'delivering'
-                  onUpdateStatus(targetClaim.id, 'active', { courierStatus: 'delivering' });
+                  onUpdateStatus(targetClaim.id, 'in_progress', { courierStatus: 'delivering' });
               } else {
                   // Phase 2: Delivery to Receiver -> Complete the order
                   // Set status to 'completed' and 'isScanned' to true
@@ -446,7 +446,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
       setManualCode('');
       
       const targetClaim = activeClaims.find(c => String(c.id) === String(taskId));
-      if (targetClaim && targetClaim.status === 'active') {
+      if (targetClaim && (targetClaim.status === 'get_provider' || targetClaim.status === 'active')) {
           setScannerMode('show_qr');
       } else {
           setScannerMode('camera');

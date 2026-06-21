@@ -102,9 +102,10 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
         }
     });
 
-    const orders = claimHistory.filter(c => ['WAITING_PROVIDER', 'PENDING_APPROVAL', 'PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED'].includes(c.status?.toUpperCase() || '')).map(mapClaimToOrder);
+    const activeStatuses = ['WAITING_PROVIDER', 'PENDING_APPROVAL', 'PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED', 'GET_PROVIDER', 'PICKUP'];
+    const orders = claimHistory.filter(c => activeStatuses.includes(c.status?.toUpperCase() || '')).map(mapClaimToOrder);
     const activeCount = foodItems.filter(i => i.status?.toUpperCase() === 'AVAILABLE' || i.status?.toUpperCase() === 'ACTIVE').length;
-    const history = claimHistory.filter(c => !['WAITING_PROVIDER', 'PENDING_APPROVAL', 'PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED'].includes(c.status?.toUpperCase() || '')).map(mapClaimToOrder);
+    const history = claimHistory.filter(c => !activeStatuses.includes(c.status?.toUpperCase() || '')).map(mapClaimToOrder);
 
     // Wrapper function to handle view switching with animation
     const handleSwitchView = (view: 'stock' | 'orders' | 'history') => {

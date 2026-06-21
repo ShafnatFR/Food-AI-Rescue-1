@@ -23,15 +23,15 @@ export const OrderItemCard: React.FC<OrderItemCardProps> = ({ order, onClick }) 
                 <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">{order.id}</span>
                 <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ${
                     order.status === 'pending_approval' ? 'bg-orange-100 text-orange-700' :
-                    order.status === 'claimed' ? 'bg-yellow-100 text-yellow-700' : 
+                    order.status === 'get_provider' ? 'bg-yellow-100 text-yellow-700' : 
                     order.status === 'waiting_provider' ? 'bg-purple-100 text-purple-700' :
-                    order.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                    (order.status === 'in_progress' || order.status === 'pickup') ? 'bg-blue-100 text-blue-700' :
                     'bg-green-100 text-green-700'
                 }`}>
                     {order.status === 'pending_approval' ? 'Butuh ACC' : 
-                     order.status === 'claimed' ? 'Menunggu Ambil' : 
-                     order.status === 'waiting_provider' ? 'Relawan Menuju Lokasi' :
-                     order.status === 'in_progress' ? 'Pesanan Diambil' : 'Selesai'}
+                     order.status === 'waiting_provider' ? 'Menunggu Relawan' :
+                     order.status === 'get_provider' ? 'Relawan Menuju Lokasi' : 
+                     (order.status === 'in_progress' || order.status === 'pickup') ? (order.deliveryMethod === 'pickup' ? 'Penerima Menuju Lokasi' : 'Pesanan Diantar') : 'Selesai'}
                 </span>
             </div>
 

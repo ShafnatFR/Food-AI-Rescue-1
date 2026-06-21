@@ -124,8 +124,9 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
         if (isCompleting) return;
         setIsCompleting(true);
         try {
-            await db.updateClaimStatus(order.id, 'active');
-            if (onComplete) onComplete('active');
+            const nextStatus = order.deliveryMethod === 'delivery' ? 'waiting_provider' : 'in_progress';
+            await db.updateClaimStatus(order.id, nextStatus);
+            if (onComplete) onComplete(nextStatus as any);
         } catch (error) {
             console.error("Failed to accept order:", error);
             toast.error("Gagal menyetujui pesanan.");
@@ -244,7 +245,7 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
                 isVerifying={isVerifying}
                 isCompleting={isCompleting}
                 isCompleted={order.status === 'completed' || isScanSuccess}
-                isInProgress={order.status === 'in_progress'}
+                isInProgress={order.deliveryMethod === 'delivery' ? (order.status === 'in_progress' || order.status === 'pickup') : false}
                 isCancelled={order.status === 'cancelled'}
                 isWaitingProvider={order.status?.toLowerCase() === 'pending_approval'}
                 onComplete={handleManualCompletion} 

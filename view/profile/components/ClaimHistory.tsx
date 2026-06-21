@@ -320,7 +320,13 @@ export const ClaimHistory: React.FC<ClaimHistoryProps> = ({
 
     const showLoading = isLoading || isRefreshing;
 
-    const filteredHistory = history.filter(item => filter === 'all' || item.status?.toLowerCase() === filter.toLowerCase());
+    const filteredHistory = history.filter(item => {
+        if (filter === 'all') return true;
+        if (filter === 'active') {
+            return ['pending_approval', 'waiting_provider', 'get_provider', 'pickup', 'in_progress', 'active'].includes(item.status?.toLowerCase() || '');
+        }
+        return item.status?.toLowerCase() === filter.toLowerCase();
+    });
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredHistory.slice(indexOfFirstItem, indexOfLastItem);
@@ -394,7 +400,7 @@ export const ClaimHistory: React.FC<ClaimHistoryProps> = ({
                                             <span className="text-[10px] px-2 py-1 rounded-full font-bold uppercase bg-green-100 text-green-600 flex items-center gap-1">
                                                 <CheckCircle className="w-3 h-3" /> Selesai
                                             </span>
-                                        ) : ['active', 'pending', 'in_progress'].includes(item.status?.toLowerCase() || '') ? (
+                                        ) : ['active', 'pending_approval', 'waiting_provider', 'get_provider', 'pickup', 'in_progress', 'pending'].includes(item.status?.toLowerCase() || '') ? (
                                             <span className="text-[10px] px-2 py-1 rounded-full font-bold uppercase bg-blue-100 text-blue-600 flex items-center gap-1">
                                                 <Clock className="w-3 h-3" /> Aktif
                                             </span>
@@ -433,13 +439,13 @@ export const ClaimHistory: React.FC<ClaimHistoryProps> = ({
                             </div>
                             <div className="flex md:flex-col justify-end items-end gap-2 border-t md:border-t-0 md:border-l pt-3 md:pt-0 md:pl-4">
                                 <Button variant="outline" className="h-9 text-xs px-4" onClick={(e) => { e.stopPropagation(); onSelectItem(item); }}>Detail</Button>
-                                {['active', 'pending', 'in_progress'].includes(item.status?.toLowerCase() || '') && (
+                                {['active', 'pending_approval', 'waiting_provider', 'get_provider', 'pickup', 'in_progress', 'pending'].includes(item.status?.toLowerCase() || '') && (
                                     <Button className="h-9 text-xs px-4" onClick={(e) => { e.stopPropagation(); setShowQr(item.uniqueCode || 'ERR'); }}>
                                         <QrCode className="w-3 h-3 mr-1" /> Kode
                                     </Button>
                                 )}
                                 
-                                {['active', 'pending', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') && (
+                                {['active', 'pending_approval', 'waiting_provider', 'get_provider', 'pickup', 'in_progress', 'pending', 'completed'].includes(item.status?.toLowerCase() || '') && (
                                     <div className="flex gap-2">
                                         {item.status === 'completed' && !item.rating && (
                                             <Button variant="outline" className="h-9 text-xs" onClick={(e) => { e.stopPropagation(); setReviewItem(item); }}><MessageSquare className="w-3 h-3" /> Ulas</Button>

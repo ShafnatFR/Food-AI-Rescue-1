@@ -100,7 +100,7 @@ export const ProviderIndex: React.FC<ProviderIndexProps> = ({
       const completedOrders = myClaims.filter(h => h.status?.toLowerCase() === 'completed');
       
       // Hitung Pesanan Masuk (Aktif)
-      const activeOrdersCount = myClaims.filter(h => ['PENDING_APPROVAL', 'WAITING_PROVIDER', 'PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED'].includes(h.status?.toUpperCase() || '')).length;
+      const activeOrdersCount = myClaims.filter(h => ['PENDING_APPROVAL', 'WAITING_PROVIDER', 'PENDING', 'IN_PROGRESS', 'ACTIVE', 'CLAIMED', 'GET_PROVIDER', 'PICKUP'].includes(h.status?.toUpperCase() || '')).length;
 
       // REAL RATING CALCULATION
       const ratedOrders = completedOrders.filter(h => h.rating && h.rating > 0);

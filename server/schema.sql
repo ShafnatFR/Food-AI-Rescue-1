@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS `claims` (
   `address_id` int(11) NOT NULL,
   `claimed_quantity` int(11) NOT NULL,
   `delivery_method` enum('PICKUP','DELIVERY','BOTH') NOT NULL,
-  `status` enum('PENDING','PENDING_APPROVAL','CLAIMED','WAITING_PROVIDER','IN_PROGRESS','COMPLETED','CANCELLED') DEFAULT 'PENDING_APPROVAL',
+  `status` enum('PENDING_APPROVAL','WAITING_PROVIDER','CLAIMED','GET_PROVIDER','PICKUP','PENDING','IN_PROGRESS','COMPLETED','CANCELLED') DEFAULT 'PENDING_APPROVAL',
   `unique_code` varchar(255) DEFAULT NULL,
   `pickup_code` varchar(255) DEFAULT NULL,
   `is_scanned` tinyint(1) DEFAULT 0,

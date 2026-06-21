@@ -403,18 +403,16 @@ const App: React.FC = () => {
       
       setClaimHistory(prev => prev.map(c => 
           c.id === claimId 
-            ? { ...c, courierName: volunteerName, courierStatus: 'picking_up', volunteerId: currentUser?.id, pickupCode: generatedPickupCode } 
+            ? { ...c, status: 'get_provider' as any, courierName: volunteerName, courierStatus: 'picking_up', volunteerId: currentUser?.id, pickupCode: generatedPickupCode } 
             : c
       ));
 
-      db.updateClaimStatus(claimId, 'active', { 
+      db.updateClaimStatus(claimId, 'get_provider', { 
           courierName: volunteerName, 
           courierStatus: 'picking_up',
           volunteerId: currentUser?.id,
           pickupCode: generatedPickupCode
       });
-
-
   };
 
   const handleCancelMission = async (claimId: string) => {
@@ -433,12 +431,12 @@ const App: React.FC = () => {
       }
   };
 
-  const handleUpdateStatus = async (claimId: string, newStatus: 'completed' | 'active' | 'cancelled', extraData?: any) => {
+  const handleUpdateStatus = async (claimId: string, newStatus: string, extraData?: any) => {
       let generatedCode: string | undefined;
 
       setClaimHistory(prev => prev.map(c => {
           if (c.id === claimId) {
-              const updated = { ...c, status: newStatus, ...extraData };
+              const updated = { ...c, status: newStatus as any, ...extraData };
               if (extraData && extraData.isScanned) {
                   updated.isScanned = true;
               }
@@ -448,7 +446,8 @@ const App: React.FC = () => {
                       updated.courierStatus = 'completed';
                   }
               }
-              if (newStatus === 'active' && (!updated.uniqueCode || updated.uniqueCode === 'PENDING')) {
+              // Generate code for in_progress (pickup) or waiting_provider (delivery)
+              if ((newStatus === 'in_progress' || newStatus === 'waiting_provider' || newStatus === 'active') && (!updated.uniqueCode || updated.uniqueCode === 'PENDING')) {
                   generatedCode = `FAR-${Math.floor(1000 + Math.random() * 9000)}`;
                   updated.uniqueCode = generatedCode;
               }

@@ -34,7 +34,7 @@ export const ClaimHistoryDetail: React.FC<ClaimHistoryDetailProps> = ({ item, on
         window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`, '_blank');
     };
 
-    const isActionable = ['active', 'pending', 'in_progress'].includes(item.status?.toLowerCase() || '');
+    const isActionable = ['active', 'pending', 'in_progress', 'waiting_provider', 'claimed'].includes(item.status?.toLowerCase() || '');
     const isCompleted = item.status === 'completed';
 
     const [previewMediaIndex, setPreviewMediaIndex] = useState<number | null>(null);
@@ -330,12 +330,12 @@ export const ClaimHistoryDetail: React.FC<ClaimHistoryDetailProps> = ({ item, on
                                         </div>
 
                                         <div className="relative">
-                                            <div className={`absolute -left-6 w-5 h-5 rounded-full flex items-center justify-center z-10 transition-colors duration-500 ${['active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' : 'bg-stone-200 dark:bg-stone-700 text-stone-400'}`}>
+                                            <div className={`absolute -left-6 w-5 h-5 rounded-full flex items-center justify-center z-10 transition-colors duration-500 ${['waiting_provider', 'claimed', 'active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' : 'bg-stone-200 dark:bg-stone-700 text-stone-400'}`}>
                                                 <Store className="w-3 h-3" />
                                             </div>
-                                            <div className={`transition-opacity duration-500 ${['active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'opacity-100' : 'opacity-40'}`}>
-                                                <h4 className={`text-sm font-bold ${['active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'text-stone-800 dark:text-stone-200' : 'text-stone-500 dark:text-stone-400'}`}>Pesanan Disetujui Donatur</h4>
-                                                {['active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') && <p className="text-xs text-stone-500 my-0.5">{formatDate(item.date)}, {formatTime(new Date(new Date(item.date).getTime() + 300000).toISOString())}</p>}
+                                            <div className={`transition-opacity duration-500 ${['waiting_provider', 'claimed', 'active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'opacity-100' : 'opacity-40'}`}>
+                                                <h4 className={`text-sm font-bold ${['waiting_provider', 'claimed', 'active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') ? 'text-stone-800 dark:text-stone-200' : 'text-stone-500 dark:text-stone-400'}`}>Pesanan Disetujui Donatur</h4>
+                                                {['waiting_provider', 'claimed', 'active', 'in_progress', 'completed'].includes(item.status?.toLowerCase() || '') && <p className="text-xs text-stone-500 my-0.5">{formatDate(item.date)}, {formatTime(new Date(new Date(item.date).getTime() + 300000).toISOString())}</p>}
                                                 <p className="text-xs text-stone-600 dark:text-stone-500 mt-1 leading-snug">Donatur telah mengonfirmasi dan menyiapkan makanan.</p>
                                             </div>
                                         </div>

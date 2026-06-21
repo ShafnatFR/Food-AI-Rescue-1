@@ -90,7 +90,7 @@ export interface ClaimHistoryItem {
   foodName: string;
   providerName: string;
   date: string;
-  status: 'active' | 'completed' | 'cancelled' | 'pending_approval' | 'waiting_for_pickup';
+  status?: 'pending_approval' | 'waiting_provider' | 'get_provider' | 'pickup' | 'pending' | 'in_progress' | 'completed' | 'cancelled';
   isScanned?: boolean;
   isReported?: boolean;
   reportStatus?: 'new' | 'investigating' | 'resolved' | 'dismissed' | 'rejected' | 'in_progress';
@@ -322,7 +322,7 @@ export interface ProviderOrder {
     description: string;
     quantity: string;
     imageUrl: string;
-    status: 'active' | 'claimed' | 'completed' | 'cancelled' | 'pending_approval' | 'waiting_for_pickup';
+    status?: 'pending_approval' | 'waiting_provider' | 'get_provider' | 'pickup' | 'pending' | 'in_progress' | 'completed' | 'cancelled';
     isScanned?: boolean;
     deliveryMethod: 'pickup' | 'delivery';
     receiver: {

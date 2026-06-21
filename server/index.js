@@ -196,7 +196,7 @@ app.post('/api', async (req, res) => {
                 // Persist to DB
                 for (const [key, val] of Object.entries(newSettings)) {
                     await db.query(
-                        'INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
+                        'INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON CONFLICT (setting_key) DO UPDATE SET setting_value = ?',
                         [key, String(val), String(val)]
                     );
                 }
@@ -1182,7 +1182,7 @@ async function updateClaimStatus(id, status, additionalData) {
     if (dbStatus === 'ACTIVE') dbStatus = 'IN_PROGRESS';
     
     // Ensure it's one of the valid ENUM values
-    const validStatuses = ['PENDING_APPROVAL', 'CLAIMED', 'WAITING_PROVIDER', 'PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+    const validStatuses = ['PENDING_APPROVAL', 'GET_PROVIDER', 'WAITING_PROVIDER', 'PICKUP', 'PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
     if (!validStatuses.includes(dbStatus)) {
         dbStatus = 'PENDING';
     }
@@ -1410,7 +1410,7 @@ async function getQuests(userId) {
         }
         
         // Initial assignment: Pick 3 random quests
-        const [masterQuests] = await db.query('SELECT id FROM quests ORDER BY RAND() LIMIT 3');
+        const [masterQuests] = await db.query('SELECT id FROM quests ORDER BY RANDOM() LIMIT 3');
         for (const q of masterQuests) {
             await db.query('INSERT INTO user_quests (user_id, quest_id, current_value, is_completed) VALUES (?, ?, 0, 0)', [userId, q.id]);
         }
@@ -1469,11 +1469,11 @@ async function syncUserImpact(userId) {
             await db.query(`
                 INSERT INTO user_impact_stats (user_id, total_waste_kg, total_co2_kg, total_water_liter, total_land_sqm)
                 VALUES (?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE 
-                    total_waste_kg = VALUES(total_waste_kg),
-                    total_co2_kg = VALUES(total_co2_kg),
-                    total_water_liter = VALUES(total_water_liter),
-                    total_land_sqm = VALUES(total_land_sqm)
+                ON CONFLICT (user_id) DO UPDATE SET 
+                    total_waste_kg = EXCLUDED.total_waste_kg,
+                    total_co2_kg = EXCLUDED.total_co2_kg,
+                    total_water_liter = EXCLUDED.total_water_liter,
+                    total_land_sqm = EXCLUDED.total_land_sqm
             `, [userId, data.waste_kg || 0, data.co2_kg || 0, data.water_liter || 0, data.land_sqm || 0]);
         }
     } catch (e) {
@@ -2252,7 +2252,7 @@ async function markNotificationRead(userId, notifId) {
     if (String(notifId).startsWith('broadcast-')) {
         const bId = notifId.replace('broadcast-', '');
         await db.query(
-            'INSERT IGNORE INTO broadcast_reads (user_id, broadcast_id) VALUES (?, ?)',
+            'INSERT INTO broadcast_reads (user_id, broadcast_id) VALUES (?, ?) ON CONFLICT DO NOTHING',
             [userId, bId]
         );
     } else {
@@ -2324,23 +2324,39 @@ async function getSocialImpact(userId) {
     return impact;
 }
 
-// ── Bootstrap: setup DB dulu, baru server listen ─────────────────────────────
-(async () => {
-    try {
-        const checkAndReset = require('./resetHandler');
-        await checkAndReset();
+let initialized = false;
+async function initializeApp() {
+    if (initialized) return;
+    const checkAndReset = require('./resetHandler');
+    await checkAndReset();
+    await db.initPool();       // cek koneksi + buat DB/tabel jika belum ada
+    await loadAppSettings();   // load settings dari DB ke memori
+    initialized = true;
+}
 
-        await db.initPool();       // cek koneksi + buat DB/tabel jika belum ada
-        await loadAppSettings();   // load settings dari DB ke memori
-
-        app.listen(port, () => {
-            console.log(`\n[SERVER] ✅ Server berjalan di http://localhost:${port}\n`);
-            // Inisialisasi WhatsApp client setelah server siap
-            // (non-blocking: QR code akan muncul di terminal jika belum ada sesi)
-            initWhatsApp();
-        });
-    } catch (err) {
-        console.error('[SERVER] ❌ Gagal menjalankan server:', err.message);
-        process.exit(1);
-    }
-})();
+if (process.env.VERCEL) {
+    // Vercel Serverless Function Environment
+    app.use(async (req, res, next) => {
+        try {
+            await initializeApp();
+            next();
+        } catch (err) {
+            res.status(500).json({ success: false, message: 'Server initialization failed' });
+        }
+    });
+    module.exports = app;
+} else {
+    // Local Development / Standard Server
+    (async () => {
+        try {
+            await initializeApp();
+            app.listen(port, () => {
+                console.log(`\\n[SERVER] Server berjalan di http://localhost:${port}\\n`);
+                initWhatsApp();
+            });
+        } catch (err) {
+            console.error('[SERVER] Gagal menjalankan server:', err.message);
+            process.exit(1);
+        }
+    })();
+}
