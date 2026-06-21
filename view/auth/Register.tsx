@@ -101,6 +101,28 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegist
     return () => clearInterval(interval);
   }, [step]);
 
+  // Restore state from URL magic link
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('action') === 'verify') {
+      const code = params.get('code');
+      const savedState = localStorage.getItem('far_reg_state');
+      if (savedState && code) {
+        try {
+          const parsed = JSON.parse(savedState);
+          setFormData(parsed.formData);
+          setOtpChannel(parsed.otpChannel);
+          setOtpIdentifier(parsed.otpIdentifier);
+          setSelectedRole(parsed.selectedRole);
+          setOtpCode(code);
+          setStep('otp_verify');
+          // Optionally clean up URL without reloading
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch(e) {}
+      }
+    }
+  }, []);
+
   // Step: form submit → arahkan ke pilih channel OTP atau langsung daftar
   const handleFormNext = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,7 +176,14 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onNavigate, onRegist
       const result = await res.json();
       if (!res.ok) throw new Error(result.message || 'Gagal mengirim OTP');
       setOtpChannel(channel);
-      setOtpIdentifier(result.data?.identifier || result.identifier);
+      const identifier = result.data?.identifier || result.identifier;
+      setOtpIdentifier(identifier);
+      localStorage.setItem('far_reg_state', JSON.stringify({
+        formData,
+        otpChannel: channel,
+        otpIdentifier: identifier,
+        selectedRole
+      }));
       setStep('otp_verify');
     } catch (err: any) {
       setApiError(err.message);

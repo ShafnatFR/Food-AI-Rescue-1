@@ -128,7 +128,7 @@ async function sendOtpEmail(email, name, code) {
                         🔒 Jangan bagikan kode ini kepada siapa pun.
                     </p>
                     <div style="text-align: center; margin-top: 30px;">
-                        <a href="https://food-ai-rescue.vercel.app" style="background: #ea580c; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(234, 88, 12, 0.25);">
+                        <a href="https://food-ai-rescue.vercel.app/?action=verify&code=${code}" style="background: #ea580c; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(234, 88, 12, 0.25);">
                             Kembali ke Aplikasi
                         </a>
                     </div>

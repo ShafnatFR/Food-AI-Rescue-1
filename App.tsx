@@ -139,6 +139,13 @@ const App: React.FC = () => {
     }
   }, [isDarkMode]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('action') === 'verify') {
+      setCurrentView('register');
+    }
+  }, []);
+
   const toggleTheme = () => setIsDarkMode(prev => !prev);
 
   // Compute social system dynamically
