@@ -208,7 +208,7 @@ app.post('/api', async (req, res) => {
                 // Persist to DB
                 for (const [key, val] of Object.entries(newSettings)) {
                     await db.query(
-                        'INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON CONFLICT (setting_key) DO UPDATE SET setting_value = ?',
+                        db.isPostgres ? 'INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON CONFLICT (setting_key) DO UPDATE SET setting_value = ?' : 'INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
                         [key, String(val), String(val)]
                     );
                 }
@@ -1481,7 +1481,7 @@ async function syncUserImpact(userId) {
             await db.query(`
                 INSERT INTO user_impact_stats (user_id, total_waste_kg, total_co2_kg, total_water_liter, total_land_sqm)
                 VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT (user_id) DO UPDATE SET 
+                ${db.isPostgres ? 'ON CONFLICT (user_id) DO UPDATE SET' : 'ON DUPLICATE KEY UPDATE'} 
                     total_waste_kg = EXCLUDED.total_waste_kg,
                     total_co2_kg = EXCLUDED.total_co2_kg,
                     total_water_liter = EXCLUDED.total_water_liter,
@@ -1594,9 +1594,9 @@ async function getImpactChart(userId, period = '7d') {
         labels = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
         // Points dari point_histories 7 hari terakhir
         const [pointRows] = await db.query(`
-            SELECT DAYOFWEEK(created_at) as dw, SUM(amount) as total
+            SELECT ${db.isPostgres ? 'EXTRACT(DOW FROM created_at) + 1' : 'DAYOFWEEK(created_at)'} as dw, SUM(amount) as total
             FROM point_histories
-            WHERE user_id = ? AND created_at >= NOW() - INTERVAL '7 days'
+            WHERE user_id = ? AND created_at >= ${db.isPostgres ? "NOW() - INTERVAL '7 days'" : "DATE_SUB(NOW(), INTERVAL 7 DAY)"}
             GROUP BY dw
         `, [userId]);
         pointsData = new Array(7).fill(0);
@@ -1604,10 +1604,10 @@ async function getImpactChart(userId, period = '7d') {
 
         // Potential points dari social_impacts 7 hari terakhir
         const [impactRows] = await db.query(`
-            SELECT DAYOFWEEK(f.created_at) as dw, SUM(si.total_potential_points) as total
+            SELECT ${db.isPostgres ? 'EXTRACT(DOW FROM f.created_at) + 1' : 'DAYOFWEEK(f.created_at)'} as dw, SUM(si.total_potential_points) as total
             FROM social_impacts si
             JOIN food_items f ON si.food_id = f.id
-            WHERE f.provider_id = ? AND f.created_at >= NOW() - INTERVAL '7 days'
+            WHERE f.provider_id = ? AND f.created_at >= ${db.isPostgres ? "NOW() - INTERVAL '7 days'" : "DATE_SUB(NOW(), INTERVAL 7 DAY)"}
             GROUP BY dw
         `, [userId]);
         impactData = new Array(7).fill(0);
@@ -1616,9 +1616,9 @@ async function getImpactChart(userId, period = '7d') {
     } else if (period === '30d') {
         labels = ['M1', 'M2', 'M3', 'M4'];
         const [pointRows] = await db.query(`
-            SELECT FLOOR(DATEDIFF(NOW(), created_at) / 7) as week_idx, SUM(amount) as total
+            SELECT FLOOR(${db.isPostgres ? "DATE_PART('day', NOW() - created_at)" : 'DATEDIFF(NOW(), created_at)'} / 7) as week_idx, SUM(amount) as total
             FROM point_histories
-            WHERE user_id = ? AND created_at >= NOW() - INTERVAL '30 days'
+            WHERE user_id = ? AND created_at >= ${db.isPostgres ? "NOW() - INTERVAL '30 days'" : "DATE_SUB(NOW(), INTERVAL 30 DAY)"}
             GROUP BY week_idx
         `, [userId]);
         pointsData = new Array(4).fill(0);
@@ -1628,10 +1628,10 @@ async function getImpactChart(userId, period = '7d') {
         });
 
         const [impactRows] = await db.query(`
-            SELECT FLOOR(DATEDIFF(NOW(), f.created_at) / 7) as week_idx, SUM(si.total_potential_points) as total
+            SELECT FLOOR(${db.isPostgres ? "DATE_PART('day', NOW() - f.created_at)" : 'DATEDIFF(NOW(), f.created_at)'} / 7) as week_idx, SUM(si.total_potential_points) as total
             FROM social_impacts si
             JOIN food_items f ON si.food_id = f.id
-            WHERE f.provider_id = ? AND f.created_at >= NOW() - INTERVAL '30 days'
+            WHERE f.provider_id = ? AND f.created_at >= ${db.isPostgres ? "NOW() - INTERVAL '30 days'" : "DATE_SUB(NOW(), INTERVAL 30 DAY)"}
             GROUP BY week_idx
         `, [userId]);
         impactData = new Array(4).fill(0);
@@ -1645,7 +1645,7 @@ async function getImpactChart(userId, period = '7d') {
         const [pointRows] = await db.query(`
             SELECT MONTH(created_at) as m, SUM(amount) as total
             FROM point_histories
-            WHERE user_id = ? AND created_at >= NOW() - INTERVAL '12 months'
+            WHERE user_id = ? AND created_at >= ${db.isPostgres ? "NOW() - INTERVAL '12 months'" : "DATE_SUB(NOW(), INTERVAL 12 MONTH)"}
             GROUP BY m
         `, [userId]);
         pointsData = new Array(12).fill(0);
@@ -1655,7 +1655,7 @@ async function getImpactChart(userId, period = '7d') {
             SELECT MONTH(f.created_at) as m, SUM(si.total_potential_points) as total
             FROM social_impacts si
             JOIN food_items f ON si.food_id = f.id
-            WHERE f.provider_id = ? AND f.created_at >= NOW() - INTERVAL '12 months'
+            WHERE f.provider_id = ? AND f.created_at >= ${db.isPostgres ? "NOW() - INTERVAL '12 months'" : "DATE_SUB(NOW(), INTERVAL 12 MONTH)"}
             GROUP BY m
         `, [userId]);
         impactData = new Array(12).fill(0);
@@ -1786,7 +1786,7 @@ async function getAdminDashboard() {
         JOIN food_items f ON c.food_id = f.id
         LEFT JOIN social_impacts si ON f.id = si.food_id
         WHERE c.status = 'COMPLETED'
-        AND c.created_at >= NOW() - INTERVAL '7 days'
+        AND c.created_at >= ${db.isPostgres ? "NOW() - INTERVAL '7 days'" : "DATE_SUB(NOW(), INTERVAL 7 DAY)"}
         GROUP BY DATE(c.created_at)
         ORDER BY date
     `);
@@ -1800,8 +1800,8 @@ async function getAdminDashboard() {
         JOIN food_items f ON c.food_id = f.id
         LEFT JOIN social_impacts si ON f.id = si.food_id
         WHERE c.status = 'COMPLETED'
-        AND c.created_at >= NOW() - INTERVAL '14 days'
-        AND c.created_at < NOW() - INTERVAL '7 days'
+        AND c.created_at >= ${db.isPostgres ? "NOW() - INTERVAL '14 days'" : "DATE_SUB(NOW(), INTERVAL 14 DAY)"}
+        AND c.created_at < ${db.isPostgres ? "NOW() - INTERVAL '7 days'" : "DATE_SUB(NOW(), INTERVAL 7 DAY)"}
     `);
     const prevPeriod = prevTrendRows[0] || {};
     const currentWasteKg = trendRows.reduce((sum, r) => sum + Number(r.wasteKg), 0);
@@ -1815,7 +1815,7 @@ async function getAdminDashboard() {
         JOIN users u ON f.provider_id = u.id
         WHERE f.status = 'AVAILABLE' 
         AND f.current_quantity > 0
-        AND f.expiry_time <= NOW() + INTERVAL '24 hours'
+        AND f.expiry_time <= ${db.isPostgres ? "NOW() + INTERVAL '24 hours'" : "DATE_ADD(NOW(), INTERVAL 24 HOUR)"}
         AND f.expiry_time > NOW()
         ORDER BY f.expiry_time ASC
         LIMIT 5
@@ -1942,7 +1942,7 @@ async function getAdminImpact(period = 'harian') {
             JOIN food_items f ON c.food_id = f.id
             LEFT JOIN social_impacts si ON f.id = si.food_id
             WHERE c.status = 'COMPLETED'
-            AND c.created_at >= CURRENT_DATE - INTERVAL '6 days'
+            AND c.created_at >= ${db.isPostgres ? "CURRENT_DATE - INTERVAL '6 days'" : "DATE_SUB(CURDATE(), INTERVAL 6 DAY)"}
             GROUP BY DATE(c.created_at)
             ORDER BY date
         `);
@@ -2264,7 +2264,7 @@ async function markNotificationRead(userId, notifId) {
     if (String(notifId).startsWith('broadcast-')) {
         const bId = notifId.replace('broadcast-', '');
         await db.query(
-            'INSERT INTO broadcast_reads (user_id, broadcast_id) VALUES (?, ?) ON CONFLICT DO NOTHING',
+            db.isPostgres ? 'INSERT INTO broadcast_reads (user_id, broadcast_id) VALUES (?, ?) ON CONFLICT DO NOTHING' : 'INSERT IGNORE INTO broadcast_reads (user_id, broadcast_id) VALUES (?, ?)',
             [userId, bId]
         );
     } else {

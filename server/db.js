@@ -1,79 +1,74 @@
-const { Pool } = require('pg');
 const path = require('path');
-// No setupDatabase needed for Supabase as DB is already created
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 let pool = null;
+let isPostgres = false;
+
+// Helpers
+function isPgUrl(url) {
+    return url && url.startsWith('postgresql://');
+}
 
 async function initPool() {
-    // Determine connection config. If DB_URL exists, use it. Otherwise assemble.
-    const connectionString = process.env.DATABASE_URL || `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || ''}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'postgres'}`;
+    const connectionString = process.env.DATABASE_URL || '';
+    isPostgres = isPgUrl(connectionString);
 
-    pool = new Pool({
-        connectionString,
-        max: 10, // max number of clients in the pool
-        idleTimeoutMillis: 30000
-    });
+    if (isPostgres) {
+        const { Pool } = require('pg');
+        const pgUrl = connectionString || `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || ''}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'postgres'}`;
+        
+        pool = new Pool({
+            connectionString: pgUrl,
+            max: 10,
+            idleTimeoutMillis: 30000
+        });
 
-    try {
-        const client = await pool.connect();
-        client.release();
-        console.log('[DB] ✅ Connection pool siap (PostgreSQL).');
-    } catch (err) {
-        console.error('[DB] ❌ Gagal koneksi ke PostgreSQL:', err.message);
-        throw err;
+        try {
+            const client = await pool.connect();
+            client.release();
+            console.log('[DB] ✅ Connection pool siap (PostgreSQL).');
+        } catch (err) {
+            console.error('[DB] ❌ Gagal koneksi ke PostgreSQL:', err.message);
+            throw err;
+        }
+    } else {
+        const mysql = require('mysql2/promise');
+        const mysqlUrl = connectionString || `mysql://${process.env.DB_USER || 'root'}:${process.env.DB_PASSWORD || ''}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 3306}/${process.env.DB_NAME || 'food_rescue_db'}`;
+        
+        try {
+            pool = mysql.createPool(mysqlUrl);
+            const connection = await pool.getConnection();
+            connection.release();
+            console.log('[DB] ✅ Connection pool siap (MySQL).');
+        } catch (err) {
+            console.error('[DB] ❌ Gagal koneksi ke MySQL:', err.message);
+            throw err;
+        }
     }
 }
 
 /**
  * Helper to convert MySQL ? placeholders to PostgreSQL $1, $2 placeholders
  */
-function convertQuery(sql) {
+function convertQueryToPg(sql) {
     let index = 1;
     return sql.replace(/\?/g, () => `$${index++}`);
 }
 
 const db = {
     initPool,
+    
+    get isPostgres() {
+        return isPostgres;
+    },
 
     async query(sql, params = []) {
         if (!pool) throw new Error('[DB] Pool belum siap. initPool() harus dipanggil lebih dulu.');
-        const pgSql = convertQuery(sql);
-        try {
-            const result = await pool.query(pgSql, params);
-            // Simulate MySQL [rows, fields] return format
-            // In MySQL, INSERT returns an object with insertId in the first element
-            // pg returns result.rows
-            if (pgSql.trim().toUpperCase().startsWith('INSERT') || pgSql.trim().toUpperCase().startsWith('UPDATE') || pgSql.trim().toUpperCase().startsWith('DELETE')) {
-                // If it's an INSERT and has a RETURNING clause (which we probably don't have yet), it would be in rows
-                // We mock the MySQL result object structure
-                const mockResult = {
-                    insertId: (result.rows && result.rows.length > 0 && result.rows[0].id) ? result.rows[0].id : null,
-                    affectedRows: result.rowCount
-                };
-                return [mockResult, result.fields];
-            }
-            return [result.rows, result.fields];
-        } catch (err) {
-            console.error('[DB Error]', err.message, '\\nQuery:', pgSql, params);
-            throw err;
-        }
-    },
-
-    async execute(sql, params = []) {
-        // execute in pg is basically the same as query
-        return this.query(sql, params);
-    },
-
-    async getConnection() {
-        if (!pool) throw new Error('[DB] Pool belum siap. initPool() harus dipanggil lebih dulu.');
-        const client = await pool.connect();
         
-        // Wrap the client to simulate MySQL connection interface
-        const wrappedClient = {
-            query: async (sql, params = []) => {
-                const pgSql = convertQuery(sql);
-                const result = await client.query(pgSql, params);
+        if (isPostgres) {
+            const pgSql = convertQueryToPg(sql);
+            try {
+                const result = await pool.query(pgSql, params);
                 if (pgSql.trim().toUpperCase().startsWith('INSERT') || pgSql.trim().toUpperCase().startsWith('UPDATE') || pgSql.trim().toUpperCase().startsWith('DELETE')) {
                     const mockResult = {
                         insertId: (result.rows && result.rows.length > 0 && result.rows[0].id) ? result.rows[0].id : null,
@@ -82,17 +77,61 @@ const db = {
                     return [mockResult, result.fields];
                 }
                 return [result.rows, result.fields];
-            },
-            execute: async function(sql, params = []) {
-                return this.query(sql, params);
-            },
-            beginTransaction: async () => client.query('BEGIN'),
-            commit: async () => client.query('COMMIT'),
-            rollback: async () => client.query('ROLLBACK'),
-            release: () => client.release()
-        };
+            } catch (err) {
+                console.error('[DB PG Error]', err.message, '\nQuery:', pgSql, params);
+                throw err;
+            }
+        } else {
+            try {
+                const [rows, fields] = await pool.query(sql, params);
+                return [rows, fields];
+            } catch (err) {
+                console.error('[DB MySQL Error]', err.message, '\nQuery:', sql, params);
+                throw err;
+            }
+        }
+    },
+
+    async execute(sql, params = []) {
+        if (isPostgres) {
+            return this.query(sql, params);
+        } else {
+            if (!pool) throw new Error('[DB] Pool belum siap. initPool() harus dipanggil lebih dulu.');
+            return pool.execute(sql, params);
+        }
+    },
+
+    async getConnection() {
+        if (!pool) throw new Error('[DB] Pool belum siap. initPool() harus dipanggil lebih dulu.');
         
-        return wrappedClient;
+        if (isPostgres) {
+            const client = await pool.connect();
+            const wrappedClient = {
+                query: async (sql, params = []) => {
+                    const pgSql = convertQueryToPg(sql);
+                    const result = await client.query(pgSql, params);
+                    if (pgSql.trim().toUpperCase().startsWith('INSERT') || pgSql.trim().toUpperCase().startsWith('UPDATE') || pgSql.trim().toUpperCase().startsWith('DELETE')) {
+                        const mockResult = {
+                            insertId: (result.rows && result.rows.length > 0 && result.rows[0].id) ? result.rows[0].id : null,
+                            affectedRows: result.rowCount
+                        };
+                        return [mockResult, result.fields];
+                    }
+                    return [result.rows, result.fields];
+                },
+                execute: async function(sql, params = []) {
+                    return this.query(sql, params);
+                },
+                beginTransaction: async () => client.query('BEGIN'),
+                commit: async () => client.query('COMMIT'),
+                rollback: async () => client.query('ROLLBACK'),
+                release: () => client.release()
+            };
+            return wrappedClient;
+        } else {
+            const connection = await pool.getConnection();
+            return connection;
+        }
     }
 };
 
