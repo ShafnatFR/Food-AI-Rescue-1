@@ -194,12 +194,19 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
         
         setIsSaving(true);
         try {
+            // Clean phone number before saving: remove non-digits, replace leading 0 with 8
+            let cleanedPhone = formData.contactPhone.replace(/\D/g, '');
+            if (cleanedPhone.startsWith('0')) {
+                cleanedPhone = '8' + cleanedPhone.substring(1);
+            }
+            const payload = { ...formData, contactPhone: cleanedPhone };
+
             // Use formData.id as a more reliable indicator for existing addresses
             if (formData.id && (editingId || formData.id) && onUpdateAddress) {
-                await onUpdateAddress(formData);
+                await onUpdateAddress(payload);
             } else {
                 // Ensure we're not sending an ID when adding a new one
-                const { id, ...addrWithoutId } = formData;
+                const { id, ...addrWithoutId } = payload;
                 await onAddAddress(addrWithoutId as Address);
             }
             resetForm();
@@ -333,13 +340,27 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Nomor Telepon <span className="text-red-500">*</span></label>
-                                <input 
-                                    type="text"
-                                    className="w-full bg-white dark:bg-[#1C1917] border-b-2 border-stone-200 dark:border-stone-800 text-stone-900 dark:text-white px-0 py-2 focus:outline-none focus:border-green-600 placeholder-stone-400 dark:placeholder-stone-600 transition-all text-base font-bold" 
-                                    value={formData.contactPhone} 
-                                    onChange={e => setFormData({...formData, contactPhone: e.target.value})}
-                                    placeholder="Cth: 0812..." 
-                                />
+                                <div className="flex">
+                                    <span className="inline-flex items-center px-3 border-b-2 border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-[#1C1917] text-stone-500 text-base font-bold select-none">+62</span>
+                                    <input 
+                                        type="tel"
+                                        className="flex-1 bg-white dark:bg-[#1C1917] border-b-2 border-stone-200 dark:border-stone-800 text-stone-900 dark:text-white px-2 py-2 focus:outline-none focus:border-green-600 placeholder-stone-400 dark:placeholder-stone-600 transition-all text-base font-bold" 
+                                        value={formData.contactPhone} 
+                                        onChange={e => setFormData({...formData, contactPhone: e.target.value})}
+                                        onBlur={e => {
+                                            let val = e.target.value.replace(/\D/g, '');
+                                            if (val.startsWith('62')) val = val.substring(2);
+                                            if (val.startsWith('0')) val = '8' + val.substring(1);
+                                            if (val.length > 3 && val.length <= 7) {
+                                                val = val.slice(0, 3) + '-' + val.slice(3);
+                                            } else if (val.length > 7) {
+                                                val = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7);
+                                            }
+                                            setFormData({...formData, contactPhone: val});
+                                        }}
+                                        placeholder="Cth: 812-3456-7890" 
+                                    />
+                                </div>
                             </div>
                         </div>
                         
