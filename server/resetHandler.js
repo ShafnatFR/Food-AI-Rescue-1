@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const mysql = require('mysql2/promise');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 async function checkAndReset() {
@@ -41,33 +40,10 @@ async function checkAndReset() {
         }
     }
 
-    // 2. Reset Database
+    // 2. Reset Database (Disabled for PostgreSQL/Supabase production safety)
     if (shouldResetDb) {
         console.log('[RESET] Menghapus Database...');
-        const DB_HOST     = process.env.DB_HOST     || 'localhost';
-        const DB_USER     = process.env.DB_USER     || 'root';
-        const DB_PASSWORD = process.env.DB_PASSWORD || '';
-        const DB_NAME     = process.env.DB_NAME     || 'foodairescue';
-        const DB_PORT     = process.env.DB_PORT     || 3306;
-
-        let connection;
-        try {
-            connection = await mysql.createConnection({
-                host: DB_HOST,
-                port: DB_PORT,
-                user: DB_USER,
-                password: DB_PASSWORD
-            });
-
-            await connection.query(`DROP DATABASE IF EXISTS \`${DB_NAME}\``);
-            console.log(`[RESET] ✅ Database '${DB_NAME}' berhasil dihapus.`);
-        } catch (err) {
-            console.error(`[RESET] ❌ Gagal menghapus database: ${err.message}`);
-        } finally {
-            if (connection) {
-                await connection.end();
-            }
-        }
+        console.log('[RESET] ⚠️ Reset DB otomatis dinonaktifkan untuk Supabase/PostgreSQL.');
     }
 
     console.log('=============================================\n');

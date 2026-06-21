@@ -81,6 +81,18 @@ async function loadAppSettings() {
     }
 }
 
+if (process.env.VERCEL) {
+    app.use(async (req, res, next) => {
+        try {
+            await initializeApp();
+            next();
+        } catch (err) {
+            console.error('[VERCEL INIT ERROR]', err);
+            res.status(500).json({ success: false, message: 'Server initialization failed' });
+        }
+    });
+}
+
 
 // --- HELPER: Action Router ---
 // Mirrored from GAS doPost structure to make it easy to refactor frontend db.ts
@@ -2334,24 +2346,13 @@ async function initializeApp() {
     initialized = true;
 }
 
-if (process.env.VERCEL) {
-    // Vercel Serverless Function Environment
-    app.use(async (req, res, next) => {
-        try {
-            await initializeApp();
-            next();
-        } catch (err) {
-            res.status(500).json({ success: false, message: 'Server initialization failed' });
-        }
-    });
-    module.exports = app;
-} else {
+if (!process.env.VERCEL) {
     // Local Development / Standard Server
     (async () => {
         try {
             await initializeApp();
             app.listen(port, () => {
-                console.log(`\\n[SERVER] Server berjalan di http://localhost:${port}\\n`);
+                console.log(`\n[SERVER] Server berjalan di http://localhost:${port}\n`);
                 initWhatsApp();
             });
         } catch (err) {
@@ -2359,4 +2360,7 @@ if (process.env.VERCEL) {
             process.exit(1);
         }
     })();
+} else {
+    // Export for Vercel
+    module.exports = app;
 }
