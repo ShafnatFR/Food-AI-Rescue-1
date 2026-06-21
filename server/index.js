@@ -896,9 +896,9 @@ async function getInventory(providerId) {
         // Lenient on status case and handle empty strings if any
         if (appSettings.disableExpiryLogic) {
             // When expiry logic is disabled, show everything except completed/claimed items
-            query += ' WHERE (f.status != "COMPLETED" AND f.status != "CLAIMED") AND f.current_quantity > 0';
+            query += " WHERE (f.status != 'COMPLETED' AND f.status != 'CLAIMED') AND f.current_quantity > 0";
         } else {
-            query += ' WHERE (f.status = "AVAILABLE" OR f.status IS NULL OR f.status = "") AND f.current_quantity > 0';
+            query += " WHERE (f.status = 'AVAILABLE' OR f.status IS NULL OR f.status = '') AND f.current_quantity > 0";
         }
     }
 
@@ -2238,7 +2238,7 @@ async function getUserNotifications(userId, role) {
         UNION ALL
         (SELECT 
             b.id, b.type, b.title, b.content as message, b.created_at, 
-            IF(br.user_id IS NOT NULL, 1, 0) as is_read, 'broadcast' as origin
+            CASE WHEN br.user_id IS NOT NULL THEN 1 ELSE 0 END as is_read, 'broadcast' as origin
          FROM broadcasts b
          LEFT JOIN broadcast_reads br ON b.id = br.broadcast_id AND br.user_id = ?
          WHERE b.target = 'all' OR b.target = ?)
