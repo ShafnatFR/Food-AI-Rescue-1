@@ -48,7 +48,12 @@ async function sendVerificationEmail(email, name, verificationCode) {
                         <p style="color: #666; font-size: 14px;">
                             Kode ini berlaku selama <strong>15 menit</strong>. Jangan bagikan kode ini kepada siapa pun.
                         </p>
-                        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                        <div style="text-align: center; margin-top: 30px;">
+                            <a href="https://food-ai-rescue.vercel.app" style="background: #ea580c; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(234, 88, 12, 0.25);">
+                                Kembali ke Aplikasi
+                            </a>
+                        </div>
+                        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0 20px 0;">
                         <p style="color: #999; font-size: 12px; margin: 0;">
                             Jika Anda tidak melakukan pendaftaran ini, abaikan email ini.
                         </p>
