@@ -389,7 +389,7 @@ app.post('/api', async (req, res) => {
         res.json({ status: 'success', data: result });
     } catch (error) {
         console.error(`[SERVER ERROR] ${action}:`, error);
-        require('fs').appendFileSync('error_log.txt', new Date().toISOString() + ' ' + action + ' ' + (error.stack || error.message) + '\n');
+        // require('fs').appendFileSync('error_log.txt', new Date().toISOString() + ' ' + action + ' ' + (error.stack || error.message) + '\n');
         
         let statusCode = error.statusCode || 500;
         
