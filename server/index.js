@@ -1596,7 +1596,7 @@ async function getImpactChart(userId, period = '7d') {
         const [pointRows] = await db.query(`
             SELECT DAYOFWEEK(created_at) as dw, SUM(amount) as total
             FROM point_histories
-            WHERE user_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            WHERE user_id = ? AND created_at >= NOW() - INTERVAL '7 days'
             GROUP BY dw
         `, [userId]);
         pointsData = new Array(7).fill(0);
@@ -1607,7 +1607,7 @@ async function getImpactChart(userId, period = '7d') {
             SELECT DAYOFWEEK(f.created_at) as dw, SUM(si.total_potential_points) as total
             FROM social_impacts si
             JOIN food_items f ON si.food_id = f.id
-            WHERE f.provider_id = ? AND f.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            WHERE f.provider_id = ? AND f.created_at >= NOW() - INTERVAL '7 days'
             GROUP BY dw
         `, [userId]);
         impactData = new Array(7).fill(0);
@@ -1618,7 +1618,7 @@ async function getImpactChart(userId, period = '7d') {
         const [pointRows] = await db.query(`
             SELECT FLOOR(DATEDIFF(NOW(), created_at) / 7) as week_idx, SUM(amount) as total
             FROM point_histories
-            WHERE user_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            WHERE user_id = ? AND created_at >= NOW() - INTERVAL '30 days'
             GROUP BY week_idx
         `, [userId]);
         pointsData = new Array(4).fill(0);
@@ -1631,7 +1631,7 @@ async function getImpactChart(userId, period = '7d') {
             SELECT FLOOR(DATEDIFF(NOW(), f.created_at) / 7) as week_idx, SUM(si.total_potential_points) as total
             FROM social_impacts si
             JOIN food_items f ON si.food_id = f.id
-            WHERE f.provider_id = ? AND f.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            WHERE f.provider_id = ? AND f.created_at >= NOW() - INTERVAL '30 days'
             GROUP BY week_idx
         `, [userId]);
         impactData = new Array(4).fill(0);
@@ -1645,7 +1645,7 @@ async function getImpactChart(userId, period = '7d') {
         const [pointRows] = await db.query(`
             SELECT MONTH(created_at) as m, SUM(amount) as total
             FROM point_histories
-            WHERE user_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+            WHERE user_id = ? AND created_at >= NOW() - INTERVAL '12 months'
             GROUP BY m
         `, [userId]);
         pointsData = new Array(12).fill(0);
@@ -1655,7 +1655,7 @@ async function getImpactChart(userId, period = '7d') {
             SELECT MONTH(f.created_at) as m, SUM(si.total_potential_points) as total
             FROM social_impacts si
             JOIN food_items f ON si.food_id = f.id
-            WHERE f.provider_id = ? AND f.created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+            WHERE f.provider_id = ? AND f.created_at >= NOW() - INTERVAL '12 months'
             GROUP BY m
         `, [userId]);
         impactData = new Array(12).fill(0);
@@ -1786,7 +1786,7 @@ async function getAdminDashboard() {
         JOIN food_items f ON c.food_id = f.id
         LEFT JOIN social_impacts si ON f.id = si.food_id
         WHERE c.status = 'COMPLETED'
-        AND c.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        AND c.created_at >= NOW() - INTERVAL '7 days'
         GROUP BY DATE(c.created_at)
         ORDER BY date
     `);
@@ -1800,8 +1800,8 @@ async function getAdminDashboard() {
         JOIN food_items f ON c.food_id = f.id
         LEFT JOIN social_impacts si ON f.id = si.food_id
         WHERE c.status = 'COMPLETED'
-        AND c.created_at >= DATE_SUB(NOW(), INTERVAL 14 DAY)
-        AND c.created_at < DATE_SUB(NOW(), INTERVAL 7 DAY)
+        AND c.created_at >= NOW() - INTERVAL '14 days'
+        AND c.created_at < NOW() - INTERVAL '7 days'
     `);
     const prevPeriod = prevTrendRows[0] || {};
     const currentWasteKg = trendRows.reduce((sum, r) => sum + Number(r.wasteKg), 0);
@@ -1815,7 +1815,7 @@ async function getAdminDashboard() {
         JOIN users u ON f.provider_id = u.id
         WHERE f.status = 'AVAILABLE' 
         AND f.current_quantity > 0
-        AND f.expiry_time <= DATE_ADD(NOW(), INTERVAL 24 HOUR)
+        AND f.expiry_time <= NOW() + INTERVAL '24 hours'
         AND f.expiry_time > NOW()
         ORDER BY f.expiry_time ASC
         LIMIT 5
@@ -1942,7 +1942,7 @@ async function getAdminImpact(period = 'harian') {
             JOIN food_items f ON c.food_id = f.id
             LEFT JOIN social_impacts si ON f.id = si.food_id
             WHERE c.status = 'COMPLETED'
-            AND c.created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+            AND c.created_at >= CURRENT_DATE - INTERVAL '6 days'
             GROUP BY DATE(c.created_at)
             ORDER BY date
         `);
@@ -2114,7 +2114,7 @@ async function cancelMission(claimId, volunteerId) {
 }
 
 async function getAdmins() {
-    const [rows] = await db.query('SELECT id, name, email, role, status, created_at, permissions FROM users WHERE role IN ("ADMIN", "SUPER_ADMIN")');
+    const [rows] = await db.query("SELECT id, name, email, role, status, created_at, permissions FROM users WHERE role IN ('ADMIN', 'SUPER_ADMIN')");
     return rows.map(u => {
         const reverseRole = Object.keys(ROLE_MAP).find(key => ROLE_MAP[key] === u.role);
         return {
