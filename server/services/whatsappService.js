@@ -32,6 +32,14 @@ let lastQr = null;           // QR string terakhir (untuk endpoint status)
  * Sesi disimpan di .wwebjs_auth/ agar tidak perlu scan ulang.
  */
 function initWhatsApp() {
+    // [MODIFIED] Sementara dimatikan untuk Vercel / Payment issue
+    const ENABLE_WA = process.env.ENABLE_WHATSAPP === 'true'; // Default: false
+    if (!ENABLE_WA) {
+        console.log('\n[WA] 🟡 Fitur WhatsApp SEMENTARA DINONAKTIFKAN (Bisa dihidupkan via ENABLE_WHATSAPP=true di .env)');
+        waStatus = 'disconnected';
+        return;
+    }
+
     if (waClient) return; // Sudah diinisialisasi
 
     console.log('\n[WA] 🟡 Menginisialisasi WhatsApp client...');
@@ -142,7 +150,9 @@ function toWhatsAppId(phone) {
  */
 async function sendWhatsAppMessage(phone, message) {
     if (!waClient || waStatus !== 'ready') {
-        const statusMsg = waStatus === 'qr_pending'
+        const statusMsg = (!process.env.ENABLE_WHATSAPP || process.env.ENABLE_WHATSAPP !== 'true')
+            ? 'Fitur WhatsApp sedang dinonaktifkan sementara. Silakan gunakan metode verifikasi lain (Email).'
+            : waStatus === 'qr_pending'
             ? 'WhatsApp belum terhubung. Silakan scan QR code di terminal server terlebih dahulu.'
             : waStatus === 'initializing'
                 ? 'WhatsApp sedang diinisialisasi. Tunggu beberapa saat lalu coba lagi.'
