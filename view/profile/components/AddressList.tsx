@@ -201,8 +201,11 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
             }
             const payload = { ...formData, contactPhone: cleanedPhone };
 
-            // Use formData.id as a more reliable indicator for existing addresses
-            if (formData.id && (editingId || formData.id) && onUpdateAddress) {
+            // Strictly rely on editingId to determine if it's an update
+            if (editingId && onUpdateAddress) {
+                await onUpdateAddress({ ...payload, id: editingId });
+            } else if (formData.id && onUpdateAddress) {
+                // Fallback if editingId is somehow null but formData has an ID
                 await onUpdateAddress(payload);
             } else {
                 // Ensure we're not sending an ID when adding a new one

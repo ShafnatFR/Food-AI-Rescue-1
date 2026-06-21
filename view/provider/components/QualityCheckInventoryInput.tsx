@@ -504,7 +504,7 @@ export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProp
                                     <option value="">Belum ada alamat tersimpan</option>
                                 ) : (
                                     addresses.map(addr => (
-                                        <option key={addr.id} value={addr.id}>{addr.label} - {addr.fullAddress.substring(0, 30)}...</option>
+                                        <option key={addr.id} value={addr.id}>{addr.label} - {addr.fullAddress ? addr.fullAddress.substring(0, 30) : ''}...</option>
                                     ))
                                 )}
                             </select>

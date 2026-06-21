@@ -1676,7 +1676,7 @@ async function getFoodRequests(receiverId) {
         query += ' WHERE fr.receiver_id = ?';
         params.push(receiverId);
     } else {
-        query += ' WHERE fr.status = "ACTIVE"';
+        query += " WHERE fr.status = 'ACTIVE'";
     }
     query += ' ORDER BY fr.posted_date DESC';
     
