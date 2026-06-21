@@ -164,13 +164,12 @@ const App: React.FC = () => {
 
             console.log("Fetching Data with Filters:", { providerIdFilter, claimsFilters });
 
-            const [inventoryData, claimsData, settingsData, faqData, latestUser] = await Promise.all([
-                db.getInventory(providerIdFilter),
-                db.getClaims(claimsFilters),
-                db.getSettings(),
-                db.getFAQs(),
-                currentUser?.id ? db.getUser(currentUser.id) : Promise.resolve(null)
-            ]);
+            // Execute requests sequentially to prevent Vercel Serverless cold-start connection pool exhaustion
+            const settingsData = await db.getSettings();
+            const latestUser = currentUser?.id ? await db.getUser(currentUser.id) : null;
+            const faqData = await db.getFAQs();
+            const inventoryData = await db.getInventory(providerIdFilter);
+            const claimsData = await db.getClaims(claimsFilters);
 
             if (settingsData) {
                 const normalizedSettings = {
