@@ -19,8 +19,9 @@ async function initPool() {
         
         pool = new Pool({
             connectionString: pgUrl,
-            max: 10,
-            idleTimeoutMillis: 30000
+            max: process.env.VERCEL ? 1 : 5,
+            idleTimeoutMillis: 10000,
+            connectionTimeoutMillis: 10000
         });
 
         try {
