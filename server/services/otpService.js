@@ -102,7 +102,7 @@ async function sendOtpEmail(email, name, code) {
         subject: 'Kode OTP Registrasi - Food AI Rescue',
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                <div style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
                             padding: 24px; text-align: center; color: white; border-radius: 8px 8px 0 0;">
                     <h1 style="margin: 0; font-size: 24px;">🌿 Food AI Rescue</h1>
                     <p style="margin: 6px 0 0; font-size: 13px; opacity: 0.85;">Selamatkan Makanan, Selamatkan Bumi</p>
@@ -113,13 +113,13 @@ async function sendOtpEmail(email, name, code) {
                         Terima kasih telah mendaftar di <strong>Food AI Rescue</strong>.
                         Gunakan kode OTP berikut untuk menyelesaikan pendaftaran Anda:
                     </p>
-                    <div style="background: white; border: 2px solid #667eea; padding: 24px;
+                    <div style="background: white; border: 2px dashed #ea580c; padding: 24px;
                                 text-align: center; margin: 24px 0; border-radius: 10px;">
                         <p style="margin: 0; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px;">
                             Kode OTP Anda
                         </p>
                         <p style="margin: 12px 0 0; font-size: 38px; font-weight: bold;
-                                  color: #667eea; letter-spacing: 8px;">
+                                  color: #ea580c; letter-spacing: 8px;">
                             ${code}
                         </p>
                     </div>
