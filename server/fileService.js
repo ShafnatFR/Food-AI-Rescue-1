@@ -47,10 +47,13 @@ async function uploadToFileSystem(base64Data, filename, targetFolder = 'inventor
 
         // 1. SUPABASE UPLOAD (Utama untuk Vercel)
         if (supabase) {
-            // Karena kita memakai 1 bucket 'Inventory' sesuai pesanan pengguna,
-            // Jika targetFolder adalah fotoProfil, kita taruh di subfolder fotoProfil di dalam bucket Inventory
-            const bucketName = 'Inventory';
-            const filePath = targetFolder === 'inventory' ? filename : `${targetFolder}/${filename}`;
+            // Pemetaan nama bucket sesuai dengan yang dibuat pengguna di Supabase
+            let bucketName = targetFolder;
+            if (targetFolder === 'inventory') {
+                bucketName = 'Inventory'; // Menyesuaikan dengan huruf kapital di Supabase
+            }
+            
+            const filePath = filename; // File langsung ditaruh di root bucket
 
             console.log(`[FILE] Mengunggah ke Supabase Bucket: ${bucketName}, Path: ${filePath}`);
 
