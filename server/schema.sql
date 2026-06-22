@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS `addresses` (
 CREATE TABLE IF NOT EXISTS `food_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `provider_id` int(11) NOT NULL,
+  `address_id` int(11) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `initial_quantity` int(11) NOT NULL,
@@ -89,7 +90,9 @@ CREATE TABLE IF NOT EXISTS `food_items` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `provider_id` (`provider_id`),
-  CONSTRAINT `food_items_ibfk_1` FOREIGN KEY (`provider_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+  KEY `address_id` (`address_id`),
+  CONSTRAINT `food_items_ibfk_1` FOREIGN KEY (`provider_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `food_items_ibfk_2` FOREIGN KEY (`address_id`) REFERENCES `addresses` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ------------------------------------------------------------

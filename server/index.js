@@ -887,7 +887,7 @@ async function getInventory(providerId) {
                si.water_saved_liter as waterSaved, si.land_saved_sqm as landSaved, si.impact_details as impactDetails
         FROM food_items f
         LEFT JOIN users u ON f.provider_id = u.id
-        LEFT JOIN addresses a ON f.provider_id = a.user_id AND a.is_primary = 1
+        LEFT JOIN addresses a ON f.address_id = a.id
         LEFT JOIN ai_verifications ai ON f.id = ai.food_id
         LEFT JOIN social_impacts si ON f.id = si.food_id
     `;
@@ -943,7 +943,7 @@ async function getInventory(providerId) {
 }
 
 async function addFoodItem(data) {
-    const { providerId, name, description, initialQuantity, currentQuantity, expiryTime, imageUrl, deliveryMethod, aiVerification, socialImpact } = data;
+    const { providerId, addressId, name, description, initialQuantity, currentQuantity, expiryTime, imageUrl, deliveryMethod, aiVerification, socialImpact } = data;
     
     // Parse distribution times from frontend datetime-local format
     let distStart = '08:00:00';
@@ -972,8 +972,8 @@ async function addFoodItem(data) {
 
         // 1. Insert food_items
         const [foodResult] = await connection.query(
-            'INSERT INTO food_items (provider_id, name, description, initial_quantity, current_quantity, min_quantity, max_quantity, expiry_time, distribution_start_time, distribution_end_time, delivery_method, category, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [providerId, name, description, initialQuantity, currentQuantity, data.minQuantity || 1, data.maxQuantity || initialQuantity, expiryDateTime, distStart, distEnd, deliveryMethod.toUpperCase(), (data.category || 'OTHER').toUpperCase(), imageUrl]
+            'INSERT INTO food_items (provider_id, address_id, name, description, initial_quantity, current_quantity, min_quantity, max_quantity, expiry_time, distribution_start_time, distribution_end_time, delivery_method, category, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [providerId, addressId || null, name, description, initialQuantity, currentQuantity, data.minQuantity || 1, data.maxQuantity || initialQuantity, expiryDateTime, distStart, distEnd, deliveryMethod.toUpperCase(), (data.category || 'OTHER').toUpperCase(), imageUrl]
         );
         const foodId = foodResult.insertId;
 

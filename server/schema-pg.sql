@@ -66,9 +66,10 @@ CREATE TABLE IF NOT EXISTS addresses (
 -- Tabel: food_items
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS food_items (
-  id SERIAL,
+  id SERIAL PRIMARY KEY,
   provider_id INTEGER NOT NULL,
-  name varchar(255) NOT NULL,
+  address_id INTEGER DEFAULT NULL,
+  name VARCHAR(255) NOT NULL,
   description text DEFAULT NULL,
   initial_quantity INTEGER NOT NULL,
   current_quantity INTEGER NOT NULL,
@@ -82,9 +83,9 @@ CREATE TABLE IF NOT EXISTS food_items (
   status VARCHAR(255) DEFAULT 'AVAILABLE',
   image_url varchar(255) DEFAULT NULL,
   created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (id),
-  CONSTRAINT food_items_ibfk_1 FOREIGN KEY (provider_id) REFERENCES users (id) ON DELETE CASCADE
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT food_items_ibfk_1 FOREIGN KEY (provider_id) REFERENCES users (id) ON DELETE CASCADE,
+  CONSTRAINT food_items_ibfk_2 FOREIGN KEY (address_id) REFERENCES addresses (id) ON DELETE SET NULL
 );
 
 -- ------------------------------------------------------------
