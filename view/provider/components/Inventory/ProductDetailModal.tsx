@@ -21,11 +21,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
     const [isDeleting, setIsDeleting] = useState(false);
     const [formData, setFormData] = useState<FoodItem>({
         ...p,
-        initialQuantity: p.initialQuantity ?? (p as any).initial_quantity ?? 0,
-        currentQuantity: p.currentQuantity ?? (p as any).current_quantity ?? 0,
-        createdAt: p.createdAt ?? (p as any).created_at ?? new Date().toISOString(),
-        expiryTime: p.expiryTime ?? (p as any).expiry_time ?? '',
-        distributionEnd: p.distributionEnd ?? (p as any).distribution_end_time ?? (p.expiryTime ?? (p as any).expiry_time ?? '')
+        initialQuantity: p.initialQuantity ?? (p as any).initial_quantity ?? (p as any).initialquantity ?? 0,
+        currentQuantity: p.currentQuantity ?? (p as any).current_quantity ?? (p as any).currentquantity ?? 0,
+        createdAt: p.createdAt ?? (p as any).created_at ?? (p as any).createdat ?? new Date().toISOString(),
+        expiryTime: p.expiryTime ?? (p as any).expiry_time ?? (p as any).expirytime ?? '',
+        distributionEnd: p.distributionEnd ?? (p as any).distribution_end_time ?? (p as any).distributionend ?? (p.expiryTime ?? (p as any).expiry_time ?? (p as any).expirytime ?? '')
     });
     const [newIngredient, setNewIngredient] = useState('');
     
@@ -33,12 +33,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
     const [isImpactExpanded, setIsImpactExpanded] = useState(false);
     const [activeCalcTab, setActiveCalcTab] = useState<'co2' | 'social'>('co2');
 
-    // Robust fallbacks for older cached data
-    const initialQty = p.initialQuantity ?? (p as any).initial_quantity ?? 0;
-    const currentQty = p.currentQuantity ?? (p as any).current_quantity ?? 0;
-    const createdAt = p.createdAt ?? (p as any).created_at ?? new Date().toISOString();
-    const expiryTime = p.expiryTime ?? (p as any).expiry_time ?? '';
-    const distributionEnd = p.distributionEnd ?? (p as any).distribution_end_time ?? expiryTime;
+    // Robust fallbacks for older cached data and postgres lowercased keys
+    const initialQty = p.initialQuantity ?? (p as any).initial_quantity ?? (p as any).initialquantity ?? 0;
+    const currentQty = p.currentQuantity ?? (p as any).current_quantity ?? (p as any).currentquantity ?? 0;
+    const createdAt = p.createdAt ?? (p as any).created_at ?? (p as any).createdat ?? new Date().toISOString();
+    const expiryTime = p.expiryTime ?? (p as any).expiry_time ?? (p as any).expirytime ?? '';
+    const distributionEnd = p.distributionEnd ?? (p as any).distribution_end_time ?? (p as any).distributionend ?? expiryTime;
 
     const progressPercent = initialQty > 0 ? (currentQty / initialQty) * 100 : 0;
     const expired = !disableExpiryLogic && (p.status === 'expired' || isFoodExpired(distributionEnd, expiryTime));

@@ -60,6 +60,26 @@ function convertQueryToPg(sql) {
     return pgSql;
 }
 
+function restoreCamelCaseAliases(rows, sql) {
+    if (!rows || !Array.isArray(rows)) return rows;
+    // Extract all aliases from "AS aliasName"
+    const aliases = [...sql.matchAll(/as\s+([a-zA-Z0-9_]+)/gi)].map(m => m[1]);
+    if (aliases.length === 0) return rows;
+    
+    return rows.map(row => {
+        const newRow = { ...row };
+        aliases.forEach(alias => {
+            const lowerAlias = alias.toLowerCase();
+            // If postgres returned the lowercased version but not the exact camelCase
+            if (row[lowerAlias] !== undefined && row[alias] === undefined) {
+                newRow[alias] = row[lowerAlias];
+                delete newRow[lowerAlias]; // Optional: clean up the lowercase one
+            }
+        });
+        return newRow;
+    });
+}
+
 const db = {
     initPool,
     
@@ -122,7 +142,8 @@ const db = {
                         };
                         return [mockResult, result.fields];
                     }
-                    return [result.rows, result.fields];
+                    const restoredRows = restoreCamelCaseAliases(result.rows, sql);
+                    return [restoredRows, result.fields];
                 },
                 execute: async function(sql, params = []) {
                     return this.query(sql, params);
