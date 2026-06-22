@@ -101,7 +101,8 @@ const db = {
                     };
                     return [mockResult, result.fields];
                 }
-                return [result.rows, result.fields];
+                const restoredRows = restoreCamelCaseAliases(result.rows, sql);
+                return [restoredRows, result.fields];
             } catch (err) {
                 console.error('[DB PG Error]', err.message, '\nQuery:', pgSql, params);
                 throw err;
