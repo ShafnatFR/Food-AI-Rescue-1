@@ -509,9 +509,9 @@ export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProp
                                 )}
                             </select>
 
-                            <div className="relative h-40 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-800 z-0">
+                            <div className="relative h-40 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-800 z-0 group">
                                 <div className="w-full h-full dark:invert dark:hue-rotate-180">
-                                    <MapContainer center={mapCenter} zoom={16} zoomControl={false} className="w-full h-full z-0">
+                                    <MapContainer center={mapCenter} zoom={16} zoomControl={false} className="w-full h-full z-0 pointer-events-none">
                                         <TileLayer 
                                             url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
                                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
@@ -519,13 +519,22 @@ export const QualityCheckInventoryInput: React.FC<QualityCheckInventoryInputProp
                                         <MapUpdater center={mapCenter} />
                                     </MapContainer>
                                 </div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4 pointer-events-none z-10">
-                                    <div className="text-white drop-shadow-md">
+                                
+                                {/* Fixed center marker */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none drop-shadow-lg">
+                                    <div className="relative">
+                                        <MapPin className="w-8 h-8 text-orange-600 fill-orange-100 -mt-4" />
+                                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-black/30 rounded-full blur-[1px]"></div>
+                                    </div>
+                                </div>
+
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-4 pointer-events-none z-10">
+                                    <div className="text-white drop-shadow-md w-full">
                                         <div className="text-sm font-bold flex items-center gap-1.5">
-                                            <MapPin className="w-4 h-4 text-orange-500" />
-                                            {selectedAddress?.label || 'Lokasi Belum Diatur'}
+                                            <MapPin className="w-4 h-4 text-orange-400" />
+                                            <span className="truncate">{selectedAddress?.label || 'Lokasi Belum Diatur'}</span>
                                         </div>
-                                        <div className="text-[10px] font-medium opacity-90 pl-5.5 leading-tight mt-1 line-clamp-1">
+                                        <div className="text-[10px] font-medium opacity-90 pl-5.5 leading-tight mt-1 line-clamp-2">
                                             {selectedAddress?.fullAddress || 'Silakan tambahkan alamat di menu profil.'}
                                         </div>
                                     </div>
