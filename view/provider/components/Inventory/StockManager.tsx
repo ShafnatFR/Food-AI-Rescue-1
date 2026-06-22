@@ -160,7 +160,7 @@ export const StockManager: React.FC<StockManagerProps> = ({
         setIsAddingNew(false);
         
         // Update Cache with timestamp
-        localStorage.setItem(`far_inventory_${currentUser?.id}`, JSON.stringify({
+        localStorage.setItem(`far_inventory_${CACHE_VERSION}_${currentUser?.id}`, JSON.stringify({
             data: updatedItems,
             timestamp: Date.now()
         }));
@@ -172,7 +172,7 @@ export const StockManager: React.FC<StockManagerProps> = ({
         setSelectedProduct(updatedItem); 
         
         // Update Cache with timestamp
-        localStorage.setItem(`far_inventory_${currentUser?.id}`, JSON.stringify({
+        localStorage.setItem(`far_inventory_${CACHE_VERSION}_${currentUser?.id}`, JSON.stringify({
             data: updatedItems,
             timestamp: Date.now()
         }));
@@ -184,7 +184,7 @@ export const StockManager: React.FC<StockManagerProps> = ({
         setSelectedProduct(null);
         
         // Update Cache with timestamp
-        localStorage.setItem(`far_inventory_${currentUser?.id}`, JSON.stringify({
+        localStorage.setItem(`far_inventory_${CACHE_VERSION}_${currentUser?.id}`, JSON.stringify({
             data: updatedItems,
             timestamp: Date.now()
         }));
