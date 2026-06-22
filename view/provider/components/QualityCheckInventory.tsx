@@ -480,7 +480,19 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
                       </div>
 
                       {/* ADDITIONAL AI INSIGHTS */}
-                      {(analysisResult.physicalCheckTips || analysisResult.reheatingTips || analysisResult.packagingTips || analysisResult.repurposeIdeas || analysisResult.crossContaminationWarning) && (
+                      {(analysisResult.physicalCheckTips || analysisResult.reheatingTips || analysisResult.packagingTips || analysisResult.repurposeIdeas || analysisResult.crossContaminationWarning) && (() => {
+                          const renderMarkdownTip = (tip: string) => (
+                              <ReactMarkdown 
+                                  components={{
+                                      p: ({node, ...props}) => <span {...props} />,
+                                      strong: ({node, ...props}) => <strong className="font-bold text-stone-800 dark:text-stone-200" {...props} />
+                                  }}
+                              >
+                                  {tip}
+                              </ReactMarkdown>
+                          );
+
+                          return (
                           <div className="space-y-4">
                               {analysisResult.crossContaminationWarning && (
                                   <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-2xl border border-red-200 dark:border-red-800">
@@ -494,7 +506,7 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
                                       <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200 dark:border-stone-800">
                                           <h4 className="font-black text-xs text-stone-900 dark:text-white uppercase mb-2 flex items-center gap-2"><Eye className="w-4 h-4 text-orange-500" /> Pemeriksaan Fisik</h4>
                                           <ul className="list-disc pl-4 space-y-1">
-                                              {analysisResult.physicalCheckTips.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{tip}</li>)}
+                                              {analysisResult.physicalCheckTips.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{renderMarkdownTip(tip)}</li>)}
                                           </ul>
                                       </div>
                                   )}
@@ -503,7 +515,7 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
                                       <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200 dark:border-stone-800">
                                           <h4 className="font-black text-xs text-stone-900 dark:text-white uppercase mb-2 flex items-center gap-2"><Thermometer className="w-4 h-4 text-red-500" /> Saran Pemanasan</h4>
                                           <ul className="list-disc pl-4 space-y-1">
-                                              {analysisResult.reheatingTips.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{tip}</li>)}
+                                              {analysisResult.reheatingTips.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{renderMarkdownTip(tip)}</li>)}
                                           </ul>
                                       </div>
                                   )}
@@ -512,7 +524,7 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
                                       <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200 dark:border-stone-800">
                                           <h4 className="font-black text-xs text-stone-900 dark:text-white uppercase mb-2 flex items-center gap-2"><Package className="w-4 h-4 text-blue-500" /> Tips Pengemasan</h4>
                                           <ul className="list-disc pl-4 space-y-1">
-                                              {analysisResult.packagingTips.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{tip}</li>)}
+                                              {analysisResult.packagingTips.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{renderMarkdownTip(tip)}</li>)}
                                           </ul>
                                       </div>
                                   )}
@@ -521,13 +533,14 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
                                       <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200 dark:border-stone-800">
                                           <h4 className="font-black text-xs text-stone-900 dark:text-white uppercase mb-2 flex items-center gap-2"><Recycle className="w-4 h-4 text-green-500" /> Ide Daur Ulang</h4>
                                           <ul className="list-disc pl-4 space-y-1">
-                                              {analysisResult.repurposeIdeas.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{tip}</li>)}
+                                              {analysisResult.repurposeIdeas.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{renderMarkdownTip(tip)}</li>)}
                                           </ul>
                                       </div>
                                   )}
                               </div>
                           </div>
-                      )}
+                          );
+                      })()}
  
                       {analysisResult.qualityPercentage >= 70 && (
                          <Button 

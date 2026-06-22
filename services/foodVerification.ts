@@ -68,9 +68,13 @@ export const foodVerification = {
 
       const appSettings = await db.getSettings();
 
+      const validItems = aiResult.detectedItems && aiResult.detectedItems.length > 0 
+        ? aiResult.detectedItems 
+        : [{ name: context?.foodName || "Makanan", category: "Lainnya" }];
+
       // Local impact calculation logic
       const socialImpact = calculateDetailedImpact(
-        aiResult.detectedItems || [],
+        validItems,
         context?.weightGram || 500,
         context?.packagingType || 'plastic',
         context?.quantityCount || 1,
@@ -80,7 +84,8 @@ export const foodVerification = {
 
       return {
         ...aiResult,
-        detectedCategory: aiResult.detectedItems?.[0]?.category || 'Lainnya',
+        detectedItems: validItems,
+        detectedCategory: validItems[0]?.category || 'Lainnya',
         socialImpact
       };
 
