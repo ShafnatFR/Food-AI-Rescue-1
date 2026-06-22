@@ -1046,18 +1046,39 @@ async function updateFoodStock(id, newQuantity) {
 }
 
 async function updateFoodItem(data) {
-    const { id, name, description, currentQuantity, expiryTime, imageUrl, deliveryMethod, status } = data;
+    const { id, name, description, currentQuantity, expiryTime, imageUrl, deliveryMethod, status, aiVerification } = data;
     
     let formattedExpiry = expiryTime;
     if (formattedExpiry && typeof formattedExpiry === 'string' && formattedExpiry.includes('T')) {
         formattedExpiry = formattedExpiry.replace('T', ' ').substring(0, 19);
     }
 
-    await db.query(
-        'UPDATE food_items SET name=?, description=?, current_quantity=?, expiry_time=?, image_url=?, delivery_method=?, status=? WHERE id=?',
-        [name, description, currentQuantity, formattedExpiry, imageUrl, deliveryMethod.toUpperCase(), status.toUpperCase(), id]
-    );
-    return data;
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        await connection.query(
+            'UPDATE food_items SET name=?, description=?, current_quantity=?, expiry_time=?, image_url=?, delivery_method=?, status=? WHERE id=?',
+            [name, description, currentQuantity, formattedExpiry, imageUrl, deliveryMethod.toUpperCase(), status.toUpperCase(), id]
+        );
+
+        if (aiVerification) {
+            const ingStr = aiVerification.ingredients ? JSON.stringify(aiVerification.ingredients) : null;
+            const algStr = aiVerification.allergens ? JSON.stringify(aiVerification.allergens) : null;
+            await connection.query(
+                'UPDATE ai_verifications SET ingredients=?, allergens=? WHERE food_id=?',
+                [ingStr, algStr, id]
+            );
+        }
+
+        await connection.commit();
+        return data;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
 }
 
 async function deleteData(table, id) {

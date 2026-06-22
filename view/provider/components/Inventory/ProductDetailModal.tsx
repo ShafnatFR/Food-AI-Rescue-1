@@ -30,7 +30,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
     const [newIngredient, setNewIngredient] = useState('');
     
     const [isDescExpanded, setIsDescExpanded] = useState(false);
-    const [isImpactExpanded, setIsImpactExpanded] = useState(false);
+    const [isImpactExpanded, setIsImpactExpanded] = useState(true);
     const [activeCalcTab, setActiveCalcTab] = useState<'co2' | 'social'>('co2');
 
     // Robust fallbacks for older cached data and postgres lowercased keys
@@ -119,6 +119,25 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                 reason: formData.aiVerification?.reason ?? '',
                 halalScore: formData.aiVerification?.halalScore ?? 0,
                 ingredients: newIngredients
+            }
+        });
+    };
+
+    const handleToggleAllergen = (ingredient: string) => {
+        if (!isEditing) return;
+        const currentAllergens = formData.aiVerification?.allergens || [];
+        const isAllergen = currentAllergens.some(a => a.toLowerCase() === ingredient.toLowerCase());
+        
+        setFormData({
+            ...formData,
+            aiVerification: {
+                ...formData.aiVerification!,
+                isEdible: formData.aiVerification?.isEdible ?? true,
+                reason: formData.aiVerification?.reason ?? '',
+                halalScore: formData.aiVerification?.halalScore ?? 0,
+                allergens: isAllergen 
+                    ? currentAllergens.filter(a => a.toLowerCase() !== ingredient.toLowerCase())
+                    : [...currentAllergens, ingredient]
             }
         });
     };
@@ -341,7 +360,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                                             return (
                                                 <span 
                                                     key={i} 
-                                                    className={`group relative px-3 py-1.5 rounded-xl text-sm font-bold pr-3 ${
+                                                    onClick={() => handleToggleAllergen(ing)}
+                                                    className={`group relative px-3 py-1.5 rounded-xl text-sm font-bold pr-3 ${isEditing ? 'cursor-pointer hover:scale-105 transition-transform' : ''} ${
                                                         isAllergen 
                                                             ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-1 ring-red-200 dark:ring-red-900/50' 
                                                             : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
