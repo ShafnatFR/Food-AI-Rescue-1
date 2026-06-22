@@ -99,101 +99,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                 halalScore: formData.aiVerification?.halalScore ?? 0,
                 ingredients: newIngredients
             }
-
-interface ProductDetailModalProps {
-    product: FoodItem;
-    onClose: () => void;
-    onUpdate?: (updatedItem: FoodItem) => void;
-    onDelete?: (id: string) => void;
-    disableExpiryLogic?: boolean;
-}
-
-export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product: p, onClose, onUpdate, onDelete, disableExpiryLogic = false }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [formData, setFormData] = useState<FoodItem>(p);
-    const [newIngredient, setNewIngredient] = useState('');
-    
-    const [isDescExpanded, setIsDescExpanded] = useState(false);
-    const [isImpactExpanded, setIsImpactExpanded] = useState(false);
-    const [activeCalcTab, setActiveCalcTab] = useState<'co2' | 'social'>('co2');
-
-    const progressPercent = (p.currentQuantity / p.initialQuantity) * 100;
-    const expired = !disableExpiryLogic && (p.status === 'expired' || isFoodExpired(p.distributionEnd, p.expiryTime));
-
-    useEffect(() => {
-        setFormData(p);
-    }, [p]);
-
-    const fullDescription = formData.description || "Tidak ada deskripsi tersedia.";
-    const firstDotIndex = fullDescription.indexOf('.');
-    const firstSentence = firstDotIndex !== -1 ? fullDescription.substring(0, firstDotIndex + 1) : fullDescription;
-    const isLongDescription = fullDescription.length > firstSentence.length;
-
-    const handleSave = async () => {
-        if (!onUpdate) return;
-        setIsSaving(true);
-        try {
-            await db.updateFoodItem(formData);
-            onUpdate(formData);
-            setIsEditing(false);
-            toast.success("Data produk berhasil diperbarui!");
-        } catch (error) {
-            console.error("Update failed:", error);
-            toast.error("Gagal memperbarui produk.");
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    const handleDelete = async () => {
-        if (!onDelete) return;
-        if (!confirm("Apakah Anda yakin ingin menghapus produk ini dari stok? Tindakan ini tidak dapat dibatalkan.")) return;
-        
-        setIsDeleting(true);
-        try {
-            await db.deleteFoodItem(formData.id);
-            onDelete(formData.id);
-            onClose();
-        } catch (error) {
-            console.error("Delete failed:", error);
-            toast.error("Gagal menghapus produk.");
-            setIsDeleting(false);
-        }
-    };
-
-    const handleAddIngredient = () => {
-        if (newIngredient.trim()) {
-            const currentIngredients = formData.aiVerification?.ingredients || [];
-            setFormData({
-                ...formData,
-                aiVerification: {
-                    ...formData.aiVerification!,
-                    isEdible: formData.aiVerification?.isEdible ?? true,
-                    reason: formData.aiVerification?.reason ?? '',
-                    halalScore: formData.aiVerification?.halalScore ?? 0,
-                    ingredients: [...currentIngredients, newIngredient.trim()]
-                }
-            });
-            setNewIngredient('');
-        }
-    };
-
-    const handleRemoveIngredient = (index: number) => {
-        const currentIngredients = formData.aiVerification?.ingredients || [];
-        const newIngredients = currentIngredients.filter((_, i) => i !== index);
-        setFormData({
-            ...formData,
-            aiVerification: {
-                ...formData.aiVerification!,
-                isEdible: formData.aiVerification?.isEdible ?? true,
-                reason: formData.aiVerification?.reason ?? '',
-                halalScore: formData.aiVerification?.halalScore ?? 0,
-                ingredients: newIngredients
-            }
         });
     };
+
 
     return (
         <div className="fixed inset-0 bg-[#FDFBF7] dark:bg-stone-950 z-[100] overflow-y-auto animate-in slide-in-from-right duration-500">
@@ -489,11 +397,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/90 dark:bg-stone-900/90 backdrop-blur-xl border-t border-stone-200 dark:border-stone-800 z-50 flex gap-4">
-                <Button variant="outline" onClick={onClose} className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest">
-                    KEMBALI KE LIST
-                </Button>
             </div>
         </div>
     );
