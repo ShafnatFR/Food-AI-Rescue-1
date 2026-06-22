@@ -15,6 +15,7 @@ import { db } from '../../../../services/db';
 import { checkAndExpireItems } from '../../../../utils/expiryChecker';
 
 const CACHE_EXPIRY_MS = 10 * 60 * 1000; // 10 Minutes
+const CACHE_VERSION = 'v3'; // Bump this when data structure changes (e.g. added location field)
 
 interface StockManagerProps {
     foodItems: FoodItem[];
@@ -67,8 +68,8 @@ export const StockManager: React.FC<StockManagerProps> = ({
 
     // Function to fetch local specific data (Address & Inventory) with Caching Logic
     const fetchInventoryAndAddress = async (forceRefresh: boolean = false) => {
-        const cacheKey = `far_inventory_${currentUser?.id}`;
-        const addressCacheKey = `far_has_address_${currentUser?.id}`;
+        const cacheKey = `far_inventory_${CACHE_VERSION}_${currentUser?.id}`;
+        const addressCacheKey = `far_has_address_${CACHE_VERSION}_${currentUser?.id}`;
         
         // 1. Check Cache first if not forcing refresh
         if (!forceRefresh) {
