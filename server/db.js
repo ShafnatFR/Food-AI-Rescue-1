@@ -17,12 +17,19 @@ async function initPool() {
         const { Pool } = require('pg');
         const pgUrl = connectionString || `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || ''}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'postgres'}`;
         
-        pool = new Pool({
+        const isLocalHost = pgUrl.includes('localhost') || pgUrl.includes('127.0.0.1');
+        const poolConfig = {
             connectionString: pgUrl,
             max: process.env.VERCEL ? 1 : 5,
             idleTimeoutMillis: 10000,
             connectionTimeoutMillis: 10000
-        });
+        };
+
+        if (!isLocalHost) {
+            poolConfig.ssl = { rejectUnauthorized: false };
+        }
+
+        pool = new Pool(poolConfig);
 
         try {
             const client = await pool.connect();

@@ -88,7 +88,7 @@ if (process.env.VERCEL) {
             next();
         } catch (err) {
             console.error('[VERCEL INIT ERROR]', err);
-            res.status(500).json({ success: false, message: 'Server initialization failed' });
+            res.status(500).json({ success: false, message: 'Server initialization failed: ' + err.message });
         }
     });
 }
