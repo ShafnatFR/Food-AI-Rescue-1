@@ -910,36 +910,46 @@ async function getInventory(providerId) {
     query += ' ORDER BY f.created_at DESC';
 
     const [rows] = await db.query(query, params);
-    return rows.map(item => ({
-        ...item,
-        status: (item.status || 'available').toLowerCase(),
-        deliveryMethod: (item.deliveryMethod || 'pickup').toLowerCase(),
-        location: item.lat ? {
-            lat: item.lat,
-            lng: item.lng,
-            address: item.address,
-            addressId: item.addressId
-        } : {
-            address: 'Lokasi tidak tersedia',
-            lat: -6.914744,
-            lng: 107.609810
-        },
-        aiVerification: item.halalScore !== null ? {
-            isEdible: !!item.isEdible,
-            halalScore: item.halalScore,
-            qualityScore: item.qualityScore,
-            reason: item.aiReason,
-            ingredients: item.aiIngredients ? (typeof item.aiIngredients === 'string' ? JSON.parse(item.aiIngredients) : item.aiIngredients) : []
-        } : { isEdible: true, halalScore: 90 }, // Default if missing
-        socialImpact: item.totalPoints !== null ? {
-            totalPoints: item.totalPoints,
-            co2Saved: item.co2Saved,
-            waterSaved: item.waterSaved,
-            landSaved: item.landSaved,
-            wasteReduction: item.co2Saved ? parseFloat((item.co2Saved * 0.45).toFixed(2)) : 0, 
-            impactDetails: item.impactDetails ? (typeof item.impactDetails === 'string' ? JSON.parse(item.impactDetails) : item.impactDetails) : []
-        } : null
-    }));
+    return rows.map(item => {
+        let parsedImpactDetails = {};
+        if (item.impactDetails) {
+            try {
+                parsedImpactDetails = typeof item.impactDetails === 'string' ? JSON.parse(item.impactDetails) : item.impactDetails;
+            } catch (e) {}
+        }
+
+        return {
+            ...item,
+            status: (item.status || 'available').toLowerCase(),
+            deliveryMethod: (item.deliveryMethod || 'pickup').toLowerCase(),
+            location: item.lat ? {
+                lat: item.lat,
+                lng: item.lng,
+                address: item.address,
+                addressId: item.addressId
+            } : {
+                address: 'Lokasi tidak tersedia',
+                lat: -6.914744,
+                lng: 107.609810
+            },
+            aiVerification: item.halalScore !== null ? {
+                isEdible: !!item.isEdible,
+                halalScore: item.halalScore,
+                qualityScore: item.qualityScore,
+                reason: item.aiReason,
+                ingredients: item.aiIngredients ? (typeof item.aiIngredients === 'string' ? JSON.parse(item.aiIngredients) : item.aiIngredients) : []
+            } : { isEdible: true, halalScore: 90 }, // Default if missing
+            socialImpact: item.totalPoints !== null ? {
+                totalPoints: item.totalPoints,
+                co2Saved: item.co2Saved,
+                waterSaved: item.waterSaved,
+                landSaved: item.landSaved,
+                wasteReduction: item.co2Saved ? parseFloat((item.co2Saved * 0.45).toFixed(2)) : 0, 
+                ...parsedImpactDetails,
+                impactDetails: parsedImpactDetails
+            } : null
+        };
+    });
 }
 
 async function addFoodItem(data) {
