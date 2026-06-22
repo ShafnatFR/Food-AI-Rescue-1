@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Sparkles, Truck, ShoppingBag, Timer, Clock, List, Edit3, Save, X, Plus, Trash2, Loader2, Info, ChevronDown, Leaf, Award, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Sparkles, Truck, ShoppingBag, Timer, Clock, List, Edit3, Save, X, Plus, Trash2, Loader2, Info, ChevronDown, Leaf, Award, AlertTriangle, MapPin } from 'lucide-react';
 import { Button } from '../../../components/Button';
 import { FoodItem, ImpactBreakdownItem } from '../../../../types';
 import { db } from '../../../../services/db';
@@ -209,6 +209,36 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                                     <p className="font-bold text-red-600 dark:text-red-400 text-sm">{formatDateTime(formData.distributionEnd || formData.expiryTime)}</p>
                                 </div>
                             </div>
+                        </div>
+                        </div>
+
+                        <div className="bg-white dark:bg-stone-900/30 p-5 rounded-[2rem] border border-stone-200 dark:border-stone-800 shadow-sm">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                                    <MapPin className="w-4 h-4 text-blue-500" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Lokasi Pengambilan</p>
+                                </div>
+                            </div>
+                            <p className="font-bold text-stone-700 dark:text-stone-300 text-sm leading-relaxed mb-4">
+                                {formData.location?.address || "Lokasi tidak tersedia"}
+                            </p>
+                            
+                            {(formData.location?.address || (formData.location?.lat && formData.location?.lng)) && (
+                                <a 
+                                    href={`https://www.google.com/maps/search/?api=1&query=${
+                                        (formData.location?.address && formData.location?.address !== "Lokasi tidak tersedia") 
+                                            ? encodeURIComponent(formData.location.address) 
+                                            : `${formData.location?.lat},${formData.location?.lng}`
+                                    }`}
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="block w-full py-2.5 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-black uppercase tracking-widest text-center transition-colors"
+                                >
+                                    Buka di Maps
+                                </a>
+                            )}
                         </div>
                     </div>
 
