@@ -173,8 +173,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                 </div>
             </div>
 
-            <div className="max-w-4xl mx-auto p-6 md:p-10 pb-10 space-y-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="max-w-6xl mx-auto p-6 md:p-10 pb-10 space-y-10">
+                <div className={`grid grid-cols-1 ${(formData.socialImpact && formData.socialImpact.co2Breakdown) ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-8 items-start`}>
+                    
+                    {/* COLUMN 1: Visuals & Waktu */}
                     <div className="space-y-6">
                         <div className="aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white dark:border-stone-800 relative group">
                             <img src={formData.imageUrl} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={formData.name} />
@@ -190,97 +192,28 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                             </div>
                         </div>
 
-                        {/* DETAILED AI BREAKDOWN SECTION */}
-                        {formData.socialImpact && formData.socialImpact.co2Breakdown && (
-                            <div className="bg-gradient-to-br from-stone-800 to-stone-950 dark:from-stone-900 dark:to-black rounded-[2.5rem] p-6 text-white shadow-xl border border-white/10 overflow-hidden">
-                                <div className="flex justify-between items-center mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white/10 rounded-xl">
-                                            {activeCalcTab === 'co2' ? (
-                                                <Leaf className="w-5 h-5 text-green-400" />
-                                            ) : (
-                                                <Award className="w-5 h-5 text-indigo-400" />
-                                            )}
-                                        </div>
-                                        <div>
-                                            <p className="text-[9px] text-stone-400 font-black uppercase tracking-widest">TOTAL DAMPAK</p>
-                                            <p className="text-xl font-bold">
-                                                {activeCalcTab === 'co2' 
-                                                    ? `${formData.socialImpact.co2Saved}kg CO2` 
-                                                    : `${formData.socialImpact.totalPoints} Poin`
-                                                }
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <button 
-                                        onClick={() => setIsImpactExpanded(!isImpactExpanded)}
-                                        className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                                    >
-                                        <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isImpactExpanded ? 'rotate-180' : ''}`} />
-                                    </button>
-                                </div>
-
-                                <div className={`overflow-hidden transition-all duration-500 ${isImpactExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                                    <div className="bg-black/30 rounded-2xl p-4 mt-2 border border-white/5">
-                                        <div className="flex bg-white/5 p-1 rounded-xl mb-4">
-                                            <button onClick={() => setActiveCalcTab('co2')} className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${activeCalcTab === 'co2' ? 'bg-emerald-600 text-white shadow-lg' : 'text-stone-400 hover:text-white'}`}>
-                                                CO2
-                                            </button>
-                                            <button onClick={() => setActiveCalcTab('social')} className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${activeCalcTab === 'social' ? 'bg-indigo-600 text-white shadow-lg' : 'text-stone-400 hover:text-white'}`}>
-                                                SOCIAL
-                                            </button>
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-stone-400 mb-3 text-[10px] uppercase tracking-widest">
-                                                METODOLOGI PERHITUNGAN (LCA STANDARD)
-                                            </p>
-                                            <div className="bg-white/5 p-3 rounded-lg border border-white/10 mb-6">
-                                                <code className={`block text-[10px] font-mono ${activeCalcTab === 'co2' ? 'text-emerald-400' : 'text-indigo-400'}`}>
-                                                    {activeCalcTab === 'co2' 
-                                                        ? 'CO2 Saved = Σ (Berat Komponen x Faktor Emisi Kategori)' 
-                                                        : 'Total Poin = Σ (Berat Komponen x Faktor Dampak Sosial)'}
-                                                </code>
-                                            </div>
-                                            <div className="flex justify-between items-end mb-2">
-                                                <p className="font-bold text-stone-300 text-[10px] uppercase tracking-widest">
-                                                    ANALISIS KANDUNGAN PER 1 PORSI
-                                                </p>
-                                                <span className="text-[10px] font-black text-orange-500">
-                                                    Bobot: {(formData.weightPerUnit || 500)}g
-                                                </span>
-                                            </div>
-                                            <div className="space-y-2 mb-6">
-                                                {(activeCalcTab === 'co2' 
-                                                    ? formData.socialImpact?.co2Breakdown 
-                                                    : formData.socialImpact?.socialBreakdown
-                                                )?.map((item: ImpactBreakdownItem, idx: number) => (
-                                                    <div key={idx} className="flex justify-between items-center text-[11px] border-b border-white/10 pb-1 last:border-0">
-                                                        <span className="text-stone-300">{item.name}</span>
-                                                        <div className="text-right font-mono">
-                                                            <span className={`font-bold ${activeCalcTab === 'co2' ? 'text-emerald-400' : 'text-indigo-400'}`}>
-                                                                {item.result} {activeCalcTab === 'co2' ? 'kg' : 'Pts'}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                                <div className="flex justify-between items-center pt-2 mt-1 border-t border-white/20">
-                                                    <span className="text-[10px] font-bold text-stone-400">Total (1 Porsi)</span>
-                                                    <span className={`font-black text-sm ${activeCalcTab === 'co2' ? 'text-emerald-400' : 'text-indigo-400'}`}>
-                                                        {activeCalcTab === 'co2' 
-                                                            ? `${formData.socialImpact?.co2PerPortion} kg CO2`
-                                                            : `${formData.socialImpact?.pointsPerPortion} Pts`
-                                                        }
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center gap-4 p-5 bg-stone-50 dark:bg-stone-900/30 rounded-[2rem] border border-stone-100 dark:border-stone-800">
+                            <div className="flex-1 w-full flex items-center gap-3">
+                                <div className="p-2.5 bg-white dark:bg-stone-800 rounded-xl shadow-sm"><Timer className="w-4 h-4 text-orange-500" /></div>
+                                <div>
+                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Dibuat Pada</p>
+                                    <p className="font-bold text-stone-900 dark:text-white text-sm">{formatDateTime(formData.createdAt)}</p>
                                 </div>
                             </div>
-                        )}
+                            <div className="hidden sm:block lg:hidden xl:block w-px h-8 bg-stone-200 dark:bg-stone-800"></div>
+                            <div className="hidden lg:block xl:hidden w-full h-px bg-stone-200 dark:bg-stone-800"></div>
+                            <div className="flex-1 w-full flex items-center gap-3">
+                                <div className="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl"><Clock className="w-4 h-4 text-red-500" /></div>
+                                <div>
+                                    <p className="text-[10px] font-black text-red-400 uppercase tracking-widest">Batas Kedaluwarsa</p>
+                                    <p className="font-bold text-red-600 dark:text-red-400 text-sm">{formatDateTime(formData.distributionEnd || formData.expiryTime)}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="space-y-8">
+                    {/* COLUMN 2: Informasi Utama */}
+                    <div className="space-y-6">
                         <div>
                             {isEditing ? (
                                 <div className="mb-4">
@@ -295,128 +228,202 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                             ) : (
                                 <h1 className="text-4xl font-black text-stone-900 dark:text-white leading-tight mb-4">{formData.name}</h1>
                             )}
-                            <div className="flex flex-wrap gap-2 mb-6">
-                                <span className="bg-orange-50 dark:bg-orange-900/20 text-orange-600 px-3 py-1 rounded-lg text-xs font-bold uppercase border border-orange-100 dark:border-orange-800 flex items-center gap-1.5">
-                                    <Truck className="w-3 h-3" /> {formData.deliveryMethod === 'both' ? 'Pick-up & Diantar' : formData.deliveryMethod}
+                            <div className="flex flex-wrap gap-2 mb-2">
+                                <span className="bg-orange-50 dark:bg-orange-900/20 text-orange-600 px-3 py-1.5 rounded-xl text-xs font-bold uppercase border border-orange-100 dark:border-orange-800 flex items-center gap-1.5">
+                                    <Truck className="w-3.5 h-3.5" /> {formData.deliveryMethod === 'both' ? 'Pick-up & Diantar' : formData.deliveryMethod}
                                 </span>
-                                <span className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold uppercase border border-blue-100 dark:border-orange-800 flex items-center gap-1.5">
-                                    <ShoppingBag className="w-3 h-3" /> Min: {formData.minQuantity || 1} • Max: {formData.maxQuantity || 5}
+                                <span className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1.5 rounded-xl text-xs font-bold uppercase border border-blue-100 dark:border-orange-800 flex items-center gap-1.5">
+                                    <ShoppingBag className="w-3.5 h-3.5" /> Min: {formData.minQuantity || 1} • Max: {formData.maxQuantity || 5}
                                 </span>
-                            </div>
-                            
-                            <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm mb-6">
-                                <div className="flex justify-between items-end mb-4">
-                                    <div>
-                                        <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Status Ketersediaan</p>
-                                        <h3 className="text-3xl font-black text-orange-600 italic leading-none">{formData.currentQuantity} <span className="text-sm not-italic text-stone-400">/ {formData.initialQuantity} Sisa</span></h3>
-                                    </div>
-                                    <div className="text-right">
-                                        <span className="text-sm font-bold text-stone-900 dark:text-white">{Math.round(100 - progressPercent)}% Terklaim</span>
-                                    </div>
-                                </div>
-                                <div className="h-4 w-full bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-1000 shadow-lg" style={{width: `${progressPercent}%`}}></div>
-                                </div>
-                            </div>
-                                
-                            <div className={`bg-stone-50 dark:bg-stone-900/50 p-6 rounded-3xl border border-stone-100 dark:border-stone-800 transition-all ${isEditing ? 'ring-2 ring-orange-500/20 bg-white' : ''}`}>
-                                {isEditing ? (
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Deskripsi Produk</label>
-                                        <textarea 
-                                            value={formData.description}
-                                            onChange={(e) => setFormData({...formData, description: e.target.value})}
-                                            className="w-full p-3 bg-stone-100 dark:bg-stone-800 rounded-xl text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[120px]"
-                                            placeholder="Tulis deskripsi makanan..."
-                                        />
-                                    </div>
-                                ) : (
-                                    <p className="text-stone-600 dark:text-stone-300 text-lg leading-relaxed font-medium">
-                                        {isDescExpanded ? fullDescription : firstSentence}
-                                        {isLongDescription && !isDescExpanded && (
-                                            <button 
-                                                onClick={() => setIsDescExpanded(true)}
-                                                className="ml-2 text-sm font-black text-orange-500 hover:text-orange-600 uppercase tracking-wide cursor-pointer inline-flex items-center gap-1"
-                                            >
-                                                Lihat Selengkapnya
-                                            </button>
-                                        )}
-                                        {isLongDescription && isDescExpanded && (
-                                            <button 
-                                                onClick={() => setIsDescExpanded(false)}
-                                                className="ml-2 text-sm font-black text-stone-400 hover:text-stone-600 uppercase tracking-wide cursor-pointer inline-flex items-center gap-1"
-                                            >
-                                                Sembunyikan
-                                            </button>
-                                        )}
-                                    </p>
-                                )}
-
-                                <div className="mt-6 pt-6 border-t border-stone-200 dark:border-stone-700">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2">
-                                            <List className="w-3 h-3" /> Bahan Terdeteksi
-                                        </p>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {formData.aiVerification?.ingredients && formData.aiVerification.ingredients.length > 0 ? (
-                                            formData.aiVerification.ingredients.map((ing, i) => (
-                                                <span key={i} className="group relative px-3 py-1.5 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-sm font-bold text-stone-700 dark:text-stone-300 pr-3">
-                                                    {ing}
-                                                    {isEditing && (
-                                                        <button 
-                                                            onClick={() => handleRemoveIngredient(i)}
-                                                            className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                        >
-                                                            <X className="w-2.5 h-2.5" />
-                                                        </button>
-                                                    )}
-                                                </span>
-                                            ))
-                                        ) : (
-                                            <span className="text-stone-400 text-sm italic">Belum ada data bahan.</span>
-                                        )}
-                                    </div>
-
-                                    {isEditing && (
-                                        <div className="mt-4 flex gap-2">
-                                            <input 
-                                                type="text" 
-                                                value={newIngredient}
-                                                onChange={(e) => setNewIngredient(e.target.value)}
-                                                onKeyDown={(e) => e.key === 'Enter' && handleAddIngredient()}
-                                                placeholder="+ Tambah bahan..."
-                                                className="flex-1 px-4 py-2 bg-stone-100 dark:bg-stone-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                            />
-                                            <button 
-                                                onClick={handleAddIngredient}
-                                                className="px-3 bg-stone-200 dark:bg-stone-700 hover:bg-orange-500 hover:text-white rounded-xl transition-colors"
-                                            >
-                                                <Plus className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
                             </div>
                         </div>
-                        <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-stone-50 dark:bg-stone-900/30 rounded-2xl border border-stone-100 dark:border-stone-800">
-                            <div className="flex-1 w-full flex items-center gap-3">
-                                <div className="p-2 bg-white dark:bg-stone-800 rounded-lg shadow-sm"><Timer className="w-4 h-4 text-orange-500" /></div>
+                        
+                        <div className="bg-white dark:bg-stone-900 p-6 rounded-[2rem] border border-stone-200 dark:border-stone-800 shadow-sm">
+                            <div className="flex justify-between items-end mb-4">
                                 <div>
-                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Dibuat Pada</p>
-                                    <p className="font-bold text-stone-900 dark:text-white text-sm">{new Date(formData.createdAt).toLocaleDateString('id-ID')}</p>
+                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Status Ketersediaan</p>
+                                    <h3 className="text-3xl font-black text-orange-600 italic leading-none">{formData.currentQuantity} <span className="text-sm not-italic text-stone-400">Porsi Tersedia</span></h3>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-sm font-bold text-stone-900 dark:text-white">{Math.round(100 - progressPercent)}% Terklaim</span>
                                 </div>
                             </div>
-                            <div className="hidden sm:block w-px h-8 bg-stone-200 dark:bg-stone-800"></div>
-                            <div className="flex-1 w-full flex items-center gap-3">
-                                <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg"><Clock className="w-4 h-4 text-red-500" /></div>
-                                <div>
-                                    <p className="text-[10px] font-black text-red-400 uppercase tracking-widest">Batas Kedaluwarsa</p>
-                                    <p className="font-bold text-red-600 dark:text-red-400 text-sm">{formatDateTime(formData.distributionEnd || formData.expiryTime)}</p>
+                            <div className="h-4 w-full bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-1000 shadow-lg" style={{width: `${progressPercent}%`}}></div>
+                            </div>
+                        </div>
+                            
+                        <div className={`bg-stone-50 dark:bg-stone-900/50 p-6 rounded-[2rem] border border-stone-100 dark:border-stone-800 transition-all ${isEditing ? 'ring-2 ring-orange-500/20 bg-white' : ''}`}>
+                            {isEditing ? (
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Deskripsi Produk</label>
+                                    <textarea 
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                                        className="w-full p-3 bg-stone-100 dark:bg-stone-800 rounded-xl text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[120px]"
+                                        placeholder="Tulis deskripsi makanan..."
+                                    />
                                 </div>
+                            ) : (
+                                <p className="text-stone-700 dark:text-stone-200 text-lg leading-loose font-medium">
+                                    {isDescExpanded ? fullDescription : firstSentence}
+                                    {isLongDescription && !isDescExpanded && (
+                                        <button 
+                                            onClick={() => setIsDescExpanded(true)}
+                                            className="ml-2 text-sm font-black text-orange-500 hover:text-orange-600 uppercase tracking-wide cursor-pointer inline-flex items-center gap-1"
+                                        >
+                                            Lihat Selengkapnya
+                                        </button>
+                                    )}
+                                    {isLongDescription && isDescExpanded && (
+                                        <button 
+                                            onClick={() => setIsDescExpanded(false)}
+                                            className="ml-2 text-sm font-black text-stone-400 hover:text-stone-600 uppercase tracking-wide cursor-pointer inline-flex items-center gap-1"
+                                        >
+                                            Sembunyikan
+                                        </button>
+                                    )}
+                                </p>
+                            )}
+
+                            <div className="mt-6 pt-6 border-t border-stone-200 dark:border-stone-700">
+                                <div className="flex justify-between items-center mb-3">
+                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2">
+                                        <List className="w-3 h-3" /> Bahan Terdeteksi
+                                    </p>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {formData.aiVerification?.ingredients && formData.aiVerification.ingredients.length > 0 ? (
+                                        formData.aiVerification.ingredients.map((ing, i) => (
+                                            <span key={i} className="group relative px-3 py-1.5 bg-stone-100 dark:bg-stone-800 rounded-xl text-sm font-bold text-stone-700 dark:text-stone-300 pr-3">
+                                                {ing}
+                                                {isEditing && (
+                                                    <button 
+                                                        onClick={() => handleRemoveIngredient(i)}
+                                                        className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <X className="w-2.5 h-2.5" />
+                                                    </button>
+                                                )}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className="text-stone-400 text-sm italic">Belum ada data bahan.</span>
+                                    )}
+                                </div>
+
+                                {isEditing && (
+                                    <div className="mt-4 flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            value={newIngredient}
+                                            onChange={(e) => setNewIngredient(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleAddIngredient()}
+                                            placeholder="+ Tambah bahan..."
+                                            className="flex-1 px-4 py-2 bg-stone-100 dark:bg-stone-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                        />
+                                        <button 
+                                            onClick={handleAddIngredient}
+                                            className="px-3 bg-stone-200 dark:bg-stone-700 hover:bg-orange-500 hover:text-white rounded-xl transition-colors"
+                                        >
+                                            <Plus className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
+
+                    {/* COLUMN 3: Dampak Lingkungan (Conditional) */}
+                    {formData.socialImpact && formData.socialImpact.co2Breakdown && (
+                        <div className="space-y-6">
+                            <div className="bg-white dark:bg-stone-900 rounded-[2.5rem] p-6 text-stone-900 dark:text-white shadow-xl border border-stone-200 dark:border-stone-800 overflow-hidden">
+                                <div className="flex justify-between items-center mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-stone-100 dark:bg-stone-800 rounded-xl">
+                                            {activeCalcTab === 'co2' ? (
+                                                <Leaf className="w-5 h-5 text-green-400" />
+                                            ) : (
+                                                <Award className="w-5 h-5 text-indigo-400" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] text-stone-500 dark:text-stone-400 font-black uppercase tracking-widest">TOTAL DAMPAK</p>
+                                            <p className="text-xl font-bold text-stone-900 dark:text-white">
+                                                {activeCalcTab === 'co2' 
+                                                    ? `${formData.socialImpact.co2Saved}kg CO2` 
+                                                    : `${formData.socialImpact.totalPoints} Poin`
+                                                }
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => setIsImpactExpanded(!isImpactExpanded)}
+                                        className="p-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 rounded-full transition-colors"
+                                    >
+                                        <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isImpactExpanded ? 'rotate-180' : ''}`} />
+                                    </button>
+                                </div>
+
+                                <div className={`overflow-hidden transition-all duration-500 ${isImpactExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className="bg-stone-50 dark:bg-black/30 rounded-2xl p-4 mt-2 border border-stone-200 dark:border-white/5">
+                                        <div className="flex bg-stone-200/50 dark:bg-white/5 p-1 rounded-xl mb-4">
+                                            <button onClick={() => setActiveCalcTab('co2')} className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${activeCalcTab === 'co2' ? 'bg-emerald-500 text-white shadow-md' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}`}>
+                                                CO2
+                                            </button>
+                                            <button onClick={() => setActiveCalcTab('social')} className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${activeCalcTab === 'social' ? 'bg-indigo-500 text-white shadow-md' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}`}>
+                                                SOCIAL
+                                            </button>
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-stone-500 dark:text-stone-400 mb-3 text-[10px] uppercase tracking-widest">
+                                                METODOLOGI PERHITUNGAN (LCA STANDARD)
+                                            </p>
+                                            <div className="bg-white dark:bg-white/5 p-3 rounded-lg border border-stone-200 dark:border-white/10 mb-6">
+                                                <code className={`block text-[10px] font-mono ${activeCalcTab === 'co2' ? 'text-emerald-400' : 'text-indigo-400'}`}>
+                                                    {activeCalcTab === 'co2' 
+                                                        ? 'CO2 Saved = Σ (Berat Komponen x Faktor Emisi Kategori)' 
+                                                        : 'Total Poin = Σ (Berat Komponen x Faktor Dampak Sosial)'}
+                                                </code>
+                                            </div>
+                                            <div className="flex justify-between items-end mb-2">
+                                                <p className="font-bold text-stone-700 dark:text-stone-300 text-[10px] uppercase tracking-widest">
+                                                    ANALISIS KANDUNGAN PER 1 PORSI
+                                                </p>
+                                                <span className="text-[10px] font-black text-orange-500">
+                                                    Bobot: {(formData.weightPerUnit || 500)}g
+                                                </span>
+                                            </div>
+                                            <div className="space-y-3 mb-6">
+                                                {(activeCalcTab === 'co2' 
+                                                    ? formData.socialImpact?.co2Breakdown 
+                                                    : formData.socialImpact?.socialBreakdown
+                                                )?.map((item: ImpactBreakdownItem, idx: number) => (
+                                                    <div key={idx} className="flex justify-between items-center text-[11px] border-b border-stone-200 dark:border-white/10 pb-2 last:border-0">
+                                                        <span className="text-stone-700 dark:text-stone-300 font-medium">{item.name}</span>
+                                                        <div className="text-right font-mono">
+                                                            <span className={`font-bold ${activeCalcTab === 'co2' ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
+                                                                {item.result} {activeCalcTab === 'co2' ? 'kg' : 'Pts'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                <div className="flex justify-between items-center pt-3 mt-1 border-t border-stone-300 dark:border-white/20">
+                                                    <span className="text-[10px] font-bold text-stone-600 dark:text-stone-400 uppercase">Total (1 Porsi)</span>
+                                                    <span className={`font-black text-sm ${activeCalcTab === 'co2' ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
+                                                        {activeCalcTab === 'co2' 
+                                                            ? `${formData.socialImpact?.co2PerPortion} kg CO2`
+                                                            : `${formData.socialImpact?.pointsPerPortion} Pts`
+                                                        }
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
