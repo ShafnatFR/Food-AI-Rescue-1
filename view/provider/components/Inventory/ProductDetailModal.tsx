@@ -19,18 +19,39 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [formData, setFormData] = useState<FoodItem>(p);
+    const [formData, setFormData] = useState<FoodItem>({
+        ...p,
+        initialQuantity: p.initialQuantity ?? (p as any).initial_quantity ?? 0,
+        currentQuantity: p.currentQuantity ?? (p as any).current_quantity ?? 0,
+        createdAt: p.createdAt ?? (p as any).created_at ?? new Date().toISOString(),
+        expiryTime: p.expiryTime ?? (p as any).expiry_time ?? '',
+        distributionEnd: p.distributionEnd ?? (p as any).distribution_end_time ?? (p.expiryTime ?? (p as any).expiry_time ?? '')
+    });
     const [newIngredient, setNewIngredient] = useState('');
     
     const [isDescExpanded, setIsDescExpanded] = useState(false);
     const [isImpactExpanded, setIsImpactExpanded] = useState(false);
     const [activeCalcTab, setActiveCalcTab] = useState<'co2' | 'social'>('co2');
 
-    const progressPercent = (p.currentQuantity / p.initialQuantity) * 100;
-    const expired = !disableExpiryLogic && (p.status === 'expired' || isFoodExpired(p.distributionEnd, p.expiryTime));
+    // Robust fallbacks for older cached data
+    const initialQty = p.initialQuantity ?? (p as any).initial_quantity ?? 0;
+    const currentQty = p.currentQuantity ?? (p as any).current_quantity ?? 0;
+    const createdAt = p.createdAt ?? (p as any).created_at ?? new Date().toISOString();
+    const expiryTime = p.expiryTime ?? (p as any).expiry_time ?? '';
+    const distributionEnd = p.distributionEnd ?? (p as any).distribution_end_time ?? expiryTime;
+
+    const progressPercent = initialQty > 0 ? (currentQty / initialQty) * 100 : 0;
+    const expired = !disableExpiryLogic && (p.status === 'expired' || isFoodExpired(distributionEnd, expiryTime));
 
     useEffect(() => {
-        setFormData(p);
+        setFormData({
+            ...p,
+            initialQuantity: initialQty,
+            currentQuantity: currentQty,
+            createdAt: createdAt,
+            expiryTime: expiryTime,
+            distributionEnd: distributionEnd
+        });
     }, [p]);
 
     const fullDescription = formData.description || "Tidak ada deskripsi tersedia.";
