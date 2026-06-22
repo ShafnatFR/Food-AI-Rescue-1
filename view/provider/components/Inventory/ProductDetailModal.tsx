@@ -210,7 +210,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                                 </div>
                             </div>
                         </div>
-                        </div>
 
                         <div className="bg-white dark:bg-stone-900/30 p-5 rounded-[2rem] border border-stone-200 dark:border-stone-800 shadow-sm">
                             <div className="flex items-center gap-3 mb-3">
