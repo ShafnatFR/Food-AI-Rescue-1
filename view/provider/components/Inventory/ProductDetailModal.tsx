@@ -225,18 +225,31 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                             </p>
                             
                             {(formData.location?.address || (formData.location?.lat && formData.location?.lng)) && (
-                                <a 
-                                    href={`https://www.google.com/maps/search/?api=1&query=${
-                                        (formData.location?.address && formData.location?.address !== "Lokasi tidak tersedia") 
-                                            ? encodeURIComponent(formData.location.address) 
-                                            : `${formData.location?.lat},${formData.location?.lng}`
-                                    }`}
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="block w-full py-2.5 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-black uppercase tracking-widest text-center transition-colors"
-                                >
-                                    Buka di Maps
-                                </a>
+                                <>
+                                    <div className="w-full h-32 rounded-xl overflow-hidden mb-3 border border-stone-200 dark:border-stone-800">
+                                        <iframe 
+                                            width="100%" 
+                                            height="100%" 
+                                            frameBorder="0" 
+                                            style={{border:0}} 
+                                            src={`https://maps.google.com/maps?q=${formData.location.lat},${formData.location.lng}&z=15&output=embed`} 
+                                            allowFullScreen 
+                                            title="Live Preview Map"
+                                        />
+                                    </div>
+                                    <a 
+                                        href={`https://www.google.com/maps/search/?api=1&query=${
+                                            (formData.location?.address && formData.location?.address !== "Lokasi tidak tersedia") 
+                                                ? encodeURIComponent(formData.location.address) 
+                                                : `${formData.location?.lat},${formData.location?.lng}`
+                                        }`}
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="block w-full py-2.5 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-black uppercase tracking-widest text-center transition-colors"
+                                    >
+                                        Buka di Maps
+                                    </a>
+                                </>
                             )}
                         </div>
                     </div>
@@ -323,19 +336,34 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     {formData.aiVerification?.ingredients && formData.aiVerification.ingredients.length > 0 ? (
-                                        formData.aiVerification.ingredients.map((ing, i) => (
-                                            <span key={i} className="group relative px-3 py-1.5 bg-stone-100 dark:bg-stone-800 rounded-xl text-sm font-bold text-stone-700 dark:text-stone-300 pr-3">
-                                                {ing}
-                                                {isEditing && (
-                                                    <button 
-                                                        onClick={() => handleRemoveIngredient(i)}
-                                                        className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    >
-                                                        <X className="w-2.5 h-2.5" />
-                                                    </button>
-                                                )}
-                                            </span>
-                                        ))
+                                        formData.aiVerification.ingredients.map((ing, i) => {
+                                            const isAllergen = formData.aiVerification?.allergens?.map(a => a.toLowerCase()).includes(ing.toLowerCase());
+                                            return (
+                                                <span 
+                                                    key={i} 
+                                                    className={`group relative px-3 py-1.5 rounded-xl text-sm font-bold pr-3 ${
+                                                        isAllergen 
+                                                            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-1 ring-red-200 dark:ring-red-900/50' 
+                                                            : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
+                                                    }`}
+                                                >
+                                                    {ing}
+                                                    {isAllergen && (
+                                                        <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-200 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-[9px] font-black" title="Peringatan Alergen!">
+                                                            !
+                                                        </span>
+                                                    )}
+                                                    {isEditing && (
+                                                        <button 
+                                                            onClick={() => handleRemoveIngredient(i)}
+                                                            className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        >
+                                                            <X className="w-2.5 h-2.5" />
+                                                        </button>
+                                                    )}
+                                                </span>
+                                            );
+                                        })
                                     ) : (
                                         <span className="text-stone-400 text-sm italic">Belum ada data bahan.</span>
                                     )}

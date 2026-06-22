@@ -882,7 +882,7 @@ async function getInventory(providerId) {
                COALESCE(u.phone, '-') as providerPhone,
                a.latitude as lat, a.longitude as lng, a.full_address as address, a.id as addressId,
                ai.is_edible as isEdible, ai.halal_score as halalScore, ai.quality_score as qualityScore, 
-               ai.reason as aiReason, ai.ingredients as aiIngredients,
+               ai.reason as aiReason, ai.ingredients as aiIngredients, ai.allergens as aiAllergens,
                si.total_potential_points as totalPoints, si.co2_per_portion as co2Saved, 
                si.water_saved_liter as waterSaved, si.land_saved_sqm as landSaved, si.impact_details as impactDetails
         FROM food_items f
@@ -937,7 +937,8 @@ async function getInventory(providerId) {
                 halalScore: item.halalScore,
                 qualityScore: item.qualityScore,
                 reason: item.aiReason,
-                ingredients: item.aiIngredients ? (typeof item.aiIngredients === 'string' ? JSON.parse(item.aiIngredients) : item.aiIngredients) : []
+                ingredients: item.aiIngredients ? (typeof item.aiIngredients === 'string' ? JSON.parse(item.aiIngredients) : item.aiIngredients) : [],
+                allergens: item.aiAllergens ? (typeof item.aiAllergens === 'string' ? JSON.parse(item.aiAllergens) : item.aiAllergens) : []
             } : { isEdible: true, halalScore: 90 }, // Default if missing
             socialImpact: item.totalPoints !== null ? {
                 totalPoints: item.totalPoints,
