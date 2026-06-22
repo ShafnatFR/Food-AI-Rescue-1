@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Package, LayoutGrid, StretchHorizontal, Plus, Loader2, Lock, AlertCircle, MapPin } from 'lucide-react';
 import { EmptyState } from '../../../common/EmptyState';
 import { FoodItem, UserData, FoodCategory, PackageType, StorageType, ProviderRole } from '../../../../types';
@@ -13,9 +13,6 @@ import { StockPagination } from './StockPagination';
 import { Button } from '../../../components/Button';
 import { db } from '../../../../services/db';
 import { checkAndExpireItems } from '../../../../utils/expiryChecker';
-
-const CACHE_EXPIRY_MS = 10 * 60 * 1000; // 10 Minutes
-const CACHE_VERSION = 'v3'; // Bump this when data structure changes (e.g. added location field)
 
 interface StockManagerProps {
     foodItems: FoodItem[];
@@ -55,146 +52,80 @@ export const StockManager: React.FC<StockManagerProps> = ({
             onAddFormOpened?.();
         }
     }, [openAddForm, onAddFormOpened]);
+
     const [selectedProduct, setSelectedProduct] = useState<FoodItem | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('grid');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 12;
-    // Internal data fetching loading state
     const [isFetching, setIsFetching] = useState(true);
-    
-    // State to track if provider has setup an address
     const [hasAddress, setHasAddress] = useState<boolean | null>(null);
 
-    // Function to fetch local specific data (Address & Inventory) with Caching Logic
-    const fetchInventoryAndAddress = async (forceRefresh: boolean = false) => {
-        const cacheKey = `far_inventory_${CACHE_VERSION}_${currentUser?.id}`;
-        const addressCacheKey = `far_has_address_${CACHE_VERSION}_${currentUser?.id}`;
-        
-        // 1. Check Cache first if not forcing refresh
-        if (!forceRefresh) {
-            const cachedInventoryObj = localStorage.getItem(cacheKey);
-            const cachedHasAddress = localStorage.getItem(addressCacheKey);
-            
-            if (cachedInventoryObj && cachedHasAddress !== null) {
-                try {
-                    const { data, timestamp } = JSON.parse(cachedInventoryObj);
-                    const now = Date.now();
-                    
-                    // Check if cache is still valid (< 10 minutes)
-                    if (now - timestamp < CACHE_EXPIRY_MS) {
-                        console.log("%c[CACHE-VALID] Using local inventory & address data", "color: #c2410c; font-weight: bold;");
-                        if (Array.isArray(data) && data.length > 0) {
-                            setFoodItems(data);
-                            setHasAddress(cachedHasAddress === 'true');
-                            setIsFetching(false);
-                            return; // EXIT EARLY
-                        }
-                    } else {
-                        console.log("%c[CACHE-EXPIRED] Data is older than 10 mins, re-fetching...", "color: #ef4444; font-weight: bold;");
-                    }
-                } catch (e) {
-                    console.error("Cache parse error", e);
-                }
-            }
+    // Fetch directly from DB — no cache
+    const fetchInventoryAndAddress = useCallback(async () => {
+        if (!currentUser?.id) {
+            setIsFetching(false);
+            return;
         }
 
         setIsFetching(true);
         try {
-            // Pass currentUser.id to filter on backend
             const [inventoryData, addressData] = await Promise.all([
-                db.getInventory(currentUser?.id),
-                db.getAddresses(currentUser?.id)
+                db.getInventory(currentUser.id),
+                db.getAddresses(currentUser.id)
             ]);
 
             if (inventoryData && Array.isArray(inventoryData)) {
-                const processedInventory = disableExpiryLogic 
-                    ? inventoryData 
+                const processedInventory = disableExpiryLogic
+                    ? inventoryData
                     : await checkAndExpireItems(inventoryData);
                 setFoodItems(processedInventory);
-                // Save to Cache with TIMESTAMP
-                localStorage.setItem(cacheKey, JSON.stringify({ 
-                    data: processedInventory, 
-                    timestamp: Date.now() 
-                }));
             }
 
-            // Check if address exists and save to Cache
-            const exists = !!(addressData && addressData.length > 0);
-            setHasAddress(exists);
-            localStorage.setItem(addressCacheKey, String(exists));
-
+            setHasAddress(!!(addressData && addressData.length > 0));
         } catch (error) {
-            console.error("Gagal memuat data:", error);
+            console.error('Gagal memuat data inventaris:', error);
         } finally {
             setIsFetching(false);
         }
-    };
+    }, [currentUser?.id, disableExpiryLogic, setFoodItems]);
 
     // Combined Refresh Handler
     const handleRefresh = async () => {
-        // Call parent refresh (Global Data)
-        if (onParentRefresh) {
-            await onParentRefresh(); 
-        }
-        // Call local refresh with FORCE
-        await fetchInventoryAndAddress(true);
+        if (onParentRefresh) await onParentRefresh();
+        await fetchInventoryAndAddress();
     };
 
-    // Gabungkan state loading internal dan dari parent (transisi)
     const showLoading = isFetching || isParentLoading;
 
-    // FETCH DATA ON MOUNT
+    // Fetch on mount & when user changes
     useEffect(() => {
-        if (currentUser?.id) {
-            fetchInventoryAndAddress();
-        } else {
-            setIsFetching(false);
-        }
-    }, [currentUser?.id]);
+        fetchInventoryAndAddress();
+    }, [fetchInventoryAndAddress]);
 
-    const handleAddNewItem = (newItem: FoodItem) => {
-        // Optimistic Update: Tambahkan langsung ke state agar UI responsif
-        const updatedItems = [newItem, ...foodItems];
-        setFoodItems(updatedItems);
+    // After adding, re-fetch from DB to get full data (including location/addressId)
+    const handleAddNewItem = async (_newItem: FoodItem) => {
         setIsAddingNew(false);
-        
-        // Update Cache with timestamp
-        localStorage.setItem(`far_inventory_${CACHE_VERSION}_${currentUser?.id}`, JSON.stringify({
-            data: updatedItems,
-            timestamp: Date.now()
-        }));
+        await fetchInventoryAndAddress();
     };
 
-    const handleUpdateItem = (updatedItem: FoodItem) => {
-        const updatedItems = foodItems.map(item => item.id === updatedItem.id ? updatedItem : item);
-        setFoodItems(updatedItems);
-        setSelectedProduct(updatedItem); 
-        
-        // Update Cache with timestamp
-        localStorage.setItem(`far_inventory_${CACHE_VERSION}_${currentUser?.id}`, JSON.stringify({
-            data: updatedItems,
-            timestamp: Date.now()
-        }));
+    // After updating, re-fetch from DB so all fields are fresh
+    const handleUpdateItem = async (updatedItem: FoodItem) => {
+        setSelectedProduct(updatedItem);
+        await fetchInventoryAndAddress();
     };
 
-    const handleDeleteItem = (id: string) => {
-        const updatedItems = foodItems.filter(item => item.id !== id);
-        setFoodItems(updatedItems);
+    // After deleting, re-fetch from DB
+    const handleDeleteItem = async (_id: string) => {
         setSelectedProduct(null);
-        
-        // Update Cache with timestamp
-        localStorage.setItem(`far_inventory_${CACHE_VERSION}_${currentUser?.id}`, JSON.stringify({
-            data: updatedItems,
-            timestamp: Date.now()
-        }));
+        await fetchInventoryAndAddress();
     };
 
     // Backend now returns only the relevant items.
     const myItems = foodItems;
 
-    // 2. Filter by Search Query
-    const filteredItems = myItems.filter(item => 
+    // Filter by Search Query
+    const filteredItems = myItems.filter(item =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -209,7 +140,7 @@ export const StockManager: React.FC<StockManagerProps> = ({
                 <QualityCheckInventory 
                     onBack={() => setIsAddingNew(false)} 
                     onSuccess={handleAddNewItem}
-                    currentUser={currentUser} // PASS USER DATA
+                    currentUser={currentUser}
                 />
             </div>
         );
@@ -237,10 +168,7 @@ export const StockManager: React.FC<StockManagerProps> = ({
                 isLoading={showLoading}
             />
 
-            {/* 2. Navigation Tab (Navbar Stok, Pesanan, Riwayat) */}
-
-            
-            {/* 3. Action & Toggle */}
+            {/* 2. Action & Toggle */}
             <div className="space-y-6">
                 <div className="space-y-3">
                     {!showLoading && hasAddress === false && (
@@ -315,7 +243,6 @@ export const StockManager: React.FC<StockManagerProps> = ({
                     icon={Package} 
                     title={searchQuery ? "Tidak Ditemukan" : "Inventory Kosong"} 
                     description={searchQuery ? `Tidak ada produk dengan kata kunci "${searchQuery}" di stok Anda.` : "Anda belum memiliki stok aktif. Mulai donasi sekarang!"}
-                    // Jika address belum ada, hilangkan action button di empty state agar konsisten
                     actionLabel={searchQuery ? "Reset Pencarian" : (hasAddress !== false ? "Tambah Donasi" : undefined)}
                     onAction={searchQuery ? () => setSearchQuery('') : () => setIsAddingNew(true)}
                     className="mt-6"
