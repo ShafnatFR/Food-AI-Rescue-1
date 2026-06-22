@@ -305,10 +305,14 @@ app.post('/api', async (req, res) => {
 
             case 'UPLOAD_IMAGE': 
                 const { uploadToFileSystem } = require('./fileService');
-                const targetFolder = data.folderType || 'fotoProfil'; 
+                const targetFolder = data.folderType || 'inventory'; 
                 const filePath = await uploadToFileSystem(data.base64, data.filename, targetFolder); 
-                // Return full URL (assuming backend is on same host)
-                result = `http://localhost:${port}${filePath}`;
+                // Return full URL directly if it's already an absolute URL (from Supabase)
+                if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+                    result = filePath;
+                } else {
+                    result = `http://localhost:${port}${filePath}`;
+                }
                 break;
 
             case 'VERIFY_FOOD':
