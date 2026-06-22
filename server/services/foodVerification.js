@@ -48,7 +48,7 @@ async function verifyFood(data, userId) {
           "packagingTips": [string],
           "repurposeIdeas": [string],
           "crossContaminationWarning": string,
-          "detectedItems": [ { "name": "Bahan", "category": "Kategori" } ]
+          "detectedItems": [ { "name": "Bahan", "category": "Kategori" } ] // WAJIB MASUKKAN NAMA MAKANAN UTAMANYA DISINI, JANGAN HANYA ALERGEN!
         }
     `;
 

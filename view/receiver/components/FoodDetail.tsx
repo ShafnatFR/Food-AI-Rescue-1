@@ -3,6 +3,7 @@ import { ArrowLeft, Clock, CheckCircle, MapPin, Navigation, Minus, Plus, Calenda
 import { Button } from '../../components/Button';
 import { FoodItem, ClaimHistoryItem, UserData } from '../../../types';
 import { AIVerificationCard } from './AIVerificationCard';
+import { SocialImpactAccordion } from '../../components/SocialImpactAccordion';
 import { db } from '../../../services/db';
 import { formatDateTime, isFoodExpired } from '../../../utils/transformers';
 import { optimizeUnsplashUrl } from '../../../utils/imageOptimizer';
@@ -198,7 +199,14 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
 
             {/* AI VERIFICATION CARD */}
             {item.aiVerification && (
-                <AIVerificationCard verification={item.aiVerification} />
+                <div className="space-y-4">
+                    <AIVerificationCard verification={item.aiVerification} />
+                    {item.socialImpact && (
+                        <div className="bg-[#2e3132] text-[#f0f1f2] rounded-2xl p-2 shadow-md border border-white/5 font-body-md animate-in fade-in slide-in-from-bottom-4">
+                           <SocialImpactAccordion socialImpact={item.socialImpact} weightPerUnit={500} />
+                        </div>
+                    )}
+                </div>
             )}
 
           </div>
