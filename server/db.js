@@ -53,7 +53,11 @@ async function initPool() {
  */
 function convertQueryToPg(sql) {
     let index = 1;
-    return sql.replace(/\?/g, () => `$${index++}`);
+    let pgSql = sql.replace(/\?/g, () => `$${index++}`);
+    if (pgSql.trim().toUpperCase().startsWith('INSERT') && !pgSql.toUpperCase().includes('RETURNING')) {
+        pgSql += ' RETURNING id';
+    }
+    return pgSql;
 }
 
 const db = {
