@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, ShieldCheck, Zap, CheckCircle2, AlertOctagon, 
-  Clock, List, FileText, ShieldAlert, BookOpen, AlertTriangle, Edit3, Save, X, Plus, Leaf, TrendingUp, Info, ChevronDown, Award, Loader2, RefreshCw
+  Clock, List, FileText, ShieldAlert, BookOpen, AlertTriangle, Edit3, Save, X, Plus, Leaf, TrendingUp, Info, ChevronDown, Award, Loader2, RefreshCw, Eye, Thermometer, Package, Recycle
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '../../components/Button';
@@ -478,6 +478,56 @@ export const QualityCheckInventory: React.FC<QualityCheckInventoryProps> = ({ on
                              <p className="text-sm font-bold text-stone-800 dark:text-stone-200">Prediksi hingga: <span className="text-blue-600 dark:text-blue-400">{analysisResult.shelfLifePrediction}</span></p>
                          </div>
                       </div>
+
+                      {/* ADDITIONAL AI INSIGHTS */}
+                      {(analysisResult.physicalCheckTips || analysisResult.reheatingTips || analysisResult.packagingTips || analysisResult.repurposeIdeas || analysisResult.crossContaminationWarning) && (
+                          <div className="space-y-4">
+                              {analysisResult.crossContaminationWarning && (
+                                  <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-2xl border border-red-200 dark:border-red-800">
+                                      <h4 className="font-black text-sm text-red-600 dark:text-red-400 uppercase mb-2 flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> Peringatan Kontaminasi Silang</h4>
+                                      <p className="text-sm text-red-700 dark:text-red-300 font-medium">{analysisResult.crossContaminationWarning}</p>
+                                  </div>
+                              )}
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {analysisResult.physicalCheckTips && analysisResult.physicalCheckTips.length > 0 && (
+                                      <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200 dark:border-stone-800">
+                                          <h4 className="font-black text-xs text-stone-900 dark:text-white uppercase mb-2 flex items-center gap-2"><Eye className="w-4 h-4 text-orange-500" /> Pemeriksaan Fisik</h4>
+                                          <ul className="list-disc pl-4 space-y-1">
+                                              {analysisResult.physicalCheckTips.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{tip}</li>)}
+                                          </ul>
+                                      </div>
+                                  )}
+                                  
+                                  {analysisResult.reheatingTips && analysisResult.reheatingTips.length > 0 && (
+                                      <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200 dark:border-stone-800">
+                                          <h4 className="font-black text-xs text-stone-900 dark:text-white uppercase mb-2 flex items-center gap-2"><Thermometer className="w-4 h-4 text-red-500" /> Saran Pemanasan</h4>
+                                          <ul className="list-disc pl-4 space-y-1">
+                                              {analysisResult.reheatingTips.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{tip}</li>)}
+                                          </ul>
+                                      </div>
+                                  )}
+                                  
+                                  {analysisResult.packagingTips && analysisResult.packagingTips.length > 0 && (
+                                      <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200 dark:border-stone-800">
+                                          <h4 className="font-black text-xs text-stone-900 dark:text-white uppercase mb-2 flex items-center gap-2"><Package className="w-4 h-4 text-blue-500" /> Tips Pengemasan</h4>
+                                          <ul className="list-disc pl-4 space-y-1">
+                                              {analysisResult.packagingTips.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{tip}</li>)}
+                                          </ul>
+                                      </div>
+                                  )}
+                                  
+                                  {analysisResult.repurposeIdeas && analysisResult.repurposeIdeas.length > 0 && (
+                                      <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200 dark:border-stone-800">
+                                          <h4 className="font-black text-xs text-stone-900 dark:text-white uppercase mb-2 flex items-center gap-2"><Recycle className="w-4 h-4 text-green-500" /> Ide Daur Ulang</h4>
+                                          <ul className="list-disc pl-4 space-y-1">
+                                              {analysisResult.repurposeIdeas.map((tip: string, i: number) => <li key={i} className="text-xs font-medium text-stone-600 dark:text-stone-400">{tip}</li>)}
+                                          </ul>
+                                      </div>
+                                  )}
+                              </div>
+                          </div>
+                      )}
  
                       {analysisResult.qualityPercentage >= 70 && (
                          <Button 

@@ -35,6 +35,11 @@ export interface QualityAnalysisResult {
   detectedItems: DetectedItem[];
   detectedCategory: string;
   storageTips: string[];
+  physicalCheckTips?: string[];
+  reheatingTips?: string[];
+  packagingTips?: string[];
+  repurposeIdeas?: string[];
+  crossContaminationWarning?: string;
   socialImpact: DetailedSocialImpact;
 }
 
@@ -54,6 +59,7 @@ export const foodVerification = {
         ingredients: context?.ingredients,
         madeTime: context?.madeTime,
         distributionStart: context?.distributionStart,
+        storageLocation: context?.storageLocation,
         weightGram: context?.weightGram,
         image: imageBase64
       };
