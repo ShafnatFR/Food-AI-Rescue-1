@@ -156,7 +156,10 @@ export const HistoryDetail: React.FC<HistoryDetailProps> = ({ item, onBack }) =>
                     onHandleAction={() => setShowReportModal(false)}
                     onContactAdmin={() => {
                         const adminPhone = "6285215376975";
-                        window.open(`https://wa.me/${adminPhone}?text=Halo Admin, saya ingin menanggapi laporan ID ${mappedReport.id}`, '_blank');
+                        const message = encodeURIComponent(
+                            `Halo Admin Food AI Rescue,\n\nSaya ingin mengajukan BANDING atas laporan berikut:\n- ID Laporan: ${mappedReport.id}\n- ID Pesanan: ${mappedReport.orderId || '-'}\n- Judul: ${mappedReport.title}\n\nAlasan saya mengajukan banding: `
+                        );
+                        window.open(`https://wa.me/${adminPhone}?text=${message}`, '_blank');
                     }}
                 />
             )}

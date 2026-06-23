@@ -165,7 +165,7 @@ export const ReportDetailModal: React.FC<ReportDetailModalProps> = ({
                                 onClick={() => onContactAdmin(report)}
                                 className="flex-1 rounded-2xl font-black uppercase tracking-widest text-xs h-12 bg-blue-600 hover:bg-blue-700 border-none shadow-blue-500/20"
                             >
-                                <MessageSquare className="w-4 h-4 mr-1" /> Beri Tanggapan
+                                <MessageSquare className="w-4 h-4 mr-2" /> Aju Banding ke Admin
                             </Button>
                         </div>
                     </div>

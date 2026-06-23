@@ -47,7 +47,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ onNavigateToOrder, cla
   const handleContactAdmin = (report: Report) => {
     const adminPhone = "6285215376975";
     const message = encodeURIComponent(
-        `Halo Admin Food AI Rescue,\n\nSaya ingin menanggapi laporan berikut:\n- ID Laporan: ${report.id}\n- ID Pesanan: ${report.orderId || '-'}\n- Judul: ${report.title}\n\nBerikut tanggapan saya: `
+        `Halo Admin Food AI Rescue,\n\nSaya ingin mengajukan BANDING atas laporan berikut:\n- ID Laporan: ${report.id}\n- ID Pesanan: ${report.orderId || '-'}\n- Judul: ${report.title}\n\nAlasan saya mengajukan banding: `
     );
     window.open(`https://wa.me/${adminPhone}?text=${message}`, '_blank');
   };
