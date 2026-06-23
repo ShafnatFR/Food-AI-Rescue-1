@@ -101,7 +101,10 @@ const db = {
     },
 
     async query(sql, params = []) {
-        if (!pool) throw new Error('[DB] Pool belum siap. initPool() harus dipanggil lebih dulu.');
+        if (!pool) {
+            console.log('[DB] Pool was null in query. Re-initializing...');
+            await initPool();
+        }
         
         if (isPostgres) {
             const pgSql = convertQueryToPg(sql);
@@ -135,13 +138,19 @@ const db = {
         if (isPostgres) {
             return this.query(sql, params);
         } else {
-            if (!pool) throw new Error('[DB] Pool belum siap. initPool() harus dipanggil lebih dulu.');
+            if (!pool) {
+                console.log('[DB] Pool was null in execute. Re-initializing...');
+                await initPool();
+            }
             return pool.execute(sql, params);
         }
     },
 
     async getConnection() {
-        if (!pool) throw new Error('[DB] Pool belum siap. initPool() harus dipanggil lebih dulu.');
+        if (!pool) {
+            console.log('[DB] Pool was null in getConnection. Re-initializing...');
+            await initPool();
+        }
         
         if (isPostgres) {
             const client = await pool.connect();
