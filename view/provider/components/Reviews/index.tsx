@@ -25,7 +25,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({ onNavigateToOrder, cla
             id: `REV-${c.id}`,
             orderId: c.id,
             foodName: c.foodName,
-            user: 'Penerima Manfaat', // Could be dynamic if backend supplied receiver name
+            user: (c as any).receiverName || `Penerima Manfaat ${c.id.substring(0, 4)}`, // Dynamic seed
             rating: c.rating!,
             comment: c.review || 'Tidak ada komentar tertulis.',
             date: c.date,

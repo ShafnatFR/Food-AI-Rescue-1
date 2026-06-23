@@ -17,8 +17,8 @@ export const ReviewDetailModal: React.FC<ReviewDetailModalProps> = ({ review, on
                 {/* Header Modal */}
                 <div className="p-8 border-b border-stone-100 dark:border-stone-800 flex justify-between items-center bg-stone-50 dark:bg-stone-950">
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 dark:text-orange-400 font-black text-2xl shadow-sm border border-orange-200/50 dark:border-orange-800/50">
-                            {review.user.charAt(0)}
+                        <div className="w-14 h-14 rounded-2xl shrink-0 relative overflow-hidden border border-stone-200/50 dark:border-stone-800/50 shadow-sm bg-stone-50 dark:bg-stone-800">
+                            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${review.id}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffdfbf`} alt="Avatar" className="w-full h-full object-cover" />
                         </div>
                         <div>
                             <h3 className="font-black text-2xl text-stone-900 dark:text-white leading-tight">{review.user}</h3>

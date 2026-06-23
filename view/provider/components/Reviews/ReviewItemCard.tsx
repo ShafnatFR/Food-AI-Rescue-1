@@ -16,7 +16,7 @@ export const ReviewItemCard: React.FC<ReviewItemCardProps> = ({ review, onClick 
         >
             {/* Avatar / Icon */}
             <div className={`w-14 h-14 rounded-2xl shrink-0 relative z-10 overflow-hidden border-2 border-stone-100 dark:border-stone-800`}>
-                <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${review.user}`} alt="Avatar" className="w-full h-full object-cover bg-stone-50 dark:bg-stone-800" />
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${review.id}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffdfbf`} alt="Avatar" className="w-full h-full object-cover bg-stone-50 dark:bg-stone-800" />
             </div>
 
             {/* Main Content Area */}
