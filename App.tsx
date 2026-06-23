@@ -733,33 +733,44 @@ const App: React.FC = () => {
           );
 
 
-          if (currentView === 'reports') return (
+          if (currentView === 'reports' || currentView === 'reviews') return (
               <div className="mx-auto max-w-5xl p-6 pb-32 md:max-w-none md:p-0 md:pb-8">
-                  <div className="mb-6 flex items-center gap-4">
-                      <button onClick={() => setCurrentView('dashboard')} className="rounded-full p-2 hover:bg-stone-100 md:hidden">
-                          <Box className="h-5 w-5 text-stone-500" />
-                      </button>
-                      <h1 className="text-2xl font-black uppercase italic">Pusat Masalah</h1>
+                  <div className="mb-6 flex flex-col gap-4">
+                      <div className="flex items-center gap-4">
+                          <button onClick={() => setCurrentView('dashboard')} className="rounded-full p-2 hover:bg-stone-100 md:hidden">
+                              <Box className="h-5 w-5 text-stone-500" />
+                          </button>
+                          
+                          {/* Segmented Control */}
+                          <div className="bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl flex items-center w-full max-w-md border border-stone-200 dark:border-stone-700">
+                              <button 
+                                  onClick={() => setCurrentView('reviews')}
+                                  className={`flex-1 h-12 rounded-xl text-sm font-bold transition-all ${currentView === 'reviews' ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-sm' : 'text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'}`}
+                              >
+                                  Ulasan Diterima
+                              </button>
+                              <button 
+                                  onClick={() => setCurrentView('reports')}
+                                  className={`flex-1 h-12 rounded-xl text-sm font-bold transition-all ${currentView === 'reports' ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-sm' : 'text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'}`}
+                              >
+                                  Laporan Masalah
+                              </button>
+                          </div>
+                      </div>
                   </div>
-                  <ReportsView 
-                    onNavigateToOrder={(orderId) => { setTargetOrderId(orderId); setCurrentView('inventory-history'); }} 
-                    claims={claimHistory} 
-                  />
-              </div>
-          );
-
-          if (currentView === 'reviews') return (
-              <div className="mx-auto max-w-5xl p-6 pb-32 md:max-w-none md:p-0 md:pb-8">
-                  <div className="mb-6 flex items-center gap-4">
-                      <button onClick={() => setCurrentView('dashboard')} className="rounded-full p-2 hover:bg-stone-100 md:hidden">
-                          <Box className="h-5 w-5 text-stone-500" />
-                      </button>
-                      <h1 className="text-2xl font-black uppercase italic">Ulasan Diterima</h1>
-                  </div>
-                  <ReviewsView 
-                    onNavigateToOrder={(orderId) => { setTargetOrderId(orderId); setCurrentView('inventory-history'); }} 
-                    claims={claimHistory}
-                  />
+                  
+                  {currentView === 'reports' && (
+                      <ReportsView 
+                        onNavigateToOrder={(orderId) => { setTargetOrderId(orderId); setCurrentView('inventory-history'); }} 
+                        claims={claimHistory} 
+                      />
+                  )}
+                  {currentView === 'reviews' && (
+                      <ReviewsView 
+                        onNavigateToOrder={(orderId) => { setTargetOrderId(orderId); setCurrentView('inventory-history'); }} 
+                        claims={claimHistory} 
+                      />
+                  )}
               </div>
           );
           
