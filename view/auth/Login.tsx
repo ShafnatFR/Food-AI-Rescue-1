@@ -85,14 +85,8 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin, onNavigate }) => 
         </div>
 
         {/* Brand */}
-        <div className="relative z-10 flex items-center gap-4 animate-in slide-in-from-top-10 duration-700">
-            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#F97316] to-[#FBBF24] flex items-center justify-center shadow-[0_10px_30px_rgba(249,115,22,0.2)] border border-orange-200">
-                <img src="/assets/logo-icon.svg" alt="Logo" className="w-8 h-8 object-contain" />
-            </div>
-            <div>
-                <span className="text-5xl font-black tracking-tighter text-stone-900 block leading-none">FOOD AI</span>
-                <span className="text-sm font-bold text-orange-600 tracking-[0.35em] block mt-1 uppercase">Rescue Platform</span>
-            </div>
+        <div className="relative z-10 flex items-center animate-in slide-in-from-top-10 duration-700">
+            <img src="/assets/logo-secondary.svg" alt="Food AI Rescue" className="h-16 w-auto object-contain" />
         </div>
 
         {/* Quote */}
