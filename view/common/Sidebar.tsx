@@ -67,8 +67,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             setCurrentView('dashboard');
           }}
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-600 shadow-lg shadow-orange-600/20 transition-transform group-hover:scale-105">
-            <Sparkles className="h-5 w-5 text-white" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-yellow-400 shadow-lg shadow-orange-600/20 transition-transform group-hover:scale-105">
+            <img src="/assets/logo-icon.svg" alt="Logo" className="w-6 h-6 object-contain" />
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-lg font-black uppercase italic leading-none tracking-tighter text-stone-900 dark:text-white">

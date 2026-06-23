@@ -140,7 +140,7 @@ function Navbar({ onNavigate }: { onNavigate: (v: string) => void }) {
         {/* Logo */}
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-orange-200">
-            <Truck className="w-5 h-5 text-white fill-white transform -scale-x-100" />
+            <img src="/assets/logo-icon.svg" alt="Logo" className="w-6 h-6 object-contain" />
           </div>
           <span className="font-black text-xl tracking-tighter text-stone-900">
             FOOD <span className="text-orange-600">AI</span> RESCUE
@@ -1025,9 +1025,12 @@ function Footer({ onNavigate }: { onNavigate: (v: string) => void }) {
         </div>
 
         <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-stone-600 text-sm font-medium inline-flex items-center gap-1.5">
-            © 2026 Food AI Rescue. All rights reserved. Made with <MSIcon name="favorite" size={14} fill={1} className="text-red-500" /> for Indonesia.
-          </p>
+          <div className="flex flex-col gap-2">
+            <img src="/assets/logo-primary.svg" className="h-8 object-contain object-left" alt="Food AI Rescue" />
+            <p className="text-stone-600 text-sm font-medium inline-flex items-center gap-1.5">
+              © 2026 Food AI Rescue. All rights reserved. Made with <MSIcon name="favorite" size={14} fill={1} className="text-red-500" /> for Indonesia.
+            </p>
+          </div>
           <div className="flex gap-6">
             {['Kebijakan Privasi', 'Syarat & Ketentuan', 'Kebijakan Cookie'].map((link, i) => (
               <button key={i} className="text-stone-600 hover:text-orange-400 font-medium text-xs transition-colors">
