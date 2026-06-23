@@ -75,9 +75,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ onNavigateToOrder, cla
             count={reports.length} 
        />
 
-       <div className="flex flex-col gap-4">
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           {currentReports.length === 0 && (
-              <div className="py-10">
+              <div className="py-10 col-span-full">
                 <EmptyState 
                     icon={CheckCircle}
                     title="Bebas Laporan"
@@ -94,14 +94,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ onNavigateToOrder, cla
           ))}
           
           {reports.length > itemsPerPage && (
-            <ReportsPagination 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                setCurrentPage={setCurrentPage}
-                indexOfFirstItem={indexOfFirstItem}
-                indexOfLastItem={indexOfLastItem}
-                totalItems={reports.length}
-            />
+            <div className="col-span-full">
+                <ReportsPagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    setCurrentPage={setCurrentPage}
+                    indexOfFirstItem={indexOfFirstItem}
+                    indexOfLastItem={indexOfLastItem}
+                    totalItems={reports.length}
+                />
+            </div>
           )}
        </div>
 

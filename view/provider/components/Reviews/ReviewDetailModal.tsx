@@ -12,22 +12,22 @@ interface ReviewDetailModalProps {
 
 export const ReviewDetailModal: React.FC<ReviewDetailModalProps> = ({ review, onClose, onShowProductDetail }) => {
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-stone-900 w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden relative flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+            <div className="bg-white dark:bg-stone-900 w-full max-w-xl rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.25)] border border-stone-200/50 dark:border-stone-800/50 overflow-hidden relative flex flex-col max-h-[90vh]">
                 {/* Header Modal */}
-                <div className="p-6 border-b border-stone-100 dark:border-stone-800 flex justify-between items-center bg-stone-50 dark:bg-stone-950">
+                <div className="p-8 border-b border-stone-100 dark:border-stone-800 flex justify-between items-center bg-stone-50 dark:bg-stone-950">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 dark:text-orange-400 font-black text-xl">
+                        <div className="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 dark:text-orange-400 font-black text-2xl shadow-sm border border-orange-200/50 dark:border-orange-800/50">
                             {review.user.charAt(0)}
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg text-stone-900 dark:text-white leading-tight">{review.user}</h3>
-                            <p className="text-xs text-stone-500 font-medium">Penerima Manfaat Terverifikasi</p>
+                            <h3 className="font-black text-2xl text-stone-900 dark:text-white leading-tight">{review.user}</h3>
+                            <p className="text-sm text-stone-500 font-bold tracking-wide mt-1">Penerima Manfaat Terverifikasi</p>
                         </div>
                     </div>
                     <button 
                         onClick={onClose}
-                        className="p-2.5 bg-stone-100 dark:bg-stone-800 rounded-2xl text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
+                        className="p-3 bg-white dark:bg-stone-800 rounded-full text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors shadow-sm border border-stone-100 dark:border-stone-700"
                     >
                         <X className="w-5 h-5" />
                     </button>

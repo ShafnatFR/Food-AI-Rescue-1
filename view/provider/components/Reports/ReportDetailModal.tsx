@@ -39,22 +39,22 @@ export const ReportDetailModal: React.FC<ReportDetailModalProps> = ({
 
     return (
         <>
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-                <div className="bg-white dark:bg-stone-900 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden relative flex flex-col max-h-[90vh]">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+                <div className="bg-white dark:bg-stone-900 w-full max-w-2xl rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.25)] border border-stone-200/50 dark:border-stone-800/50 overflow-hidden relative flex flex-col max-h-[90vh]">
                     {/* Header Modal */}
-                    <div className="p-6 border-b border-stone-100 dark:border-stone-800 flex justify-between items-center bg-stone-50 dark:bg-stone-950">
-                        <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-xl ${report.isUrgent ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'}`}>
-                                <AlertTriangle className="w-6 h-6" />
+                    <div className="p-8 border-b border-stone-100 dark:border-stone-800 flex justify-between items-center bg-stone-50 dark:bg-stone-950">
+                        <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-2xl ${report.isUrgent ? 'bg-red-50 text-red-600 dark:bg-red-900/20' : 'bg-orange-50 text-orange-600 dark:bg-orange-900/20'}`}>
+                                <AlertTriangle className="w-8 h-8" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-xl text-stone-900 dark:text-white leading-tight">{report.title}</h3>
-                                <p className="text-xs text-stone-500 font-medium">Laporan ID: {report.id}</p>
+                                <h3 className="font-black text-2xl text-stone-900 dark:text-white leading-tight">{report.title}</h3>
+                                <p className="text-sm text-stone-500 font-bold tracking-wide mt-1">ID: {report.id}</p>
                             </div>
                         </div>
                         <button 
                             onClick={onClose}
-                            className="p-2.5 bg-stone-100 dark:bg-stone-800 rounded-2xl text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
+                            className="p-3 bg-white dark:bg-stone-800 rounded-full text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors shadow-sm border border-stone-100 dark:border-stone-700"
                         >
                             <X className="w-5 h-5" />
                         </button>

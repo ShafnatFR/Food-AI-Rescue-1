@@ -79,14 +79,16 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({ onNavigateToOrder, cla
           ))}
           
           {reviews.length > itemsPerPage && (
-            <ReviewsPagination 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                setCurrentPage={setCurrentPage}
-                indexOfFirstItem={indexOfFirstItem}
-                indexOfLastItem={indexOfLastItem}
-                totalItems={reviews.length}
-            />
+            <div className="col-span-full">
+                <ReviewsPagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    setCurrentPage={setCurrentPage}
+                    indexOfFirstItem={indexOfFirstItem}
+                    indexOfLastItem={indexOfLastItem}
+                    totalItems={reviews.length}
+                />
+            </div>
           )}
        </div>
 
