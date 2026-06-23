@@ -99,14 +99,29 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
 
   const handleRoute = () => {
     let destination = "";
-    if (item.location?.address && item.location.address !== "Lokasi tidak tersedia") {
-        destination = encodeURIComponent(item.location.address);
-    } else if (item.location?.lat && item.location?.lng && item.location.lat !== -6.914744) {
+    if (item.location?.lat && item.location?.lng && item.location.lat !== -6.914744) {
         destination = `${item.location.lat},${item.location.lng}`;
+    } else if (item.location?.address && item.location.address !== "Lokasi tidak tersedia") {
+        destination = encodeURIComponent(item.location.address);
     } else {
-        return toast.error("Lokasi tidak valid.");
+        return toast.error("Lokasi makanan tidak valid.");
     }
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`, '_blank');
+
+    // Build URL: if we have user's location, use it as origin for turn-by-turn directions
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const origin = `${pos.coords.latitude},${pos.coords.longitude}`;
+                window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`, '_blank');
+            },
+            () => {
+                // Fallback: open without origin, GMaps will ask user
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`, '_blank');
+            }
+        );
+    } else {
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`, '_blank');
+    }
   };
 
   const handleChatToProvider = () => {
@@ -299,19 +314,28 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
                 </div>
             </div>
 
-            {/* MAP CONTEXT CARD */}
             <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 shadow-sm border border-stone-200 dark:border-stone-800">
-                <div className="h-32 rounded-xl bg-stone-100 dark:bg-stone-950 overflow-hidden relative border border-stone-200 dark:border-stone-800 flex items-center justify-center group cursor-pointer" onClick={handleRoute}>
-                    {/* Fake Map Background using CSS or iframe */}
-                    <iframe width="100%" height="100%" frameBorder="0" src={`https://maps.google.com/maps?q=${mapQuery}&z=15&output=embed`} className="filter grayscale group-hover:grayscale-0 transition-all duration-500 pointer-events-none"></iframe>
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/80 dark:from-stone-900/90 to-transparent pointer-events-none"></div>
+                <div 
+                    className="h-36 rounded-xl bg-stone-100 dark:bg-stone-950 overflow-hidden relative border border-stone-200 dark:border-stone-800 cursor-pointer group"
+                    onClick={handleRoute}
+                    title="Klik untuk buka rute di Google Maps"
+                >
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        frameBorder="0" 
+                        src={`https://maps.google.com/maps?q=${mapQuery}&z=15&output=embed`} 
+                        className="filter grayscale group-hover:grayscale-0 transition-all duration-500 pointer-events-none"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
                     <div className="absolute bottom-3 left-3 flex items-center gap-2">
-                        <MapPin className="text-orange-600 w-4 h-4 shrink-0" />
-                        <span className="font-mono text-xs font-bold text-stone-800 dark:text-stone-200 truncate pr-20">{locationAddress}</span>
+                        <MapPin className="text-orange-400 w-4 h-4 shrink-0" />
+                        <span className="font-mono text-xs font-bold text-white truncate pr-24">{locationAddress}</span>
                     </div>
-                    <button className="absolute top-3 right-3 text-[10px] font-mono font-bold bg-white/90 dark:bg-stone-800/90 backdrop-blur px-2.5 py-1.5 rounded-md text-orange-600 border border-orange-600/20 shadow-sm pointer-events-auto hover:bg-orange-50 transition-colors">
-                      Lihat Rute
-                    </button>
+                    <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-mono font-black px-3 py-1.5 rounded-lg shadow-lg transition-all group-hover:scale-105">
+                        <Navigation className="w-3 h-3" />
+                        RUTE SAYA
+                    </div>
                 </div>
             </div>
 

@@ -63,21 +63,23 @@ export const AIVerificationCard: React.FC<AIVerificationCardProps> = ({ verifica
                 </div>
             </div>
 
-            {/* Allergens (If any) */}
-            {(verification.allergens && verification.allergens.length > 0) && (
-                <div className="mt-4 bg-red-500/10 rounded-xl p-4 border border-red-500/20 relative z-10">
-                    <p className="font-mono text-[11px] text-red-400 mb-2 uppercase tracking-widest font-semibold flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5" /> Peringatan Alergen
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                        {verification.allergens.map((allergen, i) => (
-                            <span key={i} className="text-xs font-mono bg-red-500/20 px-2 py-1 rounded-md text-red-200">
+            {/* Allergens — always visible */}
+            <div className="mt-4 bg-red-500/10 rounded-xl p-4 border border-red-500/20 relative z-10">
+                <p className="font-mono text-[11px] text-red-400 mb-2 uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5" /> Peringatan Alergen
+                </p>
+                <div className="flex flex-wrap gap-2">
+                    {verification.allergens && verification.allergens.length > 0 ? (
+                        verification.allergens.map((allergen, i) => (
+                            <span key={i} className="text-xs font-mono bg-red-500/20 px-3 py-1.5 rounded-lg text-red-200 uppercase tracking-wider font-bold">
                                 {allergen}
                             </span>
-                        ))}
-                    </div>
+                        ))
+                    ) : (
+                        <span className="text-xs text-white/40 italic">Tidak ada alergen kritis terdeteksi.</span>
+                    )}
                 </div>
-            )}
+            </div>
         </div>
     );
 };
