@@ -66,6 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             setProfileInitialTab('main');
             setCurrentView('dashboard');
           }}
+        >
           <img src="/assets/logo-secondary.svg" alt="Logo" className="h-10 w-auto object-contain transition-transform group-hover:scale-105" />
         </button>
         {/* Toggle Button Inside Sidebar */}
