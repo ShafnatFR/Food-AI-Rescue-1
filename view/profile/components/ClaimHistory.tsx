@@ -279,7 +279,6 @@ export const ReportModal: React.FC<ReportModalProps> = ({ item, onClose, onSubmi
                             </div>
                         </div>
                     </div>
-                </div>
 
                 <Button onClick={handleSubmit} disabled={!description.trim() || isSubmitting} className="w-full h-14 rounded-2xl text-lg font-bold bg-red-600 hover:bg-red-700 text-white">
                     {isSubmitting ? 'Mengirim Laporan...' : 'Kirim Laporan'}
