@@ -348,39 +348,32 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                             )}
 
                             <div className="mt-6 pt-6 border-t border-stone-200 dark:border-stone-700">
-                                <div className="flex justify-between items-center mb-3">
-                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2">
-                                        <List className="w-3 h-3" /> Bahan Terdeteksi
-                                    </p>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
+                                {/* ITEM TERDETEKSI — Badge Biru */}
+                                <h4 className="font-black text-sm text-stone-900 dark:text-white uppercase tracking-tight flex items-center gap-2 mb-3">
+                                    <List className="w-4 h-4 text-orange-500" /> Item Terdeteksi dalam Foto
+                                </h4>
+                                <div className="flex flex-wrap gap-2 mb-6">
                                     {formData.aiVerification?.ingredients && formData.aiVerification.ingredients.length > 0 ? (
-                                        formData.aiVerification.ingredients.map((ing, i) => {
-                                            return (
-                                                <div key={i} className="flex items-center gap-1.5">
-                                                    <span 
-                                                        className={`group relative px-3 py-1.5 rounded-xl text-sm font-bold pr-3 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300`}
+                                        formData.aiVerification.ingredients.map((ing, i) => (
+                                            <div key={i} className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-xl group relative">
+                                                <span className="text-sm font-black text-blue-700 dark:text-blue-300 uppercase tracking-tighter">{ing}</span>
+                                                {isEditing && (
+                                                    <button
+                                                        onClick={() => handleRemoveIngredient(i)}
+                                                        className="ml-1 p-0.5 bg-red-100 rounded-full text-red-500 hover:bg-red-200"
                                                     >
-                                                        {ing}
-                                                        {isEditing && (
-                                                            <button 
-                                                                onClick={(e) => { e.stopPropagation(); handleRemoveIngredient(i); }}
-                                                                className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                            >
-                                                                <X className="w-2.5 h-2.5" />
-                                                            </button>
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            );
-                                        })
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))
                                     ) : (
                                         <span className="text-stone-400 text-sm italic">Belum ada data bahan.</span>
                                     )}
                                 </div>
 
                                 {isEditing && (
-                                    <div className="mt-4 flex gap-2">
+                                    <div className="mt-2 mb-6 flex gap-2">
                                         <input 
                                             type="text" 
                                             value={newIngredient}
@@ -398,26 +391,21 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                                     </div>
                                 )}
 
-                                {/* Peringatan Alergen Terpisah */}
-                                {formData.aiVerification?.allergens && formData.aiVerification.allergens.length > 0 && (
-                                    <div className="mt-6 pt-6 border-t border-stone-200 dark:border-stone-700">
-                                        <div className="flex justify-between items-center mb-3">
-                                            <p className="text-[10px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2">
-                                                <AlertTriangle className="w-3 h-3" /> Peringatan Alergen
-                                            </p>
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            {formData.aiVerification.allergens.map((alergen, i) => (
-                                                <span 
-                                                    key={`alergen-${i}`} 
-                                                    className="px-3 py-1.5 rounded-xl text-sm font-bold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 uppercase tracking-widest"
-                                                >
-                                                    {alergen}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
+                                {/* PERINGATAN ALERGEN — Badge Merah, seksi terpisah persis seperti QualityCheckInventory */}
+                                <h4 className="font-black text-sm text-stone-900 dark:text-white uppercase tracking-tight flex items-center gap-2 mb-3">
+                                    <AlertTriangle className="w-4 h-4 text-red-500" /> Peringatan Alergen
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {formData.aiVerification?.allergens && formData.aiVerification.allergens.length > 0 ? (
+                                        formData.aiVerification.allergens.map((allergen, i) => (
+                                            <div key={`allergen-${i}`} className="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-800 rounded-xl">
+                                                <span className="text-sm font-black text-red-700 dark:text-red-400 uppercase tracking-tighter">{allergen}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-xs text-stone-400 italic px-1">Tidak ada alergen kritis terdeteksi.</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
