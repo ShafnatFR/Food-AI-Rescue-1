@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Sparkles, Share2, Loader2, Copy, Check, Save, Edit3, Send, Search, LayoutGrid, List, Hash, Zap } from 'lucide-react';
+import { ArrowLeft, Sparkles, Share2, Loader2, Copy, Check, Save, Edit3, Send, Search, LayoutGrid, List, Hash, Zap, Download } from 'lucide-react';
 import { Button } from '../components/Button';
 import { db } from '../../services/db';
 import { contentWriter } from '../../services/contentWriter';
@@ -89,6 +89,34 @@ export const CSRWriterEditor: React.FC<CSRWriterEditorProps> = ({ currentUser, f
         } finally {
             setIsGenerating(false);
         }
+    };
+
+    const handleDownload = () => {
+        let textToDownload = '';
+        if (selectedPov === 'both') {
+            textToDownload = `=== DONATUR POV ===\n${editableContentDonor}\n\n=== PENERIMA POV ===\n${editableContentReceiver}`;
+        } else {
+            textToDownload = editableContent;
+        }
+        
+        if (hooks.length > 0) {
+            textToDownload += `\n\n=== ALTERNATIVE HOOKS ===\n${hooks.join('\n')}`;
+        }
+        
+        if (hashtags.length > 0) {
+            textToDownload += `\n\n=== HASHTAGS ===\n${hashtags.join(' ')}`;
+        }
+
+        const blob = new Blob([textToDownload], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Impact_Story_${foodItems.find(f => f.id === selectedFoodId)?.name || 'Draft'}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast.success("Story berhasil diunduh.");
     };
 
     const handleSave = async () => {
@@ -451,8 +479,8 @@ export const CSRWriterEditor: React.FC<CSRWriterEditorProps> = ({ currentUser, f
                                     >
                                         <Save className="w-4 h-4 mr-3" /> Simpan Ke Riwayat
                                     </Button>
-                                    <Button className="flex-1 h-16 bg-gradient-to-r from-pink-600 via-rose-500 to-rose-600 rounded-[2rem] text-white font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-pink-500/20 active:scale-95 transition-all">
-                                        <Send className="w-4 h-4 mr-3" /> Publish Story
+                                    <Button onClick={handleDownload} className="flex-1 h-16 bg-gradient-to-r from-pink-600 via-rose-500 to-rose-600 rounded-[2rem] text-white font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-pink-500/20 active:scale-95 transition-all">
+                                        <Download className="w-4 h-4 mr-3" /> Unduh Story
                                     </Button>
                                 </div>
                             </div>
