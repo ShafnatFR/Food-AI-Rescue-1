@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowLeft, MoreVertical, Clock } from 'lucide-react';
+import { ArrowLeft, Clock } from 'lucide-react';
 import { ProviderOrder } from '../../../../types';
 
 interface HeaderSectionProps {
@@ -17,9 +17,6 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({ order, onBack }) =
             <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
                 <button onClick={onBack} className="p-2.5 bg-black/20 backdrop-blur-md rounded-full text-white border border-white/10 hover:bg-black/40 transition-colors pointer-events-auto">
                     <ArrowLeft className="w-6 h-6" />
-                </button>
-                <button className="p-2.5 bg-black/20 backdrop-blur-md rounded-full text-white border border-white/10 hover:bg-black/40 transition-colors pointer-events-auto">
-                    <MoreVertical className="w-6 h-6" />
                 </button>
             </div>
 

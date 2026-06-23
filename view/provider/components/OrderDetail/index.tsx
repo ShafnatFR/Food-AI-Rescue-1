@@ -149,6 +149,14 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
         }
     };
 
+    const handleContactReceiver = () => {
+        const phone = order.receiver.phone;
+        if (!phone) return toast.info("Kontak penerima tidak tersedia.");
+        let cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent("Halo " + order.receiver.name + ", saya dari donatur makanan " + order.foodName)}`, '_blank');
+    };
+
     const handleCloseSplash = () => {
         setShowSuccessSplash(false);
         if (onComplete) onComplete('completed'); // Navigasi kembali ke list setelah splash ditutup
@@ -226,9 +234,9 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
                 <HeaderSection order={order} onBack={onBack} />
                 <div className="px-6 space-y-6 -mt-4 relative z-10 pb-6">
                     <OrderInfoCard orderId={order.id} />
-                    <ReceiverInfo receiver={order.receiver} onContact={() => {}} />
+                    <ReceiverInfo receiver={order.receiver} onContact={handleContactReceiver} />
                     {order.deliveryMethod !== 'pickup' && order.courier && (
-                        <CourierInfo courier={order.courier} onContact={() => {}} />
+                        <CourierInfo courier={order.courier} onContact={() => toast.info("Kontak kurir")} />
                     )}
                     <TimelineDetails 
                         timestamps={order.timestamps} 
@@ -352,6 +360,11 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onBack, onCompl
                             <button onClick={() => setScannerMode('manual')} className={`flex flex-col items-center gap-2 py-3 rounded-2xl border transition-all ${scannerMode === 'manual' ? 'bg-orange-600 text-white border-orange-500' : 'bg-stone-900 text-stone-600 border-stone-800'}`}>
                                 <Keyboard className="w-5 h-5" /><span className="text-[10px] font-black uppercase text-center leading-none">Manual</span>
                             </button>
+                        </div>
+                        <div className="mt-4">
+                            <Button variant="outline" onClick={() => { setShowVerifyModal(false); stopCamera(); }} className="w-full h-14 bg-stone-900 border-stone-800 text-white hover:bg-stone-800 rounded-2xl font-bold tracking-widest uppercase">
+                                Kembali
+                            </Button>
                         </div>
                     </div>
                 </div>

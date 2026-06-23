@@ -129,7 +129,7 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
     if (!rawPhone) return toast.info("Kontak tidak tersedia.");
     let cleanPhone = rawPhone.replace(/\D/g, '');
     if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
-    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent("Halo, saya tertarik dengan donasi: " + item.name)}`, '_blank');
+    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent('Halo, saya tertarik untuk mengambil donasi makanan "' + item.name + '" yang ada di Food AI Rescue. Apakah stoknya masih tersedia?')}`, '_blank');
   };
 
   const locationAddress = item.location?.address || "Lokasi tidak tersedia";
@@ -276,7 +276,7 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
                 <div className="p-6 border-t border-stone-100 dark:border-stone-800">
                     <div className="flex justify-between items-end mb-8">
                         <div>
-                            <p className="font-mono text-stone-500 text-[10px] font-bold uppercase tracking-widest mb-2">Jumlah Ambil (Min: {minAllowed})</p>
+                            <p className="font-mono text-stone-500 text-[10px] font-bold uppercase tracking-widest mb-2">Jumlah Ambil (Min: {minAllowed}, Maks: {Math.min(stockAvailable, 2)})</p>
                             <div className="flex items-center gap-3">
                                 <button onClick={decrement} disabled={claimQuantity <= minAllowed || isThisItemActive || isOutOfStock} className="w-10 h-10 rounded-lg bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-600 dark:text-stone-300 hover:bg-stone-200 disabled:opacity-30 transition-colors">
                                     <Minus className="w-4 h-4" />
@@ -316,10 +316,15 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
 
             <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 shadow-sm border border-stone-200 dark:border-stone-800">
                 <div 
-                    className="h-36 rounded-xl bg-stone-100 dark:bg-stone-950 overflow-hidden relative border border-stone-200 dark:border-stone-800 cursor-pointer group"
-                    onClick={handleRoute}
+                    className="h-36 rounded-xl bg-stone-100 dark:bg-stone-950 overflow-hidden relative border border-stone-200 dark:border-stone-800 group"
                     title="Klik untuk buka rute di Google Maps"
                 >
+                    {/* Transparent overlay to catch clicks safely over iframe */}
+                    <div 
+                        className="absolute inset-0 z-10 cursor-pointer" 
+                        onClick={handleRoute}
+                    />
+                    
                     <iframe 
                         width="100%" 
                         height="100%" 
@@ -328,11 +333,11 @@ export const FoodDetail: React.FC<FoodDetailProps> = ({ item, onBack, onClaim, i
                         className="filter grayscale group-hover:grayscale-0 transition-all duration-500 pointer-events-none"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-                    <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                    <div className="absolute bottom-3 left-3 flex items-center gap-2 pointer-events-none">
                         <MapPin className="text-orange-400 w-4 h-4 shrink-0" />
                         <span className="font-mono text-xs font-bold text-white truncate pr-24">{locationAddress}</span>
                     </div>
-                    <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-mono font-black px-3 py-1.5 rounded-lg shadow-lg transition-all group-hover:scale-105">
+                    <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-mono font-black px-3 py-1.5 rounded-lg shadow-lg transition-all group-hover:scale-105 z-20 pointer-events-none">
                         <Navigation className="w-3 h-3" />
                         RUTE SAYA
                     </div>
