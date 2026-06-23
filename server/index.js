@@ -996,10 +996,11 @@ async function addFoodItem(data) {
             const qualityScore = aiVerification.qualityScore || halalScore;
             const reason = aiVerification.reason || '';
             const ingredients = JSON.stringify(aiVerification.ingredients || []);
+            const allergens = JSON.stringify(aiVerification.allergens || []);
 
             await connection.query(
-                'INSERT INTO ai_verifications (food_id, is_edible, halal_score, quality_score, reason, ingredients) VALUES (?, ?, ?, ?, ?, ?)',
-                [foodId, isEdible, halalScore, qualityScore, reason, ingredients]
+                'INSERT INTO ai_verifications (food_id, is_edible, halal_score, quality_score, reason, ingredients, allergens) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [foodId, isEdible, halalScore, qualityScore, reason, ingredients, allergens]
             );
             console.log(`[ADD_FOOD] AI Verification saved for food_id: ${foodId}`);
         }
