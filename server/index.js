@@ -1203,7 +1203,8 @@ async function processClaim(payload) {
                 'warning', 
                 'Pesanan Masuk!', 
                 `Seseorang baru saja mengklaim menu "${foodItem[0].name}". Mohon segera siapkan.`,
-                claimId
+                claimId,
+                connection
             );
         }
 
@@ -1213,7 +1214,8 @@ async function processClaim(payload) {
             'success',
             'Klaim Berhasil',
             `Klaim untuk "${foodItem[0]?.name || 'makanan'}" sedang diproses. Simpan kode Anda: ${claimData.uniqueCode}`,
-            claimId
+            claimId,
+            connection
         );
 
         await connection.commit();
@@ -2237,12 +2239,18 @@ async function sendBroadcast(msgData, actor) {
 
 // --- HYBRID NOTIFICATION HELPERS ---
 
-async function createNotification(userId, type, title, message, linkedId = null) {
+async function createNotification(userId, type, title, message, linkedId = null, conn = null) {
     if (!userId) return null;
-    const [result] = await db.query(
-        'INSERT INTO notifications (user_id, type, title, message, linked_id) VALUES (?, ?, ?, ?, ?)',
-        [userId, type, title, message, linkedId]
-    );
+    const query = 'INSERT INTO notifications (user_id, type, title, message, linked_id) VALUES (?, ?, ?, ?, ?)';
+    const params = [userId, type, title, message, linkedId];
+    
+    let result;
+    if (conn) {
+        [result] = await conn.query(query, params);
+    } else {
+        [result] = await db.query(query, params);
+    }
+    
     return { id: result.insertId, userId, type, title, message, linkedId, isRead: false, date: new Date().toISOString() };
 }
 
