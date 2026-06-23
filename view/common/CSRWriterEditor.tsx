@@ -369,7 +369,7 @@ export const CSRWriterEditor: React.FC<CSRWriterEditorProps> = ({ currentUser, f
                                         <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em]">AI Narrative Editor</h4>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button onClick={() => copyToClipboard(selectedPov === 'both' ? editableContentDonor + '\n\n' + editableContentReceiver : editableContent)} className="p-3 bg-stone-50 dark:bg-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl text-stone-500 transition-all border border-stone-100 dark:border-stone-800">
+                                        <button onClick={() => copyToClipboard(selectedPov === 'both' ? `=== DONATUR POV ===\n${editableContentDonor}\n\n=== PENERIMA POV ===\n${editableContentReceiver}` : editableContent)} className="p-3 bg-stone-50 dark:bg-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl text-stone-500 transition-all border border-stone-100 dark:border-stone-800">
                                             {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                                         </button>
                                     </div>
