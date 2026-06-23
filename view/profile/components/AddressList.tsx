@@ -182,10 +182,16 @@ export const AddressList: React.FC<AddressListProps> = ({ addresses, onAddAddres
 
     const handleFillFromProfile = () => {
         if (!currentUser) return;
+        let phone = currentUser.phone || '';
+        // Strip non-digit characters first
+        let digits = phone.replace(/\D/g, '');
+        // Remove country code prefix: 62 or leading 0
+        if (digits.startsWith('62')) digits = digits.substring(2);
+        else if (digits.startsWith('0')) digits = digits.substring(1);
         setFormData(prev => ({
             ...prev,
             contactName: currentUser.name || prev.contactName,
-            contactPhone: currentUser.phone || prev.contactPhone
+            contactPhone: digits || prev.contactPhone
         }));
     };
 
