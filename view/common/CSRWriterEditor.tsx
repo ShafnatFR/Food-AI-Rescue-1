@@ -1,6 +1,6 @@
 
-import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Sparkles, Share2, Loader2, Copy, Check, Save, Edit3, Send, Search, LayoutGrid, List, Hash, Zap, Download } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ArrowLeft, Sparkles, Share2, Loader2, Copy, Check, Save, Edit3, Send, Search, LayoutGrid, List, Hash, Zap, Download, History, X } from 'lucide-react';
 import { Button } from '../components/Button';
 import { db } from '../../services/db';
 import { contentWriter } from '../../services/contentWriter';
@@ -34,6 +34,20 @@ export const CSRWriterEditor: React.FC<CSRWriterEditorProps> = ({ currentUser, f
     const [selectedPov, setSelectedPov] = useState<'donor' | 'receiver' | 'both'>('donor');
     const [editableContentDonor, setEditableContentDonor] = useState('');
     const [editableContentReceiver, setEditableContentReceiver] = useState('');
+
+    const [showHistory, setShowHistory] = useState(false);
+    const [historyItems, setHistoryItems] = useState<any[]>([]);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+    useEffect(() => {
+        if (showHistory && currentUser?.id) {
+            setIsLoadingHistory(true);
+            db.getCorporateAIHistory(currentUser.id)
+                .then(setHistoryItems)
+                .catch(e => toast.error("Gagal memuat riwayat: " + e.message))
+                .finally(() => setIsLoadingHistory(false));
+        }
+    }, [showHistory, currentUser?.id]);
 
     const tones = [
         { name: 'Inspirational', icon: '✨' },
@@ -185,7 +199,15 @@ export const CSRWriterEditor: React.FC<CSRWriterEditorProps> = ({ currentUser, f
                     </h2>
                     <p className="text-[10px] font-black text-pink-500 uppercase tracking-[0.2em] mt-1">Impact Storyteller AI</p>
                 </div>
-                <div className="w-11"></div>
+                <div>
+                    <button 
+                        onClick={() => setShowHistory(true)}
+                        className="p-3 bg-stone-100 dark:bg-stone-900 rounded-2xl text-stone-600 dark:text-stone-300 hover:bg-pink-100 hover:text-pink-600 dark:hover:bg-pink-900/30 transition-all active:scale-90"
+                        title="Lihat Riwayat"
+                    >
+                        <History className="w-5 h-5" />
+                    </button>
+                </div>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 custom-scrollbar pb-32">
@@ -488,6 +510,63 @@ export const CSRWriterEditor: React.FC<CSRWriterEditorProps> = ({ currentUser, f
                     </div>
                 </div>
             </div>
+
+            {showHistory && (
+                <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 md:p-6 animate-in fade-in duration-300">
+                    <div className="bg-white dark:bg-stone-950 w-full max-w-4xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-full overflow-hidden">
+                        <div className="p-6 md:p-8 flex items-center justify-between border-b border-stone-100 dark:border-stone-900 bg-stone-50/50 dark:bg-stone-900/50">
+                            <div>
+                                <h3 className="text-xl font-black text-stone-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                                    <History className="w-5 h-5 text-pink-500" /> Riwayat Impact Story
+                                </h3>
+                                <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest mt-1">Daftar tulisan yang telah Anda simpan</p>
+                            </div>
+                            <button onClick={() => setShowHistory(false)} className="p-2 bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 rounded-full transition-colors text-stone-600 dark:text-stone-300">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-stone-950">
+                            {isLoadingHistory ? (
+                                <div className="flex flex-col items-center justify-center py-20 opacity-50">
+                                    <Loader2 className="w-8 h-8 animate-spin text-pink-500 mb-4" />
+                                    <p className="text-xs font-bold text-stone-500">Memuat riwayat...</p>
+                                </div>
+                            ) : historyItems.length === 0 ? (
+                                <div className="text-center py-20">
+                                    <History className="w-12 h-12 text-stone-300 dark:text-stone-700 mx-auto mb-4" />
+                                    <p className="text-sm font-bold text-stone-600 dark:text-stone-400">Belum ada riwayat impact story yang disimpan.</p>
+                                </div>
+                            ) : (
+                                <div className="grid gap-4">
+                                    {historyItems.map((item, idx) => {
+                                        let parsedContent;
+                                        try { parsedContent = typeof item.content === 'string' ? JSON.parse(item.content) : item.content; } catch(e) { parsedContent = item.content; }
+                                        const narrative = parsedContent?.narrative;
+                                        const textToDisplay = typeof narrative === 'object' && narrative !== null ? `=== DONATUR POV ===\n${narrative.donor}\n\n=== PENERIMA POV ===\n${narrative.receiver}` : narrative || '';
+                                        
+                                        return (
+                                        <div key={idx} className="border border-stone-200 dark:border-stone-800 rounded-3xl p-6 hover:border-pink-300 dark:hover:border-pink-800 transition-colors bg-stone-50/50 dark:bg-stone-900/20">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h4 className="font-black text-stone-900 dark:text-white text-lg">{item.title || 'Impact Story'}</h4>
+                                                    <p className="text-[10px] font-bold text-stone-500 mt-1">{new Date(item.created_at).toLocaleString('id-ID')}</p>
+                                                </div>
+                                                <button onClick={() => copyToClipboard(textToDisplay)} className="p-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-all flex items-center gap-2">
+                                                    {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                                                    <span className="text-[10px] font-black uppercase tracking-wider hidden sm:inline">Salin</span>
+                                                </button>
+                                            </div>
+                                            <div className="bg-white dark:bg-stone-950 rounded-2xl border border-stone-100 dark:border-stone-800 p-4 max-h-60 overflow-y-auto custom-scrollbar">
+                                                <p className="text-xs text-stone-600 dark:text-stone-400 whitespace-pre-wrap font-medium">{textToDisplay}</p>
+                                            </div>
+                                        </div>
+                                    )})}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
