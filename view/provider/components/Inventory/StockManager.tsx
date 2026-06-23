@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Package, LayoutGrid, StretchHorizontal, Plus, Loader2, Lock, AlertCircle, MapPin } from 'lucide-react';
 import { EmptyState } from '../../../common/EmptyState';
 import { FoodItem, UserData, FoodCategory, PackageType, StorageType, ProviderRole } from '../../../../types';
-import { ListSkeleton } from '../../../components/Skeleton';
+import { StockItemCardSkeleton } from './StockItemCardSkeleton';
 import { QualityCheckInventory } from '../QualityCheckInventory';
 import { ProductDetailModal } from './ProductDetailModal';
 import { StockItemCard } from './StockItemCard';
@@ -235,8 +235,12 @@ export const StockManager: React.FC<StockManagerProps> = ({
             
             {/* CONTENT AREA: Loading OR Data */}
             {showLoading ? (
-                <div className="pt-8">
-                    <ListSkeleton />
+                <div className="mt-6">
+                    <div className={`grid gap-3 md:gap-5 ${layoutMode === 'grid' ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                            <StockItemCardSkeleton key={i} layoutMode={layoutMode} />
+                        ))}
+                    </div>
                 </div>
             ) : currentItems.length === 0 ? (
                 <EmptyState 

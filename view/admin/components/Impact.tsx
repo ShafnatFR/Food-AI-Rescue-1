@@ -3,7 +3,7 @@ import { TrendingUp, Leaf, Globe, Target, Calendar, Trees, Loader2, AlertTriangl
 import { Button } from '../../components/Button';
 import { UserData } from '../../../types';
 import { toast } from '../../common/ToastContext';
-import { DashboardSkeleton } from '../../components/Skeleton';
+import { AdminImpactSkeleton } from './AdminImpactSkeleton';
 
 interface AdminTarget {
     metric_key: string;
@@ -116,7 +116,7 @@ export const Impact: React.FC<ImpactProps> = ({ currentUser }) => {
   const strokeOffset = circumference - (circumference * targetPercentage / 100);
 
   if (loading && !chartData) {
-    return <DashboardSkeleton />;
+    return <AdminImpactSkeleton />;
   }
 
   if (error) {

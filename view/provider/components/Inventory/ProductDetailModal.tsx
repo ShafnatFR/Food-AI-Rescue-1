@@ -356,32 +356,22 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                                 <div className="flex flex-wrap gap-2">
                                     {formData.aiVerification?.ingredients && formData.aiVerification.ingredients.length > 0 ? (
                                         formData.aiVerification.ingredients.map((ing, i) => {
-                                            const isAllergen = formData.aiVerification?.allergens?.map(a => a.toLowerCase()).includes(ing.toLowerCase());
                                             return (
-                                                <span 
-                                                    key={i} 
-                                                    onClick={() => handleToggleAllergen(ing)}
-                                                    className={`group relative px-3 py-1.5 rounded-xl text-sm font-bold pr-3 ${isEditing ? 'cursor-pointer hover:scale-105 transition-transform' : ''} ${
-                                                        isAllergen 
-                                                            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-1 ring-red-200 dark:ring-red-900/50' 
-                                                            : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
-                                                    }`}
-                                                >
-                                                    {ing}
-                                                    {isAllergen && (
-                                                        <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-200 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-[9px] font-black" title="Peringatan Alergen!">
-                                                            !
-                                                        </span>
-                                                    )}
-                                                    {isEditing && (
-                                                        <button 
-                                                            onClick={() => handleRemoveIngredient(i)}
-                                                            className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                        >
-                                                            <X className="w-2.5 h-2.5" />
-                                                        </button>
-                                                    )}
-                                                </span>
+                                                <div key={i} className="flex items-center gap-1.5">
+                                                    <span 
+                                                        className={`group relative px-3 py-1.5 rounded-xl text-sm font-bold pr-3 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300`}
+                                                    >
+                                                        {ing}
+                                                        {isEditing && (
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); handleRemoveIngredient(i); }}
+                                                                className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                <X className="w-2.5 h-2.5" />
+                                                            </button>
+                                                        )}
+                                                    </span>
+                                                </div>
                                             );
                                         })
                                     ) : (
@@ -405,6 +395,27 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product:
                                         >
                                             <Plus className="w-5 h-5" />
                                         </button>
+                                    </div>
+                                )}
+
+                                {/* Peringatan Alergen Terpisah */}
+                                {formData.aiVerification?.allergens && formData.aiVerification.allergens.length > 0 && (
+                                    <div className="mt-6 pt-6 border-t border-stone-200 dark:border-stone-700">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <p className="text-[10px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2">
+                                                <AlertTriangle className="w-3 h-3" /> Peringatan Alergen
+                                            </p>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {formData.aiVerification.allergens.map((alergen, i) => (
+                                                <span 
+                                                    key={`alergen-${i}`} 
+                                                    className="px-3 py-1.5 rounded-xl text-sm font-bold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 uppercase tracking-widest"
+                                                >
+                                                    {alergen}
+                                                </span>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>

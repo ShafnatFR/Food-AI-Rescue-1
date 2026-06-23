@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Filter, Navigation, ScanLine, Search, ChevronRight, Eye, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { EmptyState } from '../../common/EmptyState';
-import { ListSkeleton } from '../../components/Skeleton';
+import { MissionCardSkeleton } from './MissionCardSkeleton';
 import { VolunteerTask } from '../../../types';
 
 interface MissionListProps {
@@ -42,8 +42,8 @@ export const MissionList: React.FC<MissionListProps> = ({ tasks, activeTab, onAc
         )}
 
         {isLoading ? (
-            <div className="pt-8">
-                <ListSkeleton />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 pt-4">
+                {[1, 2, 3, 4, 5, 6].map(i => <MissionCardSkeleton key={i} />)}
             </div>
         ) : filteredTasks.length === 0 ? (
             <EmptyState 

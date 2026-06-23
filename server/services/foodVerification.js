@@ -48,7 +48,7 @@ async function verifyFood(data, userId) {
           "packagingTips": [string],
           "repurposeIdeas": [string],
           "crossContaminationWarning": string,
-          "detectedItems": [ { "name": "Bahan", "category": "Kategori" } ] // WAJIB MASUKKAN NAMA MAKANAN UTAMANYA DISINI, JANGAN HANYA ALERGEN!
+          "detectedItems": [ { "name": "Bahan", "category": "Kategori" } ] // URAIKAN komposisi bahan utama penyusun makanan ini secara logis (misal jika Ayam Bakar, sebutkan Ayam, Kecap, Sambal, Selada, dll). Jadikan nama makanan utama sebagai item pertama.
         }
     `;
 

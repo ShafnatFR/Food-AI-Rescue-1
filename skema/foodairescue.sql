@@ -488,7 +488,21 @@ CREATE TABLE `verification_codes` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
+-- Struktur dari tabel `user_badges`
+--
+
+CREATE TABLE `user_badges` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `badge_id` int(11) NOT NULL,
+  `awarded_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+
 -- Indexes for dumped tables
 --
 
@@ -673,11 +687,18 @@ ALTER TABLE `user_ai_keys`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
---
 -- Indeks untuk tabel `user_impact_stats`
 --
 ALTER TABLE `user_impact_stats`
   ADD PRIMARY KEY (`user_id`);
+
+--
+-- Indeks untuk tabel `user_badges`
+--
+ALTER TABLE `user_badges`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `badge_id` (`badge_id`);
 
 --
 -- Indeks untuk tabel `user_quests`
@@ -834,6 +855,12 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT untuk tabel `user_ai_keys`
 --
 ALTER TABLE `user_ai_keys`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `user_badges`
+--
+ALTER TABLE `user_badges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

@@ -62,7 +62,13 @@ function convertQueryToPg(sql) {
     let index = 1;
     let pgSql = sql.replace(/\?/g, () => `$${index++}`);
     if (pgSql.trim().toUpperCase().startsWith('INSERT') && !pgSql.toUpperCase().includes('RETURNING')) {
-        pgSql += ' RETURNING id';
+        // Tables that do not have an 'id' column
+        const noIdTables = ['system_settings', 'broadcast_reads', 'user_impact_stats', 'user_badges'];
+        const isNoId = noIdTables.some(t => pgSql.toLowerCase().includes('into ' + t + ' ') || pgSql.toLowerCase().includes('into ' + t + '(') || pgSql.toLowerCase().includes('into `' + t + '`'));
+        
+        if (!isNoId) {
+            pgSql += ' RETURNING id';
+        }
     }
     return pgSql;
 }

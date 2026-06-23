@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Leaf, Users, Globe, AlertTriangle, Package, Truck, UserPlus, FileText, Megaphone, ArrowRight, Activity, TrendingUp, TrendingDown, Clock, Crown, Loader2, RefreshCcw, Timer } from 'lucide-react';
-import { DashboardSkeleton } from '../../components/Skeleton';
+import { AdminOverviewSkeleton } from './AdminOverviewSkeleton';
 
 interface AdminDashboardData {
     stats: {
@@ -162,7 +162,7 @@ export const Overview: React.FC<OverviewProps> = ({ onNavigate, currentUser }) =
 
     // Loading State
     if (loading) {
-        return <DashboardSkeleton />;
+        return <AdminOverviewSkeleton />;
     }
 
     // Error State

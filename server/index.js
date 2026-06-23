@@ -268,9 +268,10 @@ app.post('/api', async (req, res) => {
                 break;
 
             case 'GET_ADMINS': result = await getAdmins(); break;
-            case 'GET_SYSTEM_LOGS': result = await getSystemLogs(); break;
             case 'UPSERT_ADMIN': result = await upsertAdmin(data.admin, data.actor); break;
             case 'DELETE_ADMIN': result = await deleteAdmin(data.id, data.actor); break;
+            case 'UPSERT_BADGE': result = await upsertBadge(data.badge, data.actor); break;
+            case 'DELETE_BADGE': result = await deleteBadge(data.id, data.actor); break;
 
             case 'GET_RANK_LEVELS':
                 const [levels] = await db.query('SELECT * FROM rank_levels ORDER BY role ASC, min_points ASC');
@@ -2315,17 +2316,40 @@ async function markNotificationRead(userId, notifId) {
 // --- BADGE & ACHIEVEMENT HELPERS ---
 
 async function getBadges(role) {
-    const mappedRole = role ? mapRole(role) : null;
     let query = 'SELECT * FROM badges';
     const params = [];
-    
-    if (mappedRole) {
+    if (role) {
         query += ' WHERE role = ? OR role IS NULL';
-        params.push(mappedRole);
+        params.push(role);
     }
-    
+    query += ' ORDER BY min_points ASC';
     const [rows] = await db.query(query, params);
     return rows;
+}
+
+async function upsertBadge(badge, actor) {
+    const { id, name, role, min_points, icon, description, image } = badge;
+    if (id && !String(id).startsWith('badge-')) {
+        await db.query(
+            'UPDATE badges SET name = ?, role = ?, min_points = ?, icon = ?, description = ?, image = ? WHERE id = ?',
+            [name, role, min_points, icon, description, image, id]
+        );
+        await logAction(actor?.id, actor?.name, 'Edit Badge', `Update Badge: ${name}`);
+        return { ...badge };
+    } else {
+        const [res] = await db.query(
+            'INSERT INTO badges (name, role, min_points, icon, description, image) VALUES (?, ?, ?, ?, ?, ?)',
+            [name, role, min_points, icon, description, image]
+        );
+        await logAction(actor?.id, actor?.name, 'Add Badge', `Tambah Badge: ${name}`);
+        return { ...badge, id: res.insertId };
+    }
+}
+
+async function deleteBadge(id, actor) {
+    await db.query('DELETE FROM badges WHERE id = ?', [id]);
+    await logAction(actor?.id, actor?.name, 'Delete Badge', `Hapus Badge ID: ${id}`, 'warning');
+    return { id, success: true };
 }
 
 async function checkAchievements(userId, points) {

@@ -7,7 +7,7 @@ import { FoodItem } from '../../../types';
 import { optimizeUnsplashUrl } from '../../../utils/imageOptimizer';
 import { StoreIcon } from './StoreIcon';
 import { formatDateTime } from '../../../utils/transformers';
-import { ListSkeleton, CardSkeleton } from '../../components/Skeleton';
+import { FoodCardSkeleton } from './FoodCardSkeleton';
 
 interface FoodListProps {
   onOpenNotifications: () => void;
@@ -179,13 +179,9 @@ export const FoodList: React.FC<FoodListProps> = ({
 
       <div className="space-y-6">
         {isLoading ? (
-            layoutMode === 'grid' ? (
-                <div className="grid gap-3 md:gap-5 grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-4 w-full">
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <CardSkeleton key={i} />)}
-                </div>
-            ) : (
-                <div className="pt-4 w-full"><ListSkeleton /></div>
-            )
+            <div className={`grid gap-3 md:gap-5 w-full ${layoutMode === 'grid' ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <FoodCardSkeleton key={i} layoutMode={layoutMode} />)}
+            </div>
         ) : currentItems.length === 0 ? (
            <EmptyState 
              icon={Info} 
