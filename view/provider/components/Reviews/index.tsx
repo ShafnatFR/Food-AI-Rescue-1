@@ -16,7 +16,6 @@ interface ReviewsViewProps {
 
 export const ReviewsView: React.FC<ReviewsViewProps> = ({ onNavigateToOrder, claims = [] }) => {
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
-  const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('grid');
   
   // Transform Claims with ratings into Review objects
   const reviews = useMemo(() => {
@@ -55,13 +54,11 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({ onNavigateToOrder, cla
     <div className="space-y-6 animate-in fade-in">
        <ReviewsHeader 
             count={reviews.length} 
-            layoutMode={layoutMode} 
-            setLayoutMode={setLayoutMode}
        />
 
-       <div className={`grid gap-3 md:gap-4 ${layoutMode === 'grid' ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           {currentReviews.length === 0 && (
-             <div className="col-span-full">
+             <div className="py-10 col-span-full">
                 <EmptyState 
                     icon={MessageSquare}
                     title="Belum Ada Ulasan"
@@ -73,7 +70,6 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({ onNavigateToOrder, cla
              <ReviewItemCard 
                 key={review.id} 
                 review={review} 
-                layoutMode={layoutMode} 
                 onClick={() => setSelectedReview(review)} 
              />
           ))}
