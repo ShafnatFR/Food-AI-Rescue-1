@@ -1107,7 +1107,9 @@ async function getClaims(providerId, receiverId) {
                rev.rating as rating, rev.comment as review, rev.review_media as reviewMedia,
                rep.id as reportId, rep.category as reportReason, rep.description as reportDescription,
                rep.evidence_photo as reportEvidence, rep.status as reportStatus,
-               u_reporter.phone as reporterPhone
+               u_reporter.phone as reporterPhone,
+               f.initial_quantity as initialQuantity,
+               si.total_potential_points as totalPotentialPoints, si.co2_per_portion as co2PerPortion
         FROM claims c 
         JOIN food_items f ON c.food_id = f.id 
         JOIN users u_prov ON f.provider_id = u_prov.id
@@ -1117,6 +1119,7 @@ async function getClaims(providerId, receiverId) {
         LEFT JOIN reviews rev ON c.id = rev.claim_id
         LEFT JOIN reports rep ON c.id = rep.claim_id
         LEFT JOIN users u_reporter ON rep.reporter_id = u_reporter.id
+        LEFT JOIN social_impacts si ON f.id = si.food_id
         WHERE 1=1
     `;
     const params = [];
@@ -1148,6 +1151,10 @@ async function getClaims(providerId, receiverId) {
         providerLocation: { lat: c.prov_lat, lng: c.prov_lng, address: c.prov_addr, label: c.prov_label },
         receiverLocation: { lat: c.rec_lat, lng: c.rec_lng, address: c.rec_addr, label: c.rec_label },
         location: { lat: c.prov_lat, lng: c.prov_lng, address: c.prov_addr, label: c.prov_label },
+        socialImpact: {
+            totalPoints: c.totalPotentialPoints ? Math.round((c.totalPotentialPoints / (c.initialQuantity || 1)) * c.claimed_quantity) : (c.claimed_quantity * 50),
+            co2Saved: c.co2PerPortion ? parseFloat((c.co2PerPortion * c.claimed_quantity).toFixed(2)) : parseFloat((c.claimed_quantity * 0.5).toFixed(2))
+        },
         // Review & Report Data
         reviewMedia: (() => {
             if (!c.reviewMedia) return [];
