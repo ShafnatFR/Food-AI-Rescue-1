@@ -201,9 +201,10 @@ export interface VolunteerTask {
   items: string;
   status: 'available' | 'active' | 'history';
   stage?: 'pickup' | 'dropoff';
-  imageUrl: string;
-  description: string;
+  imageUrl?: string;
+  description?: string;
   ingredients?: string[];
+  allergens?: string[];
   foodCondition?: number;
   donorLocation?: { lat: number; lng: number; address: string };
   receiverLocation?: { lat: number; lng: number; address: string };

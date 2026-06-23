@@ -124,16 +124,14 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
             ? `${task.receiverLocation.lat},${task.receiverLocation.lng}`
             : "";
 
-    const mapUrl = userLocation && donorQuery && receiverQuery
-        ? `https://maps.google.com/maps?saddr=${userLocation.lat},${userLocation.lng}&daddr=${donorQuery}+to:${receiverQuery}&dirflg=d&output=embed`
-        : donorQuery && receiverQuery
-            ? `https://maps.google.com/maps?saddr=${donorQuery}&daddr=${receiverQuery}&dirflg=d&output=embed`
-            : donorQuery
-                ? `https://maps.google.com/maps?q=${donorQuery}&output=embed`
-                : "";
+    const mapUrl = donorQuery && receiverQuery
+        ? `https://maps.google.com/maps?saddr=${donorQuery}&daddr=${receiverQuery}&dirflg=d&output=embed`
+        : donorQuery
+            ? `https://maps.google.com/maps?q=${donorQuery}&output=embed`
+            : "";
 
     return (
-        <div className="fixed inset-0 bg-[#FDFBF7] dark:bg-stone-950 z-[100] overflow-y-auto animate-in slide-in-from-right duration-300">
+        <div className="bg-[#FDFBF7] dark:bg-stone-950 min-h-screen animate-in slide-in-from-right duration-300">
             {/* Header / Navbar */}
             <div className="sticky top-0 z-50 bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-100 dark:border-stone-800 p-4 flex items-center gap-4">
                 <button onClick={onBack} className="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
@@ -177,6 +175,18 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({ task, onBack, onAc
                                     {task.ingredients.map((ing, i) => (
                                         <span key={i} className="text-[10px] font-bold px-2 py-1 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 rounded-lg border border-stone-200 dark:border-stone-700 shadow-sm">
                                             {ing}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {task.allergens && task.allergens.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-stone-200 dark:border-stone-800">
+                                <p className="text-[10px] font-bold text-stone-400 uppercase mb-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3 text-red-500"/> Alergen (Peringatan):</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {task.allergens.map((alg, i) => (
+                                        <span key={i} className="text-[10px] font-bold px-2 py-1 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800 shadow-sm">
+                                            {alg}
                                         </span>
                                     ))}
                                 </div>

@@ -321,6 +321,7 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
       // Find FoodItem to get details like aiVerification
       const foodItem = inventory.find(f => String(f.id) === String(claim.foodId));
       let ingredients: string[] = [];
+      let allergens: string[] = [];
       let foodCondition = 100;
 
       if (foodItem && foodItem.aiVerification) {
@@ -331,6 +332,9 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
               
               if (aiData.ingredients && Array.isArray(aiData.ingredients)) {
                   ingredients = aiData.ingredients;
+              }
+              if (aiData.allergens && Array.isArray(aiData.allergens)) {
+                  allergens = aiData.allergens;
               }
               if (aiData.halalScore) {
                   foodCondition = aiData.halalScore;
@@ -351,9 +355,10 @@ export const VolunteerIndex: React.FC<VolunteerIndexProps> = ({
           items: `${claim.foodName} (${claim.claimedQuantity || '1 Porsi'})`,
           status: taskStatus,
           stage: (claim.status as string) === 'completed' ? 'dropoff' : (claim.courierStatus === 'picking_up' ? 'pickup' : 'dropoff'),
-          imageUrl: claim.imageUrl,
+          imageUrl: claim.imageUrl || (foodItem as any)?.imageUrl || (foodItem as any)?.image_url,
           description: claim.description || 'Pengantaran Makanan',
           ingredients: ingredients,
+          allergens: allergens,
           foodCondition: foodCondition,
           donorLocation: donorLocation,
           receiverLocation: receiverLocation,
