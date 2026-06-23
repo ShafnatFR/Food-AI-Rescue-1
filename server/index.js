@@ -105,6 +105,12 @@ app.post('/api', async (req, res) => {
         switch (action) {
             case 'REGISTER_USER': result = await registerUser(data); break;
             case 'LOGIN_USER': result = await loginUser(data); break;
+            case 'LOGOUT_USER': 
+                if (db.closePool) {
+                    await db.closePool(); // Kill session / free up connection pool on this lambda instance
+                }
+                result = { success: true, message: 'Session killed and logged out successfully' };
+                break;
             
             // --- EMAIL VERIFICATION & PASSWORD RESET ---
             case 'SEND_VERIFICATION_EMAIL':

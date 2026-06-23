@@ -172,6 +172,18 @@ const db = {
             const connection = await pool.getConnection();
             return connection;
         }
+    },
+
+    async closePool() {
+        if (pool) {
+            try {
+                await pool.end();
+                pool = null;
+                console.log('[DB] 🔌 Connection pool ditutup (Session Killed).');
+            } catch (err) {
+                console.error('[DB] Error saat menutup pool:', err);
+            }
+        }
     }
 };
 

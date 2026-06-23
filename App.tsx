@@ -370,7 +370,20 @@ const App: React.FC = () => {
       }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+      // Panggil backend untuk kill session (menutup connection pool di sisi Vercel instance)
+      try {
+          if (currentUser?.id) {
+              await fetch('/api', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'LOGOUT_USER', data: { userId: currentUser.id } })
+              });
+          }
+      } catch (e) {
+          console.warn("Gagal kill session backend:", e);
+      }
+
       // Clear Sessions
       localStorage.removeItem('far_session');
       sessionStorage.removeItem('far_session');
