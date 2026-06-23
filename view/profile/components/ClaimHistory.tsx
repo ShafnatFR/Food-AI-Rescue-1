@@ -68,29 +68,33 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ item, onClose, onSubmi
             onSubmit(rating, review, uploadedUrls);
         } catch (error) {
             console.error("Failed to upload review media:", error);
-            toast.error("Gagal mengunggah media ulasan. Tetap mengirim ulasan tanpa media baru.");
-            onSubmit(rating, review, []);
+            toast.error("Gagal mengunggah media ulasan. Transaksi dibatalkan.");
+            return;
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white dark:bg-stone-900 p-6 rounded-2xl max-w-md w-full relative shadow-2xl overflow-y-auto max-h-[90vh]">
-                <button onClick={onClose} className="absolute top-4 right-4 text-stone-400 hover:text-stone-600 dark:hover:text-white">
-                    <X className="w-6 h-6" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in">
+            <div className="bg-white dark:bg-stone-900 p-8 rounded-[2.5rem] max-w-md w-full relative shadow-[0_20px_50px_-12px_rgba(0,0,0,0.25)] border border-stone-200/50 dark:border-stone-800/50 overflow-y-auto max-h-[90vh] overflow-x-hidden">
+                <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 rounded-full text-stone-500 transition-colors">
+                    <X className="w-5 h-5" />
                 </button>
-                <div className="flex items-center gap-4 mb-6 pb-4 border-b border-stone-200 dark:border-stone-800">
+                
+                <h3 className="text-2xl font-black text-stone-900 dark:text-white mb-2">Beri Ulasan</h3>
+                <p className="text-sm text-stone-500 mb-6">Bagaimana pengalaman Anda menerima makanan ini?</p>
+
+                <div className="flex items-center gap-4 mb-8 p-4 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-100 dark:border-stone-800">
                     <img src={item.imageUrl} alt={item.foodName} className="w-16 h-16 rounded-xl object-cover" />
                     <div>
-                        <h3 className="text-lg font-bold text-stone-900 dark:text-white">{item.foodName}</h3>
-                        <p className="text-sm text-stone-500">{item.providerName}</p>
+                        <h3 className="text-lg font-bold text-stone-900 dark:text-white leading-tight">{item.foodName}</h3>
+                        <p className="text-xs text-stone-500 mt-1">{item.providerName}</p>
                     </div>
                 </div>
-                <div className="text-center mb-6">
-                    <p className="text-sm font-medium text-stone-600 dark:text-stone-400 mb-3">Bagaimana pengalaman Anda?</p>
-                    <div className="flex justify-center gap-2">
+
+                <div className="text-center mb-8">
+                    <div className="flex justify-center gap-3">
                         {[1, 2, 3, 4, 5].map(star => (
                             <button
                                 key={star}
@@ -109,15 +113,16 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ item, onClose, onSubmi
                         ))}
                     </div>
                 </div>
+                
                 <textarea
                     value={review}
                     onChange={(e) => setReview(e.target.value)}
-                    placeholder="Tulis ulasan Anda..."
+                    placeholder="Ceritakan pengalaman Anda di sini..."
                     rows={4}
-                    className="w-full p-3 border rounded-xl dark:bg-stone-800 dark:text-white mb-4 focus:outline-none focus:border-orange-500"
+                    className="w-full p-4 border border-stone-200 dark:border-stone-800 rounded-2xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-white mb-6 focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all resize-none"
                 />
                 
-                <div className="mb-6">
+                <div className="mb-8">
                     <div className="flex gap-2 overflow-x-auto pb-2">
                         {media.map((url, i) => (
                             <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 group bg-stone-100">
@@ -135,16 +140,16 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ item, onClose, onSubmi
                             </div>
                         ))}
                         {media.length < 5 && (
-                            <label className="w-16 h-16 rounded-lg border-2 border-dashed border-stone-300 dark:border-stone-700 flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shrink-0">
-                                <Camera className="w-5 h-5 text-stone-400" />
-                                <span className="text-[8px] text-stone-400 font-bold uppercase mt-1">Tambah</span>
+                            <label className="w-16 h-16 rounded-2xl border-2 border-dashed border-stone-300 dark:border-stone-700 flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-stone-400 hover:text-orange-500 transition-colors shrink-0">
+                                <Camera className="w-5 h-5" />
+                                <span className="text-[8px] font-black uppercase mt-1">Tambah</span>
                                 <input type="file" accept="image/*,video/*" className="hidden" onChange={handleFileChange} />
                             </label>
                         )}
                     </div>
                 </div>
 
-                <Button onClick={handleSubmit} disabled={rating === 0 || isSubmitting} className="w-full">
+                <Button onClick={handleSubmit} disabled={rating === 0 || isSubmitting} className="w-full h-14 rounded-2xl text-lg font-bold">
                     {isSubmitting ? 'Mengirim Ulasan...' : 'Kirim Ulasan'}
                 </Button>
             </div>
@@ -208,27 +213,30 @@ export const ReportModal: React.FC<ReportModalProps> = ({ item, onClose, onSubmi
             onSubmit(reason, description, uploadedUrls);
         } catch (error) {
             console.error("Failed to upload evidence:", error);
-            toast.error("Gagal mengunggah media bukti. Laporan akan dikirim tanpa media.");
-            onSubmit(reason, description, []);
+            toast.error("Gagal mengunggah media bukti. Transaksi dibatalkan.");
+            return;
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-white dark:bg-stone-900 p-6 rounded-2xl max-w-md w-full relative shadow-2xl">
-                <button onClick={onClose} className="absolute top-4 right-4 text-stone-400 hover:text-stone-600">
-                    <X className="w-6 h-6" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in">
+            <div className="bg-white dark:bg-stone-900 p-8 rounded-[2.5rem] max-w-md w-full relative shadow-[0_20px_50px_-12px_rgba(0,0,0,0.25)] border border-stone-200/50 dark:border-stone-800/50 overflow-y-auto max-h-[90vh] overflow-x-hidden">
+                <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 rounded-full text-stone-500 transition-colors">
+                    <X className="w-5 h-5" />
                 </button>
-                <h3 className="text-lg font-bold mb-4 dark:text-white flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5 text-red-500" /> Laporkan Masalah
-                </h3>
-                <div className="space-y-4 mb-6">
+                <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-6">
+                    <AlertTriangle className="w-8 h-8 text-red-500" />
+                </div>
+                <h3 className="text-2xl font-black mb-2 dark:text-white">Laporkan Masalah</h3>
+                <p className="text-sm text-stone-500 mb-8">Apakah ada masalah dengan pesanan ini? Sampaikan kepada kami.</p>
+                
+                <div className="space-y-6 mb-8">
                     <select 
                         value={reason} 
                         onChange={(e) => setReason(e.target.value)}
-                        className="w-full p-3 border rounded-xl dark:bg-stone-800 dark:text-white focus:outline-none focus:border-red-500"
+                        className="w-full p-4 border border-stone-200 dark:border-stone-800 rounded-2xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-white focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all font-bold"
                     >
                         <option>Kualitas Makanan Buruk</option>
                         <option>Jumlah Tidak Sesuai</option>
@@ -238,9 +246,9 @@ export const ReportModal: React.FC<ReportModalProps> = ({ item, onClose, onSubmi
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Deskripsi masalah..."
+                        placeholder="Deskripsikan masalah yang Anda alami secara rinci..."
                         rows={4}
-                        className="w-full p-3 border rounded-xl dark:bg-stone-800 dark:text-white focus:outline-none focus:border-red-500"
+                        className="w-full p-4 border border-stone-200 dark:border-stone-800 rounded-2xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-white focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all resize-none"
                     />
                     
                     <div>
@@ -261,17 +269,19 @@ export const ReportModal: React.FC<ReportModalProps> = ({ item, onClose, onSubmi
                                     </button>
                                 </div>
                             ))}
-                            {evidence.length < 5 && (
-                                <label className="w-16 h-16 rounded-lg border-2 border-dashed border-stone-300 dark:border-stone-700 flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shrink-0">
-                                    <ImageIcon className="w-5 h-5 text-stone-400" />
-                                    <span className="text-[8px] text-stone-400 font-bold uppercase mt-1">Tambah</span>
-                                    <input type="file" accept="image/*,video/*" className="hidden" onChange={handleFileChange} />
-                                </label>
-                            )}
+                                {evidence.length < 5 && (
+                                    <label className="w-16 h-16 rounded-2xl border-2 border-dashed border-stone-300 dark:border-stone-700 flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 text-stone-400 hover:text-red-500 transition-colors shrink-0">
+                                        <Camera className="w-5 h-5" />
+                                        <span className="text-[8px] font-black uppercase mt-1">Tambah</span>
+                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={handleFileChange} />
+                                    </label>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <Button onClick={handleSubmit} disabled={!description.trim() || isSubmitting} className="w-full bg-red-600 hover:bg-red-700">
+
+                <Button onClick={handleSubmit} disabled={!description.trim() || isSubmitting} className="w-full h-14 rounded-2xl text-lg font-bold bg-red-600 hover:bg-red-700 text-white">
                     {isSubmitting ? 'Mengirim Laporan...' : 'Kirim Laporan'}
                 </Button>
             </div>

@@ -186,21 +186,30 @@ export const ClaimHistoryDetail: React.FC<ClaimHistoryDetailProps> = ({ item, on
 
                         {/* Hasil Ulasan */}
                         {item.rating && (
-                            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-stone-100 dark:border-stone-800">
-                                <h3 className="text-lg font-black text-stone-800 dark:text-stone-100 mb-4 flex items-center gap-2">
-                                    <Star className="w-5 h-5 text-yellow-500 fill-current" /> Ulasan Anda
+                            <div className="bg-gradient-to-br from-stone-50 to-stone-100 dark:from-stone-900 dark:to-stone-950 rounded-[2rem] p-8 shadow-sm border border-stone-200/60 dark:border-stone-800 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
+                                    <Star className="w-32 h-32" />
+                                </div>
+                                <h3 className="text-xl font-black text-stone-800 dark:text-stone-100 mb-6 flex items-center gap-3 relative z-10">
+                                    <span className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600 dark:text-yellow-500 shadow-sm">
+                                        <Star className="w-5 h-5 fill-current" />
+                                    </span>
+                                    Ulasan Anda
                                 </h3>
-                                <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl">
-                                    <div className="flex items-center gap-1 mb-2">
+                                <div className="bg-white dark:bg-stone-900/50 p-6 rounded-[1.5rem] shadow-sm border border-stone-100 dark:border-stone-800 relative z-10">
+                                    <div className="flex items-center gap-1 mb-4">
                                         {[...Array(5)].map((_, i) => (
-                                            <Star key={i} className={`w-5 h-5 ${i < item.rating! ? 'text-yellow-500 fill-current' : 'text-stone-300 dark:text-stone-600'}`} />
+                                            <Star key={i} className={`w-6 h-6 ${i < item.rating! ? 'text-yellow-400 fill-current drop-shadow-sm' : 'text-stone-200 dark:text-stone-700'}`} />
                                         ))}
                                     </div>
-                                    {item.review && <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">{item.review}</p>}
+                                    {item.review && <p className="text-stone-700 dark:text-stone-300 mb-4 text-base italic leading-relaxed">"{item.review}"</p>}
                                     {item.reviewMedia && item.reviewMedia.length > 0 && (
-                                        <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
+                                        <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
                                             {item.reviewMedia.map((media, idx) => (
-                                                <img key={idx} src={media} alt="Review Media" className="w-20 h-20 object-cover rounded-xl border border-stone-200 dark:border-stone-700 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => { setPreviewMediaArray(item.reviewMedia!); setPreviewMediaIndex(idx); }} />
+                                                <div key={idx} className="relative w-24 h-24 shrink-0 rounded-2xl overflow-hidden border-2 border-stone-100 dark:border-stone-800 cursor-pointer group shadow-sm">
+                                                    <img src={media} alt="Review Media" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onClick={() => { setPreviewMediaArray(item.reviewMedia!); setPreviewMediaIndex(idx); }} />
+                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none" />
+                                                </div>
                                             ))}
                                         </div>
                                     )}
@@ -210,40 +219,51 @@ export const ClaimHistoryDetail: React.FC<ClaimHistoryDetailProps> = ({ item, on
 
                         {/* Hasil Laporan */}
                         {item.isReported && (
-                            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-stone-100 dark:border-stone-800">
-                                <h3 className="text-lg font-black text-stone-800 dark:text-stone-100 mb-4 flex items-center gap-2">
-                                    <AlertTriangle className="w-5 h-5 text-red-500" /> Laporan Anda
+                            <div className="bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-950/30 dark:to-stone-950 rounded-[2rem] p-8 shadow-sm border border-red-200/60 dark:border-red-900/50 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
+                                    <AlertTriangle className="w-32 h-32" />
+                                </div>
+                                <h3 className="text-xl font-black text-red-800 dark:text-red-100 mb-6 flex items-center gap-3 relative z-10">
+                                    <span className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center text-red-600 dark:text-red-400 shadow-sm border border-red-200 dark:border-red-800">
+                                        <AlertTriangle className="w-5 h-5" />
+                                    </span>
+                                    Laporan Anda
                                 </h3>
-                                <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/40 p-4 rounded-2xl">
-                                    <h4 className="font-bold text-red-800 dark:text-red-400 mb-1">{item.reportReason || 'Laporan Masalah'}</h4>
-                                    {item.reportDescription && <p className="text-sm text-red-600 dark:text-red-300 mb-3">{item.reportDescription}</p>}
+                                <div className="bg-white/80 dark:bg-stone-900/80 p-6 rounded-[1.5rem] shadow-sm border border-red-100 dark:border-red-900/30 relative z-10 backdrop-blur-sm">
+                                    <h4 className="text-lg font-black text-red-900 dark:text-red-400 mb-2">{item.reportReason || 'Laporan Masalah'}</h4>
+                                    {item.reportDescription && <p className="text-stone-700 dark:text-stone-300 mb-4 leading-relaxed">{item.reportDescription}</p>}
                                     {item.reportEvidence && item.reportEvidence.length > 0 && (
-                                        <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
+                                        <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
                                             {item.reportEvidence.map((media, idx) => (
-                                                <img key={idx} src={media} alt="Report Evidence" className="w-20 h-20 object-cover rounded-xl border border-red-200 dark:border-red-800 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => { setPreviewMediaArray(item.reportEvidence!); setPreviewMediaIndex(idx); }} />
+                                                <div key={idx} className="relative w-24 h-24 shrink-0 rounded-2xl overflow-hidden border-2 border-red-100 dark:border-red-900/50 cursor-pointer group shadow-sm">
+                                                    <img src={media} alt="Report Evidence" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onClick={() => { setPreviewMediaArray(item.reportEvidence!); setPreviewMediaIndex(idx); }} />
+                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none" />
+                                                </div>
                                             ))}
                                         </div>
                                     )}
                                     {(() => {
                                         let label = 'Sedang Dalam Peninjauan Admin';
-                                        let bgClass = 'bg-red-100 dark:bg-red-900/40';
-                                        let textClass = 'text-red-700 dark:text-red-300';
+                                        let badgeColor = 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border-red-200 dark:border-red-800';
+                                        let Icon = Clock;
                                         
                                         const rStatus = item.reportStatus?.toLowerCase();
 
                                         if (rStatus === 'resolved') {
                                             label = 'Telah Diselesaikan';
-                                            bgClass = 'bg-green-100 dark:bg-green-900/40';
-                                            textClass = 'text-green-700 dark:text-green-300';
+                                            badgeColor = 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 border-green-200 dark:border-green-800';
+                                            Icon = CheckCircle2;
                                         } else if (rStatus === 'rejected' || rStatus === 'dismissed') {
                                             label = 'Laporan Ditolak';
-                                            bgClass = 'bg-stone-100 dark:bg-stone-800';
-                                            textClass = 'text-stone-600 dark:text-stone-400';
+                                            badgeColor = 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-400 border-stone-200 dark:border-stone-700';
+                                            Icon = X;
                                         }
 
                                         return (
-                                            <div className={`mt-3 inline-block px-3 py-1.5 rounded-lg text-xs font-bold ${bgClass} ${textClass}`}>
-                                                {label}
+                                            <div className="mt-6 pt-6 border-t border-red-100 dark:border-red-900/30 flex items-center">
+                                                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border shadow-sm ${badgeColor}`}>
+                                                    <Icon className="w-4 h-4" /> {label}
+                                                </div>
                                             </div>
                                         );
                                     })()}
